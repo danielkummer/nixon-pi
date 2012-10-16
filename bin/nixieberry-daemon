@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'daemons'
+require_relative '../lib/nixieberry-service'
+
+Daemons.run('../lib/daemons/nixie_daemon.rb')
+
+
