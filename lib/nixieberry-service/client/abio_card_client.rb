@@ -166,10 +166,9 @@ module NixieBerry
     ##
     # Connect to abiocard telnet server
     def connect
-      @connection = Net::Telnet::new("Host" => @host, "Port" => @port, "Telnetmode" => false, "Prompt" => //, "Binmode" => true) do |resp|
+      @connection ||= Net::Telnet::new("Host" => @host, "Port" => @port, "Telnetmode" => false, "Prompt" => //, "Binmode" => true) do |resp|
         log.debug(resp)
       end
-      #@telnet = MockTelnet.new
     end
 
     ##
