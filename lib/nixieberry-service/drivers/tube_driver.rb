@@ -1,6 +1,6 @@
 require 'singleton'
 
-require_relative '../../test/mocks/mock_abiocardclient'
+require_relative '../../../spec/mocks/mock_abiocardclient'
 
 module NixieBerry
   class TubeDriver
@@ -22,19 +22,19 @@ module NixieBerry
     end
 
     def init_pins
-      @client.write_io_pin(@data_pin, 0)
-      @client.write_io_pin(@clock_pin, 0)
-      @client.write_io_pin(@latch_pin, 0)
+      @client.io_write(@data_pin, 0)
+      @client.io_write(@clock_pin, 0)
+      @client.io_write(@latch_pin, 0)
     end
 
     def write(output)
-      log.info "write array: #{output.to_s} in reverse order"
-      @client.write_io_pin(@latch_pin, 0)
+      log.info "write : #{output.to_s} in reverse order"
+      @client.io_write(@latch_pin, 0)
       output.split('').reverse.each do |digit|
         serialize_digit(digit)
       end
-      @client.write_io_pin(@latch_pin, 1)
-      @client.write_io_pin(@latch_pin, 0)
+      @client.io_write(@latch_pin, 1)
+      @client.io_write(@latch_pin, 0)
     end
 
     #Private function that sends a digit out to the shift register
@@ -43,36 +43,36 @@ module NixieBerry
       log.info "serialize digit: #{digit}"
       bitmask = 8
 
-      @client.write_io_pin(@data_pin, 0)
+      @client.io_write(@data_pin, 0)
 
       #send out the bits of the nibble MSB -> LSB
       4.times do
-        @client.write_io_pin(@clock_pin, 0)
+        @client.io_write(@clock_pin, 0)
         current_bit = bitmask & digit.to_i
         current_bit = current_bit == 0 ? 0 : 1
         log.debug "current bit: #{current_bit}"
-        @client.write_io_pin(@data_pin, current_bit)
-        @client.write_io_pin(@clock_pin, 1)
+        @client.io_write(@data_pin, current_bit)
+        @client.io_write(@clock_pin, 1)
         bitmask = bitmask >> 1
       end
-      @client.write_io_pin(@data_pin, 0)
-      @client.write_io_pin(@clock_pin, 0)
+      @client.io_write(@data_pin, 0)
+      @client.io_write(@clock_pin, 0)
     end
 
     def clear(digits)
       log.info "clear #{digits} digits"
-      @client.write_io_pin(@latch_pin, 0)
+      @client.io_write(@latch_pin, 0)
       digits.times do
         serialize_digit(10)
       end
-      @client.write_io_pin(@latch_pin, 1)
-      @client.write_io_pin(@latch_pin, 0)
+      @client.io_write(@latch_pin, 1)
+      @client.io_write(@latch_pin, 0)
     end
 
     # Write a full number, right justified, padded with blanks
     def write_trimmed_number(number, digits)
       log.info "write num #{number} trim #{digits}"
-      @client.write_io_pin(@latch_pin, 0)
+      @client.io_write(@latch_pin, 0)
 
       if number == 0
         serialize_digit(0)
@@ -81,28 +81,24 @@ module NixieBerry
 
       # Write the digits out from right to left
       digits.times do
-        if number == 0
-          serialize_digit(BLANK_NUM)
-        else
-          serialize_digit(number%10)
-        end
+        number == 0 ? serialize_digit(BLANK_NUM) : serialize_digit(number%10)
         number = number / 10
       end
-      @client.write_io_pin(@latch_pin, 1)
-      @client.write_io_pin(@latch_pin, 0)
+      @client.io_write(@latch_pin, 1)
+      @client.io_write(@latch_pin, 0)
     end
 
     # Write a full number, right justified, padded with zeros
     def write_zero_padded_number(number, digits)
       log.info "write num #{number} trim #{digits}"
-      @client.write_io_pin(@latch_pin, 0)
+      @client.io_write(@latch_pin, 0)
       #Write the digits out from right to left
       digits.times do
         serialize_digit(number%10)
         number = number / 10
       end
-      @client.write_io_pin(@latch_pin, 1)
-      @client.write_io_pin(@latch_pin, 0)
+      @client.io_write(@latch_pin, 1)
+      @client.io_write(@latch_pin, 0)
     end
   end
 end

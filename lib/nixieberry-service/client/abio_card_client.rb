@@ -1,188 +1,193 @@
+require File.expand_path(File.dirname(__FILE__) + '/retryable.rb')
 require File.expand_path(File.dirname(__FILE__) + '/conversion_helper.rb')
 require 'net/telnet'
 require 'singleton'
 require 'thread'
 
 
-require_relative '../../test/mocks/mock_telnet'
+require_relative '../../../spec/mocks/mock_telnet'
 
 module NixieBerry
   class AbioCardClient
+    include Retryable
     include ConversionHelper
     include Singleton
     include NixieLogger
     include NixieConfig
     include AnimationQueue
 
-
     NUMBER_OF_IO_PORTS = 8
+    NUMBER_OF_PWM_PORTS = 16 #number 17 is the global pwm register
+    NUMBER_OF_ADC_PORTS = 8
 
+    ##
+    # Initialize client connection to telnet server
+    def initialize
+      @host = config[:telnet_server][:host]
+      @port = config[:telnet_server][:port]
 
-    # If retry times more than retry times in option parameter, will raise a RetryError.
-    # * :retry_times - Retry times , Defaults 10
-    # * :on - The Exception on which a retry will be performed. Defaults Exception
-    # Notice: This method will call block many times, so don't put can't retryable code in it.
-    # Example
-    # =======
-    #    begin
-    #      retryable_proxy(:retry_times => 10,:on => Timeout::Error) do |ip,port|
-    #         # your code here
-    #      end
-    #    rescue RetryError
-    #      # handle error
-    #    end
-    #
-    def retryable(options = {})
-      opts = {:retry_times => 10, :on => Exception}.merge(options)
-      retry_times, try_exception = opts[:retry_times], opts[:on]
-      begin
-        yield
-      rescue try_exception => e
-        if (retry_times -= 1) > 0
-          log.info "retrying another #{retry_times} times"
-          retry
-        end
-        log.info "failed retrying... #{e.message}"
-        raise Exceptions::RetryError
-      end
+      @pwm_register_array = Array.new(NUMBER_OF_PWM_PORTS, 0)
+
+      retryable { connect }
+    end
+
+    #TODO
+    def read_adc(pin)
+      raise NotImplementedError
     end
 
 
+    ## Write to the rtc clock
+    # @param [Time] time
+    def clock_write(time)
+      time_string = time.strftime("%y%m%d%H%M%S")
+      command = ("CW" + time_string)
+      handle { @connection.cmd(command) }
+    end
+
+    ##
+    # Read the rtc clock value
+    # @return [Time]
+    def clock_read
+      clock_regexp = %r{
+        ^CR(?<year>\d{2})(?<month>\d{2})(?<day>\d{2})(?<hour>\d{2})(?<minute>\d{2})(?<second>\d{2})(?<powerup>\d)(?<battery>\d)$
+      }
+
+      current_time = nil
+      handle {
+        @connection.cmd("CR") do |return_value|
+          r = clock_regexp.match(return_value)
+          if r[:powerup] == 0 #if the powerup flag is 1 the time is invalid!
+            current_time = Time.new("20" + r[:year], r[:month], r[:day], r[:hour], r[:minute], r[:second])
+            @battery_state = r[:battery]
+          end
+        end
+      }
+      current_time
+    end
+
+    ##
+    # Read hardware information
+    # @return [Struct] rtc, io, adc, pwm
+    def info
+      handle {
+        @connection.cmd("HI") do |return_value|
+          return_value.strip!
+          info_bits = hex_to_bit(return_value[3]).split('') #bits 4..7 are reserved, only 0..3 matter
+          @hardware_information = Struct.new(:rtc, :io, :adc, :pwm).new(info_bits[3], info_bits[2], info_bits[1], info_bits[0])
+          log.info ("read hardware information: " + @hardware_information.to_s)
+        end
+      }
+      @hardware_information
+    end
+
+    ##
+    # Write IO pin
+    # @param [Integer] pin 0..7
+    # @param [Integer] value 0..1
+    def io_write(pin, value)
+      value = 0 unless (0..1).include?(value) # set to 0 if out of bounds
+
+      # write only if the output register changed
+      if @out_register.nil? or @out_register[NUMBER_OF_IO_PORTS - 1 - pin] != value.to_s
+        @out_register ||= "".rjust(NUMBER_OF_IO_PORTS, '0')
+
+        @out_register[NUMBER_OF_IO_PORTS - 1 - pin] = value.to_s
+        handle { @connection.cmd("EW" + bit_to_hex(@out_register)) }
+      end
+    end
+
+    ##
+    # Read IO pin
+    # @param [Integer] pin 0..7
+    # @return [Integer] pin 0..1
+    def io_read(pin)
+      handle {
+        @connection.cmd("ER") do |return_value|
+          return_value.strip!
+          @in_register = hex_to_bit(return_value[2..3]).rjust(NUMBER_OF_IO_PORTS, '0')
+          log.info ("read return value: " + return_value)
+        end
+      }
+      @in_register[NUMBER_OF_IO_PORTS - 1 - pin].to_i
+    end
+
+    ##
+    # Write to a pwm register, note that pwm registers are zero based!
+    # @param [Integer] number 0..16
+    # @param [Integer] value  0.255
+    def pwm_write(number, value)
+      @pwm_register_array[number] = value
+      pwm_write_registers(start_index: 0, values: @pwm_register_array)
+    end
+
+    ##
+    # Reset all pwm registers to 0
+    def pwm_reset
+      pwm_write_registers(start_index: 0, values: [0] * NUMBER_OF_PWM_PORTS)
+    end
+
+    ##
+    # Dim all pwm registers at once over the global pwm register no. 16
+    # @param [Integer] value 0..255
+    def pwm_global_dim(value)
+      @pwm_register_array[NUMBER_OF_PWM_PORTS] = value
+      pwm_write_registers(start_index: NUMBER_OF_PWM_PORTS, values: [value])
+    end
+
+    ##
+    # Write to the 16 pwm registers
+    # SS::    Start index, 00..10 hexadecimal.
+    # CC::    Count, 01..11 hexadecimal.
+    # [XX]::  Array of register values, 00..FF hexadecimal. The count field indicates the number of array elements.
+    #	    	  Response
+    # CMD::   PWSSCC[XX]
+    # Indexes 0 to 15 correspond with registers PWM0 to PWM15, index 16 with register GRPPWM in the LED driver chip.
+    def pwm_write_registers(options)
+      start_at_register, values = options[:start_index], options[:values]
+
+      start_at_register = 0 unless (0..NUMBER_OF_PWM_PORTS).include?(start_at_register) #set to 0 if out of bounds
+      start_at_register = start_at_register.to_s(16).rjust(2, '0') #convert startindex to hex string
+      register_count = values.size.to_s(16).rjust(2, '0')
+
+      output_array_string = ""
+
+      #convert values to hex string
+      values.each do |value|
+        value = 0 unless (0..255).include?(value) #set to 0 if out of bounds
+        output_array_string << value.to_s(16).rjust(2, '0')
+      end
+
+      command = ("PW" + start_at_register + register_count + output_array_string).upcase
+      handle { @connection.cmd(command) }
+    end
+
+    protected
+    ##
+    # Connect to abiocard telnet server
+    def connect
+      @connection = Net::Telnet::new("Host" => @host, "Port" => @port, "Telnetmode" => false, "Prompt" => //, "Binmode" => true) do |resp|
+        log.debug(resp)
+      end
+      #@telnet = MockTelnet.new
+    end
+
+    ##
+    # Handle telnet exceptions
     def handle
       begin
-        @semaphore.synchronize {
-          yield
-        }
+        yield
       rescue Exception => exception
         log.error exception.message
         connect || raise
       end
     end
 
-
-    def initialize
-      @host = config[:telnet_server][:host]
-      @port = config[:telnet_server][:port]
-      @pwm_registers = Array.new
-
-      @semaphore = Mutex.new
-
-
-      16.times do |i|
-        @pwm_registers[i] = 0
-      end
-
-      retryable { connect }
-
-      initialize_animation_thread
-    end
-
-    def initialize_animation_thread
-      @animationThread = Thread.new do
-        loop do #until queue.empty?
-          animation = queue.pop(true) rescue nil
-          if animation
-            case animation[:type]
-              when :pwm
-                AbioCardClient.instance.write_pwm(animation[:port], animation[:value])
-              when :io
-                AbioCardClient.instance.write_io_pin(animation[:port], animation[:value])
-              else
-                raise "animation not defined"
-            end
-            sleep animation[:sleep] if animation[:sleep]
-          end
-        end
-      end
-    end
-
-    def connect
-      @telnet = Net::Telnet::new("Host" => @host, "Port" => @port, "Telnetmode" => false, "Prompt" => //, "Binmode" => true) do |resp|
-        log.debug(resp)
-      end
-      #@telnet = MockTelnet.new
-    end
-
+    ##
+    # Close telent connection
     def exit
-      #@telnet.write("QU") # server shutdown, stops the server process!!
-      @telnet.close
+      @connection.close
     end
 
-
-    def write_io_pin(pin_number, value)
-      value = 0 unless value == 0 || value == 1
-      if @out.nil? or @out[NUMBER_OF_IO_PORTS - 1 - (pin_number - 1)] != value.to_s
-        @out ||= "".rjust(NUMBER_OF_IO_PORTS, '0')
-
-        @out[NUMBER_OF_IO_PORTS - 1 - (pin_number - 1)] = value.to_s
-        handle { @telnet.cmd("EW" + bit_to_hex(@out)) }
-      end
-      true
-    end
-
-    def read_io_pin(pin_number)
-      handle {
-        @telnet.cmd("ER") { |ret|
-          ret.strip!
-          @in = hex_to_bit(ret[2..3]).rjust(8, '0')
-          log.info ("read return value: " + ret)
-        }
-      }
-      @in[7 - (pin_number -1)].to_i
-    end
-
-    #pwm registers are zero based!
-    def write_pwm(number, value)
-      @pwm_registers[number] = value
-      write_pwm_registers(start_index: 0, values: @pwm_registers)
-    end
-
-    def reset_pwm
-      write_pwm_registers(start_index: 0, values: [0] * 16)
-    end
-
-    def dim_global_pwm(value)
-      @pwm_registers[16] = value
-      write_pwm_registers(start_index: 16, values: [value])
-    end
-
-    #SS		Start index, 00..10 hexadecimal.
-    #CC		Count, 01..11 hexadecimal.
-    #[XX]	Array of register values, 00..FF hexadecimal. The count field indicates the number of array elements.
-    #		  Response
-    #CMD  PWSSCC[XX]
-    #Indexes 0 to 15 correspond with registers PWM0 to PWM15, index 16 with register GRPPWM in the LED driver chip.
-    def write_pwm_registers(options)
-      start_index, values = options[:start_index], options[:values]
-
-      start_index = 0 unless (0..16).include?(start_index)
-      start_index = start_index.to_s(16).rjust(2, '0')
-
-      val_array_string = ""
-      values.each do |value|
-        value = 0 unless (0..255).include?(value)
-        val_array_string << value.to_s(16).rjust(2, '0')
-      end
-      command = ("PW" + start_index + values.size.to_s(16).rjust(2, '0') + val_array_string).upcase
-      handle { @telnet.cmd(command) }
-    end
   end
 end
-
-=begin
- def start_server_daemon
-      unless @pid.nil?
-        begin
-          Process.getpgid(@pid)
-        rescue Errno::ESRCH
-          log.error "unable to end process with pid: " + @pid.to_s
-        end
-      end
-      log.info "starting abiocardserver"
-      if system "/opt/abiocard/abiocardserver -p 5678 &"
-        @pid = $?.pid
-      else
-        log.error "abiocard service not statet"
-      end
-    end
-=end

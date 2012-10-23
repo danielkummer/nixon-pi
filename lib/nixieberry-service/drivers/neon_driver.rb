@@ -9,11 +9,11 @@ module NixieBerry
     end
 
     def on
-      @client.write_io_pin(@pin, 1)
+      @client.io_write(@pin, 1)
     end
 
     def off
-      @client.write_io_pin(@pin, 0)
+      @client.io_write(@pin, 0)
     end
 
     def stop_blinking

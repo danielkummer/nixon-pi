@@ -1,6 +1,6 @@
 require 'singleton'
 
-require_relative '../../test/mocks/mock_abiocardclient'
+require_relative '../../../spec/mocks/mock_abiocardclient'
 
 module NixieBerry
   class BarDriver
@@ -13,7 +13,7 @@ module NixieBerry
       #create accessor for each bar
       @client = NixieBerry::AbioCardClient.instance
       #@client = MockAbiocardClient.instance # for testing - must find a better solution here
-      @client.reset_pwm
+      @client.pwm_reset
       dim_all(100)
       @bar = {}
       log.info "initialize nixie pwm bars"
@@ -24,13 +24,13 @@ module NixieBerry
       @bar[bar.to_i] = percent
       value = (percent / 100.0 * 255.0).round.to_i
       log.debug "write bar #{bar}, #{percent}% value #{value}"
-      @client.write_pwm(bar.to_i, value)
+      @client.pwm_write(bar.to_i, value)
     end
 
     def dim_all(percent)
       value = (percent / 100.0 * 255.0).round.to_i
       log.debug "dim all  #{percent}% value #{value}"
-      @client.dim_global_pwm(value)
+      @client.pwm_global_dim(value)
     end
 
   end

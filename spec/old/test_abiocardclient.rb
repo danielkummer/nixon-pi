@@ -7,14 +7,14 @@ class TestAbiocardClient < Test::Unit::TestCase
   end
 
   should "write a pin" do
-    assert @client.write_io_pin(1, 0)
-    assert @client.write_io_pin(1, 1)
-    assert @client.write_io_pin(1, 0)
-    assert @client.write_io_pin(1, 1)
+    assert @client.io_write(1, 0)
+    assert @client.io_write(1, 1)
+    assert @client.io_write(1, 0)
+    assert @client.io_write(1, 1)
   end
 
   should "read a pin" do
-    assert_equal 0, @client.read_io_pin(1)
+    assert_equal 0, @client.io_read(0)
  end
 
 end
