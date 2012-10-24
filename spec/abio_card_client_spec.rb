@@ -1,5 +1,5 @@
-require_relative '../spec_helper'
-require_relative '../../lib/nixieberry/client/abio_card_client'
+require_relative 'spec_helper'
+require_relative '../lib/nixieberry/client/abio_card_client'
 
 describe NixieBerry::AbioCardClient do
 
