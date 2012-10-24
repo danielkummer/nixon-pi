@@ -1,16 +1,18 @@
 # -*- encoding: utf-8 -*-
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'nixieberry-service/version'
+require 'nixieberry/version'
 
 Gem::Specification.new do |gem|
-  gem.name          = "nixieberry-service"
-  gem.version       = Nixieberry::Service::VERSION
+  gem.name          = "nixieberry"
+  gem.version       = NixieBerry::Service::VERSION
   gem.authors       = ["Daniel Kummer"]
   gem.email         = ["daniel.kummer@gamil.com"]
   gem.description   = %q{Drive nixie tubes over a raspberry pi abiocard shield}
   gem.summary       = %q{This service allows the control of ogilumen nixie tubes, nixie bar graphs and leds over encapsulating the telnet service}
   gem.homepage      = ""
+  gem.required_ruby_version = '>=1.9'
+  gem.has_rdoc      = true
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
@@ -26,6 +28,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rspec'
   gem.add_development_dependency 'bundler'
   gem.add_development_dependency 'simplecov'
+  gem.add_development_dependency 'simplecov-gem-adapter'
   gem.add_development_dependency 'mocha'
   gem.add_development_dependency 'ruby-graphviz'
 

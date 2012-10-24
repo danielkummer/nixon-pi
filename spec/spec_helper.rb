@@ -1,7 +1,11 @@
 require 'rubygems'
 require 'bundler/setup'
+require 'simplecov'
+require 'simplecov-gem-adapter'
+SimpleCov.start 'gem'
 
-require_relative '../lib/nixieberry-service'
+
+ENV['NIXIE_BERRY_ENVIRONMENT'] = 'test'
 
 RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true

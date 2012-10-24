@@ -14,3 +14,16 @@ development:
   #  host: "127.0.0.1",
   #  port: 6379,
   #  password: somepass
+
+test:
+  log_level: DEBUG
+  tubes:
+    data_pin:  3
+    clock_pin: 2
+    latch_pin: 1
+    no_of_tubes: 8
+  default_time_format: "%H%M%S"
+  neon_pin: 4
+  telnet_server:
+    host: localhost
+    port: 1

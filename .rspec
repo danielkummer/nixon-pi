@@ -1,5 +1,5 @@
 #--color
 #--format progress
---format documentation --color --debug --fail-fast
+--format documentation --color --fail-fast
 
 
