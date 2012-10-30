@@ -54,8 +54,8 @@ describe NixieBerry::AbioCardClient do
   end
 
   it "should write to pwm registers" do
-    @client.pwm_write(0, 255)
-    $last_cmd.should eq "PW0010FF000000000000000000000000000000"
+    @client.pwm_write(0, 124)
+    $last_cmd.should eq "PW00107CFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
   end
 
   it "should reset all pwm registers" do
@@ -71,8 +71,8 @@ describe NixieBerry::AbioCardClient do
   end
 
   it "should read from all pwm registers" do
-    expected = Array.new(16, 255)
-    actual = @client.pwm_read_registers
+    expected = Array.new(17, 255) #0..15 pwm, 16 global pwm
+    actual = @client.send(:pwm_read_registers)
     actual.should eq expected
   end
 

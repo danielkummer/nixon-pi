@@ -1,14 +1,15 @@
 require 'state_machine'
 
 require_relative '../logging/logging'
-require_relative '../configurations/configuration'
 require_relative '../drivers/tube_driver'
 require_relative '../configurations/control'
+require 'active_support/inflector'
+require 'festivaltts4r'
+
 
 module NixieBerry
   class TubeHandlerStateMachine
     include Logging
-    include Configuration
 
     def initialize
       @old_values = {}
@@ -21,6 +22,7 @@ module NixieBerry
     state_machine :initial => :display_time do
       around_transition do |object, transition, block|
         object.log.debug "doing transition  #{transition.event} from state: #{object.state}"
+        transition.event.to_s.humanize.to_speech #say the current state transition
         block.call
         object.log.debug "new state: #{object.state}"
       end

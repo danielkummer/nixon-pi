@@ -16,6 +16,8 @@ development:
     - 7
     - 8
 
+
+
 test:
   log_level: DEBUG
   telnet_server:
@@ -27,7 +29,7 @@ test:
     latch_pin: 1
     count: 12
   default_time_format: "%H%M%S"
-  in_1_pins:
+  in1_pins:
     - 4
     - 5
     - 6

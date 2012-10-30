@@ -146,7 +146,7 @@ module NixieBerry
 
 
     ##
-    # Read from the 16 pwm registers
+    # Read from the 17 pwm registers
     # Command:  PRSSCC<EOL>
     #           SS Start index, 00..10 hexadecimal.
     #           CC Count, 01..11 hexadecimal.

@@ -17,7 +17,7 @@ class MockTelnet
       when "HI"
         ret = "HI0F"
       when /PR.*/
-        ret = "PR0011FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF" #all pwm on 255
+        ret = "PR0011FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF" #all pwm on 255
       else
         ret = ""
     end
