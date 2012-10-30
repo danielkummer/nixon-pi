@@ -8,7 +8,7 @@ module NixieBerry
     def initialize
       @client = NixieBerry::AbioCardClient.instance
       @controlconfig = NixieBerry::Control.instance
-      @pin = config[:neon_pin]
+      @pin = Settings.neon_pin
     end
 
     def on

@@ -3,27 +3,35 @@ development:
   telnet_server:
     host: 192.168.1.31
     port: 5678
-  tubes:
+  default_time_format: "%H%M%S"
+  in12a_tubes:
     data_pin:  3
     clock_pin: 2
     latch_pin: 1
-    no_of_tubes: 8
-  default_time_format: "%H%M%S"
-  neon_pin: 4
-  #redis:
-  #  host: "127.0.0.1",
-  #  port: 6379,
-  #  password: somepass
+    count: 12
+  in1_pins:
+    - 4
+    - 5
+    - 6
+    - 7
+    - 8
 
 test:
   log_level: DEBUG
+  telnet_server:
+    host: localhost
+    port: 5678
   tubes:
     data_pin:  3
     clock_pin: 2
     latch_pin: 1
-    no_of_tubes: 8
+    count: 12
   default_time_format: "%H%M%S"
-  neon_pin: 4
-  telnet_server:
-    host: localhost
-    port: 1
+  in_1_pins:
+    - 4
+    - 5
+    - 6
+    - 7
+    - 8
+
+production:

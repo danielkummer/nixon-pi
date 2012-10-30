@@ -1,10 +1,9 @@
 require 'logger'
-require_relative '../../nixieberry/configurations/configuration'
+require_relative '../../nixieberry/configurations/settings'
 require_relative '../delegators/multi_delegator'
 
 module NixieBerry
   module Logging
-    extend Configuration
 
     @loggers = {}
 
@@ -22,7 +21,7 @@ module NixieBerry
       def configure_logger_for(classname)
         path = File.join(Dir.pwd, 'nixie.log')
         logger = Logger.new MultiDelegator.delegate(:write, :close).to(STDOUT, File.open(path, "a"))
-        logger.level = eval "Logger::#{config[:log_level]}"
+        logger.level = eval "Logger::#{Settings.log_level}"
         logger.progname = classname
         logger.formatter = proc do |severity, datetime, progname, msg|
           "[#{severity}] #{progname} -- #{datetime.strftime("%Y-%m-%d %H:%M:%S")}: #{msg}\n"

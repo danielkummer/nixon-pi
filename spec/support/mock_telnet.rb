@@ -16,6 +16,8 @@ class MockTelnet
         ret = "CR" << ("1" * 12) << "01" #last two are powerup and battery
       when "HI"
         ret = "HI0F"
+      when /PR.*/
+        ret = "PR0011FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF" #all pwm on 255
       else
         ret = ""
     end

@@ -6,7 +6,7 @@ require 'thread'
 require_relative 'retryable'
 require_relative 'conversion_helper'
 require_relative '../logging/logging'
-require_relative '../configurations/configuration'
+require_relative '../configurations/settings'
 
 require_relative '../../../spec/support/mock_telnet'
 
@@ -16,7 +16,6 @@ module NixieBerry
     include ConversionHelper
     include Singleton
     include Logging
-    include Configuration
 
     NUMBER_OF_IO_PORTS = 8
     NUMBER_OF_PWM_PORTS = 16 #number 17 is the global pwm register
@@ -25,14 +24,17 @@ module NixieBerry
     ##
     # Initialize client connection to telnet server
     def initialize
-      @host = config[:telnet_server][:host]
-      @port = config[:telnet_server][:port]
+      @host = Settings.telnet_server.host
+      @port = Settings.telnet_server.port
 
       @pwm_register_array = Array.new(NUMBER_OF_PWM_PORTS, 0)
+
+      load_last_values
     end
 
-    #TODO
+
     def read_adc(pin)
+      #TODO
       raise NotImplementedError
     end
 
@@ -103,12 +105,13 @@ module NixieBerry
       handle {
         connection.cmd("ER") do |return_value|
           return_value.strip!
-          @in_register = hex_to_bit(return_value[2..3]).rjust(NUMBER_OF_IO_PORTS, '0')
+          @io_register = hex_to_bit(return_value[2..3]).rjust(NUMBER_OF_IO_PORTS, '0')
           log.info ("read return value: " + return_value)
         end
       }
-      @in_register[NUMBER_OF_IO_PORTS - 1 - pin].to_i
+      @io_register[NUMBER_OF_IO_PORTS - 1 - pin].to_i
     end
+
 
     ##
     # Write to a pwm register, note that pwm registers are zero based!
@@ -131,6 +134,46 @@ module NixieBerry
     def pwm_global_dim(value)
       @pwm_register_array[NUMBER_OF_PWM_PORTS] = value
       pwm_write_registers(start_index: NUMBER_OF_PWM_PORTS, values: [value])
+    end
+
+
+    protected
+    def load_last_values
+      log.debug "loading last values"
+      pwm_read_registers
+      io_read(0)
+    end
+
+
+    ##
+    # Read from the 16 pwm registers
+    # Command:  PRSSCC<EOL>
+    #           SS Start index, 00..10 hexadecimal.
+    #           CC Count, 01..11 hexadecimal.
+    # Response: PRSSCC[XX]<LF>
+    #           SS Start index, 00..10 hexadecimal.
+    #           CC Count, 01..11 hexadecimal.
+    #           [XX] Array of register values, 00..FF hexadecimal. The count field indicates the number of array elements
+    def pwm_read_registers(options = {start_index: 0, count: NUMBER_OF_PWM_PORTS})
+      start_at_register, count = options[:start_index], options[:count]
+      start_at_register = 0 unless (0..NUMBER_OF_PWM_PORTS).include?(start_at_register) #set to 0 if out of bounds
+      start_at_register = start_at_register.to_s(16).rjust(2, '0') #convert startindex to hex string
+      register_count = count.to_s(16).rjust(2, '0')
+      handle {
+        connection.cmd("PR" + start_at_register + register_count) do |return_value|
+          return_value.strip!
+          log.info ("read pwm return value: " + return_value)
+          index = return_value[2..3].to_i(16)
+          count = return_value[4..5].to_i(16)
+          register_array = return_value[6..-1].scan(/.{2}/).map{|x| x.to_i(16)} #split in pairs of two
+
+          (count - 1).times.with_index do |i|
+            @pwm_register_array[index] = register_array[i]
+            index += 1
+          end
+        end
+      }
+      @pwm_register_array
     end
 
     ##
@@ -160,7 +203,7 @@ module NixieBerry
       handle { connection.cmd(command) }
     end
 
-    protected
+
     ##
     # Connect to abiocard telnet server
     def connection
@@ -172,12 +215,12 @@ module NixieBerry
 
     def connection_for(env)
       case env.to_sym
-      when :development, :production
-        Net::Telnet::new("Host" => @host, "Port" => @port, "Telnetmode" => false, "Prompt" => //, "Binmode" => true) do |resp|
-          log.debug(resp)
-        end
-      when :test
-        MockTelnet.new
+        when :development, :production
+          Net::Telnet::new("Host" => @host, "Port" => @port, "Telnetmode" => false, "Prompt" => //, "Binmode" => true) do |resp|
+            log.debug(resp)
+          end
+        when :test
+          MockTelnet.new
       end
     end
 
@@ -186,7 +229,7 @@ module NixieBerry
     def handle
       begin
         yield
-      #rescue Exception => exception
+          #rescue Exception => exception
       rescue TimeoutError => exception
         log.error exception.message
         connection || raise

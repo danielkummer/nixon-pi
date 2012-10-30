@@ -39,12 +39,12 @@ module NixieBerry
 
       state :display_time do
         def write_to_tubes
-          tubes_count = config[:tubes][:no_of_tubes]
+          tubes_count = Settings.in12a_tubes.count
           format = @controlconfig[:time_format]
 
           if format.nil? or format.size > tubes_count
             log.debug "Using default time format, 6 tubes needed"
-            format = config[:default_time_format]
+            format = Settings.default_time_format
           end
 
           time = Time.now.strftime(format).rjust(tubes_count, ' ')

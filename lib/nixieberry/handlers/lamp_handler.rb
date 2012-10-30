@@ -2,6 +2,7 @@ require_relative '../logging/logging'
 require_relative '../drivers/lamp_driver'
 require_relative '../configurations/control'
 
+#Todo soooo unfinished - totally wrong...
 module NixieBerry
   class LampHandler
     def initialize

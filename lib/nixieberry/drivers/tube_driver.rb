@@ -1,13 +1,12 @@
 require 'singleton'
 
 require_relative '../logging/logging'
-require_relative '../configurations/configuration'
+require_relative '../configurations/settings'
 require_relative '../client/abio_card_client'
 
 module NixieBerry
   class TubeDriver
     include Logging
-    include Configuration
     include Singleton
 
     BLANK_NUM = 10
@@ -87,7 +86,7 @@ module NixieBerry
     ##
     # Initialize the shift register control pins
     def init_pins
-      @data_pin, @clock_pin, @latch_pin = config[:tubes][:data_pin], config[:tubes][:clock_pin], config[:tubes][:latch_pin]
+      @data_pin, @clock_pin, @latch_pin = Settings.in12a_tubes.data_pin, Settings.in12a_tubes.clock_pin, Settings.in12a_tubes.latch_pin
       log.info "initialize nixie with pins - data: #{@data_pin}, clock: #{@clock_pin}, latch: #{@latch_pin}"
       @client.io_write(@data_pin, 0)
       @client.io_write(@clock_pin, 0)

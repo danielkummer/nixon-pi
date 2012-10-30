@@ -70,4 +70,10 @@ describe NixieBerry::AbioCardClient do
     $last_cmd.should eq "PW1001FF"
   end
 
+  it "should read from all pwm registers" do
+    expected = Array.new(16, 255)
+    actual = @client.pwm_read_registers
+    actual.should eq expected
+  end
+
 end
