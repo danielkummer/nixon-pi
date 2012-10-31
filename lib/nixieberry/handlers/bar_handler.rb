@@ -3,6 +3,8 @@ require_relative '../logging/logging'
 require_relative '../drivers/bar_graph_driver'
 require_relative '../configurations/control'
 
+# @Deprecated
+#Todo completely outdated
 module NixieBerry
   class BarHandler
     include Logging

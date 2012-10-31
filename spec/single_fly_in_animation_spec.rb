@@ -1,5 +1,5 @@
 require_relative 'spec_helper'
-require_relative '../lib/nixieberry/animations/single_fly_in_animation'
+require_relative '../lib/nixieberry/animations/tube/single_fly_in_animation'
 
 describe NixieBerry::Animations::SingleFlyInAnimation do
 

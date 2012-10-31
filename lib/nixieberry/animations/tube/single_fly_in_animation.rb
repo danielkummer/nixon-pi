@@ -1,4 +1,4 @@
-require_relative 'animation'
+require_relative '../animation'
 ##
 # This animation lets numbers fly in from left to right, one number at a time...
 # Here an example:

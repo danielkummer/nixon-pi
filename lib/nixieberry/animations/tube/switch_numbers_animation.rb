@@ -1,4 +1,4 @@
-require_relative 'animation'
+require_relative '../animation'
 ##
 # This animation increments every number by one, the number of turnarounds can be specified
 #
@@ -29,7 +29,7 @@ module NixieBerry
             sleep sleep_step
           end
           log.debug "write value: #{value}"
-          @semaphore.synchronize { @driver.write(start) }
+          write(start, duration + 1 )
         end
         @t.join
       end

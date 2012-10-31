@@ -12,13 +12,30 @@ module NixieBerry
       @pin_array = Settings.in1_pins
     end
 
+    ##
+    # Turn on a lamp
+    # @param [Integer] lamp_number
     def on(lamp_number)
       @client.pwm_write(@pin_array[lamp_number], 255)
     end
 
+    ##
+    # Turn off a lamp
+    # @param [Integer] lamp_number
     def off(lamp_number)
       @client.pwm_write(@pin_array[lamp_number], 0)
     end
+
+    ##
+    # Write multiple lamp values at once
+    # @param [Array] value_array 0 = off, >=1 = on
+    def write(value_array)
+      log.error "more values than configured lamps" and return if value_array.size > @pin_array.size
+      value_array.map!{|x| x >= 1 ? 255 : 0 }
+      @client.pwm_write_registers(start_index: @pin_array.first, values: value_array)
+    end
+  end
+end
 
 =begin
     #todo merge with generic animation module
@@ -46,4 +63,4 @@ module NixieBerry
   end
 =end
 
-end
+

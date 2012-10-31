@@ -33,8 +33,8 @@ module NixieBerry
 
       def initialize
         @semaphore = Mutex.new
-        @driver = TubeDriver.instance
         @options ||= {}
+        @driver = TubeDriver.instance
       end
 
       ##

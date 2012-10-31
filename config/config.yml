@@ -15,6 +15,11 @@ development:
     - 6
     - 7
     - 8
+  in13_pins:
+    - 0
+    - 1
+    - 2
+    - 3
 
 
 
@@ -29,11 +34,21 @@ test:
     latch_pin: 1
     count: 12
   default_time_format: "%H%M%S"
+  in12a_tubes:
+    data_pin:  3
+    clock_pin: 2
+    latch_pin: 1
+    count: 12
   in1_pins:
     - 4
     - 5
     - 6
     - 7
     - 8
+  in13_pins:
+    - 0
+    - 1
+    - 2
+    - 3
 
 production:

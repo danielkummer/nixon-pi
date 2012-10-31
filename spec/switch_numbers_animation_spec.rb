@@ -1,5 +1,5 @@
 require_relative 'spec_helper'
-require_relative '../lib/nixieberry/animations/switch_numbers_animation'
+require_relative '../lib/nixieberry/animations/tube/switch_numbers_animation'
 
 describe NixieBerry::Animations::SwitchNumbersAnimation do
 

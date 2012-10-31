@@ -137,14 +137,6 @@ module NixieBerry
     end
 
 
-    protected
-    def load_last_values
-      log.debug "loading last values"
-      pwm_read_registers
-      io_read(0)
-    end
-
-
     ##
     # Read from the 17 pwm registers
     # Command:  PRSSCC<EOL>
@@ -165,7 +157,7 @@ module NixieBerry
           log.info ("read pwm return value: " + return_value)
           index = return_value[2..3].to_i(16)
           count = return_value[4..5].to_i(16)
-          register_array = return_value[6..-1].scan(/.{2}/).map{|x| x.to_i(16)} #split in pairs of two
+          register_array = return_value[6..-1].scan(/.{2}/).map { |x| x.to_i(16) } #split in pairs of two
 
           (count - 1).times.with_index do |i|
             @pwm_register_array[index] = register_array[i]
@@ -184,6 +176,7 @@ module NixieBerry
     #	    	  Response
     # CMD::   PWSSCC[XX]
     # Indexes 0 to 15 correspond with registers PWM0 to PWM15, index 16 with register GRPPWM in the LED driver chip.
+    # @param [Hash] options, :start_index 0..15, :values 0..255
     def pwm_write_registers(options)
       start_at_register, values = options[:start_index], options[:values]
 
@@ -203,6 +196,12 @@ module NixieBerry
       handle { connection.cmd(command) }
     end
 
+    protected
+    def load_last_values
+      log.debug "loading last values"
+      pwm_read_registers
+      io_read(0)
+    end
 
     ##
     # Connect to abiocard telnet server
