@@ -53,7 +53,7 @@ The daemon is controlled via redis. The following keys are used:
 The service uses a state machine to handle local executions.
 Generate a state machine diagram with
 
-    rake state_machine:draw FILE=./lib/state_machines/nixie_state_machine.rb CLASS=NixieBerry::NixieStateMachine
+    rake state_machine:draw FILE=./lib/nixieberry/handlers/tube_handler_state_machine.rb CLASS=NixieBerry::TubeHandlerStateMachine --trace
 
 == Copyright
 
