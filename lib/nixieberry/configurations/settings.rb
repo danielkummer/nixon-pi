@@ -8,13 +8,17 @@ module NixieBerry
 
 
     class << self
-      def yaml_file
-        path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "config", "config.yml"))
-        if ENV['NIXIE_BERRY_ENVIRONMENT'].to_sym == :production
-          other_path = ARGV.first
-          path = other_path if other_path and File.exists?(other_path)
-        end
-        path
+      #def yaml_file
+      #  path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "config", "config.yml"))
+      #  if ENV['NIXIE_BERRY_ENVIRONMENT'].to_sym == :production
+      #    other_path = ARGV.first
+      #    path = other_path if other_path and File.exists?(other_path)
+      #  end
+      #  path
+      #end
+
+      def redis
+        self['redis'] ||= {}
       end
     end
   end

@@ -17,9 +17,8 @@ describe NixieBerry::Easing do
   it "should provide quadratic easing" do
     1000.times.with_index do |x|
       # percent complete - val - start - end - max
-      puts @object.easeInOutQuad(nil, x.to_f, 0.0, 255.0, 1000.0)
+      puts @object.ease_in_out_quad( x.to_f, 0.0, 255.0, 1000.0)
     end
-
   end
 
 end

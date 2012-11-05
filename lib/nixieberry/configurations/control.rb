@@ -1,7 +1,7 @@
 require 'redis'
 require 'singleton'
 require 'active_support/core_ext/hash/indifferent_access'
-require_relative 'configuration'
+require_relative 'settings'
 
 ##
 # Holds the configuration values retrieved from the redis service
@@ -12,11 +12,11 @@ require_relative 'configuration'
 module NixieBerry
   class Control < HashWithIndifferentAccess
     include Singleton
-    include Configuration
+
 
     def initialize
       super()
-      config = config.has_key?[:redis] ? config[:redis] : {}
+      config = Settings.redis
       @redis = Redis.new(config)
     end
 
