@@ -71,14 +71,14 @@ module NixieBerry
     # Read hardware information
     # @return [Struct] rtc, io, adc, pwm
     def info
-      handle {
-        connection.cmd("HI") do |return_value|
+      #handle {
+        connection.cmd("String" => "HI", "Match" => /HI.*/) do |return_value|
           return_value.strip!
-          info_bits = hex_to_bit(return_value[3]).split('') #bits 4..7 are reserved, only 0..3 matter
+          info_bits = hex_to_bit(return_value[3]).to_s.split('') #bits 4..7 are reserved, only 0..3 matter
           @hardware_information = Struct.new(:rtc, :io, :adc, :pwm).new(info_bits[3], info_bits[2], info_bits[1], info_bits[0])
           log.info ("read hardware information: " + @hardware_information.to_s)
         end
-      }
+      #}
       @hardware_information
     end
 
@@ -233,6 +233,8 @@ module NixieBerry
       rescue TimeoutError => exception
         log.error exception.message
         connection || raise
+      rescue Exception => e
+        raise e
       end
     end
 

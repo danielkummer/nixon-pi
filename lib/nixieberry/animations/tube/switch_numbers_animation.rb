@@ -23,7 +23,13 @@ module NixieBerry
         value = start
         @t = Thread.new do
           duration.times.with_index do |index|
-            value = value.each_char.collect { |x| x.to_i + 1 % 10 }.join
+            value = value.each_char.collect do |x|
+              if x =~ /\d/
+                x.to_i + 1 % 10
+              else
+                x
+              end
+            end.join
             log.debug "write value: #{value}"
             write(value, index)
             sleep sleep_step

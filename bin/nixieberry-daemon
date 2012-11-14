@@ -3,6 +3,7 @@
 require 'rubygems'
 require 'daemons'
 require_relative '../lib/nixieberry_service'
+require_relative '../lib/run'
 
 Daemons.run('run.rb')
 

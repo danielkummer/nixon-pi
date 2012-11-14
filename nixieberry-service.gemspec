@@ -5,9 +5,9 @@ require 'nixieberry/version'
 
 Gem::Specification.new do |gem|
   gem.name          = "nixieberry"
-  gem.version       = NixieBerry::NixieService::VERSION
+  gem.version       = NixieBerry::Service::VERSION
   gem.authors       = ["Daniel Kummer"]
-  gem.email         = ["daniel.kummer@gamil.com"]
+  gem.email         = ["daniel.kummer@gmail.com"]
   gem.description   = %q{Drive nixie tubes over a raspberry pi abiocard shield}
   gem.summary       = %q{This service allows the control of ogilumen nixie tubes, nixie bar graphs and leds over encapsulating the telnet service}
   gem.homepage      = ""

@@ -31,6 +31,12 @@ module NixieBerry
       #body({tubes: Control.instance[:tubes]}.to_json)
     end
 
+    get '/info' do
+      client = AbioCardClient.instance
+      @info = client.info
+      haml :info, locals: {info: @info}
+    end
+
     post '/tubes' do
       #data = JSON.parse(params[:data])
       data = sanitize(params)
@@ -58,7 +64,8 @@ module NixieBerry
           data[:value] = {time_format: data[:value]}
         when 'display_free_value'
           data[:value] = {value: data[:value]}
-        when 'display_animation'
+        when 'display_tube_animation'
+          #data[:value] = {animation_name: data[:value], animation_options: data[:options]}
           data[:value] = {animation_name: data[:value]}
         when 'test'
           data[:value] = {}

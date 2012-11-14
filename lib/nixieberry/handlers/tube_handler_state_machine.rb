@@ -101,9 +101,9 @@ module NixieBerry
       state :display_free_value do
         def write_to_tubes
           value = @state_params[:value]
-          unless value == @last_written_free_value or value.nil?
+          unless value == @state_params[:last_value] or value.nil?
             @driver.write(value)
-            @last_written_free_value = value
+            @state_params[:last_value] = value
           end
         end
       end
@@ -113,7 +113,8 @@ module NixieBerry
           animation_name = @state_params[:animation_name]
           animation_options = @state_params[:animation_options]
           animation_options ||= {}
-          Animation.create(animation_name.to_sym, animation_options).run
+          start_value = @state_params[:last_value]
+          NixieBerry::Animations::Animation.create(animation_name.to_sym, animation_options).run(start_value)
           self.send(@state_params[:last_state]) #go back to old state again and do whatever was done before
         end
       end
@@ -136,8 +137,8 @@ module NixieBerry
             end
 
             #simple animation
-            NixieBerry::Animations::Animation.create(:switch_numbers).run("12345678")
-            NixieBerry::Animations::Animation.create(:single_fly_in).run("12345678")
+            NixieBerry::Animations::Animation.create(:switch_numbers).run("    12345678")
+            NixieBerry::Animations::Animation.create(:single_fly_in).run("    12345678")
 
             puts "Benchmark write 2-pair strings from 00 to 99:"
             puts bm
