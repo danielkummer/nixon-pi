@@ -31,6 +31,15 @@ module NixieBerry
     ##
     # Run the nixie berry service, controlled via redis
     def run
+      [:INT, :TERM].each do |sig|
+        trap(sig) do
+          log.info "Shutting down..."
+          log.info "Bye ;)"
+          exit(0)
+        end
+      end
+
+
       log.info "Start running..."
       t = Thread.new do
         RESTServer.run!
@@ -38,14 +47,6 @@ module NixieBerry
 
 
       #todo not working!!
-      [:INT, :TERM, :EXIT].each do |sig|
-        trap(sig) do
-          log.info "Shutting down..."
-          t.exit
-          log.info "Bye ;)"
-          exit(0)
-        end
-      end
 
 
       loop do
