@@ -24,7 +24,7 @@ module NixieBerry
     def initialize
       log.info "Initializing Service.."
       @nixie = NixieBerry::TubeDriver.instance
-      @tsm = NixieBerry::TubeHandlerStateMachine.new
+      @tsm = NixieBerry::TubeHandlerStateMachine.instance
       @bar_handler = NixieBerry::BarHandler.new
     end
 
@@ -35,19 +35,25 @@ module NixieBerry
       t = Thread.new do
         RESTServer.run!
       end
+
+
+      #todo not working!!
+      [:INT, :TERM, :EXIT].each do |sig|
+        trap(sig) do
+          log.info "Shutting down..."
+          t.exit
+          log.info "Bye ;)"
+          exit(0)
+        end
+      end
+
+
       loop do
         @tsm.handle_command_queue
         @tsm.write_to_tubes
       end
 
-      [:INT, :TERM].each do |sig|
-        trap(sig) do
-          log.info "Shutting down..."
-          t.stop
-          log.info "Bye ;)"
-          exit(0)
-        end
-      end
+
       # @bar_handler.write_to_bars
 
     end

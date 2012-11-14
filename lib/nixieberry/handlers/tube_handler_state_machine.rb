@@ -1,5 +1,6 @@
 require 'state_machine'
 require 'festivaltts4r'
+require 'singleton'
 
 require_relative '../logging/logging'
 require_relative '../drivers/tube_driver'
@@ -15,6 +16,7 @@ module NixieBerry
   class TubeHandlerStateMachine
     include Logging
     include CommandQueue
+    include Singleton
 
     attr_accessor :state_params
 

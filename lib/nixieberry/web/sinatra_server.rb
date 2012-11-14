@@ -27,8 +27,10 @@ module NixieBerry
     end
 
     get '/tubes' do
-      #haml :tubes
+      @info = NixieBerry::TubeHandlerStateMachine.instance.state_info
       #body({tubes: Control.instance[:tubes]}.to_json)
+      content_type 'application/json'
+      @info.to_json
     end
 
     get '/info' do
