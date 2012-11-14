@@ -1,6 +1,6 @@
 require_relative '../logging/logging'
 require_relative '../drivers/lamp_driver'
-require_relative '../configurations/control'
+require_relative '../configurations/state_hash'
 
 #Todo soooo unfinished - totally wrong...
 module NixieBerry

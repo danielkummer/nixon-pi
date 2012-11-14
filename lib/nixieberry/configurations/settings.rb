@@ -17,9 +17,6 @@ module NixieBerry
       #  path
       #end
 
-      def redis
-        self['redis'] ||= {}
-      end
     end
   end
 end

@@ -5,7 +5,7 @@ require 'nixieberry/version'
 
 Gem::Specification.new do |gem|
   gem.name          = "nixieberry"
-  gem.version       = NixieBerry::Service::VERSION
+  gem.version       = NixieBerry::NixieService::VERSION
   gem.authors       = ["Daniel Kummer"]
   gem.email         = ["daniel.kummer@gamil.com"]
   gem.description   = %q{Drive nixie tubes over a raspberry pi abiocard shield}
@@ -16,15 +16,18 @@ Gem::Specification.new do |gem|
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
+  gem.default_executable = 'nixieberry-daemon'
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib", "config"]
 
   gem.add_dependency 'activesupport', '>= 3.2.8'
   gem.add_dependency 'settingslogic'
-  gem.add_dependency 'redis'
   gem.add_dependency 'daemons'
   gem.add_dependency 'state_machine'
   gem.add_dependency 'festivaltts4r'
+  gem.add_dependency 'webrick'
+  gem.add_dependency 'sinatra'
+  gem.add_dependency 'json'
 
   gem.add_development_dependency 'rdoc'
   gem.add_development_dependency 'rspec'

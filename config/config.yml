@@ -1,13 +1,13 @@
 development:
-  log_level: DEBUG
+  log_level: WARN
   telnet_server:
     host: 192.168.1.31
     port: 5678
   default_time_format: "%H%M%S"
   in12a_tubes:
-    data_pin:  3
-    clock_pin: 2
-    latch_pin: 1
+    data_pin:  2
+    clock_pin: 1
+    latch_pin: 0
     count: 12
   in1_pins:
     - 4

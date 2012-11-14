@@ -1,5 +1,5 @@
 require_relative '../lib/nixieberry_service'
 
-server = NixieBerry::Service.new
+server = NixieBerry::NixieService.new
 server.run
 

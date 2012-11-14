@@ -2,7 +2,6 @@ require 'singleton'
 
 require_relative '../logging/logging'
 require_relative '../configurations/settings'
-require_relative '../../../spec/mocks/mock_abiocardclient'
 
 module NixieBerry
   class BarGraphDriver

@@ -28,6 +28,7 @@ module NixieBerry
       @port = Settings.telnet_server.port
 
       @pwm_register_array = Array.new(NUMBER_OF_PWM_PORTS, 0)
+      @io_register = Array.new(NUMBER_OF_IO_PORTS, 0)
 
       load_last_values
     end

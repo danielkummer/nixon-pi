@@ -1,10 +1,12 @@
 require_relative '../animation'
+require_relative '../easing'
 ##
 # This animation increments every number by one, the number of turnarounds can be specified
 #
 module NixieBerry
   module Animations
     class RampUpDownAnimation < Animation
+      include Easing
 
       register_animation :ramp_up_down
 
@@ -14,7 +16,7 @@ module NixieBerry
       # * sleep - sleep duration in seconds, default 0.3
       def initialize(options = {})
         super()
-        @options = {sleep: 0.3}.merge(options)
+        @options = {sleep: 0.3, total: 3.0}.merge(options)
         @driver = BarGraphDriver.instance
       end
 
@@ -23,19 +25,24 @@ module NixieBerry
         number_of_tubes = initial_values.size
         sleep_step = @options[:sleep]
         animation_values = Array.new(number_of_tubes, 0)
+        start = Time.now
+        total_time = @options[:total] * 1000.0
         @t = Thread.new do
+          elapsed = time_diff_milli(start, Time.now)
+          value = ease_in_out_quad(elapsed, 0, 255, total_time)
 
-            #todo ramp values up and down for a given duration
-            log.debug "write value: #{animation_values}"
-            write(value, index)
-            sleep sleep_step
-          end
+          animation_values = [value] * number_of_tubes
+
           log.debug "write value: #{animation_values}"
-          write(initial_values, index)
+          write(animation_values, index)
+          sleep sleep_step
         end
-        @t.join
+        log.debug "write value: #{animation_values}"
+        write(initial_values, index)
       end
 
+      @t.join
     end
+
   end
 end

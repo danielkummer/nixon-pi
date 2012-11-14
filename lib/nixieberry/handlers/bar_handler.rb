@@ -1,17 +1,25 @@
 require 'json'
 require_relative '../logging/logging'
 require_relative '../drivers/bar_graph_driver'
-require_relative '../configurations/control'
+require_relative '../configurations/state_hash'
+require_relative '../command_queue'
 
 # @Deprecated
 #Todo completely outdated
+#Todo add statemachine
+#Todo add controlconfig inizialization
+
 module NixieBerry
   class BarHandler
     include Logging
+    include CommandQueue
 
     def initialize
       @driver = NixieBerry::BarGraphDriver.instance
-      @controlconfig = NixieBerry::Control.instance
+
+      #@controlconfig[:bars] = {mode: nil, free_value: nil, animation_name: nil, animation_options: nil}
+
+
     end
 
     def write_to_bars
@@ -22,30 +30,6 @@ module NixieBerry
       end unless bars.nil?
     end
 
-
-    def stop_fading
-      Thread.kill(@fade_thread)
-    end
-
-    def start_fading(cycle_time_in_seconds = 1, times = nil)
-      @fade_thread = Thread.new do
-        if times
-          times.times { self.fade(cycle_time_in_seconds) }
-        else
-          loop { self.fade(cycle_time_in_seconds) }
-        end
-      end
-    end
   end
-
-  private
-  def fade(frequency_in_seconds)
-    #null _> high -> null
-    self.on
-    sleep frequency_in_seconds
-    self.off
-    sleep frequency_in_seconds
-  end
-
 
 end

@@ -1,5 +1,4 @@
 module NixieBerry
-
   ##
   # Provide easing functions, all methods have the same parameters
   # @param [Object] t elapsed time ms
@@ -8,7 +7,6 @@ module NixieBerry
   # @param [Object] d total duration in ms
 
   module Easing
-
     # simple linear tweening - no easing, no acceleration
     def tween_linear(t, b, c, d)
       t, b, c, d = t.to_f, b.to_f, c.to_f, d.to_f

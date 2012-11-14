@@ -15,7 +15,7 @@ module NixieBerry
       # Create a new instance of the specified animation type
       # @param [Symbol] type
       # @param [Hash] options
-      def self.create(type, options)
+      def self.create(type, options = {})
         c = @@subclasses[type]
         if c
           c.new(options)
@@ -56,6 +56,11 @@ module NixieBerry
             @driver.write(value)
           end
         }
+      end
+
+
+      def time_diff_milli(start, finish)
+         (finish - start) * 1000.0
       end
     end
   end
