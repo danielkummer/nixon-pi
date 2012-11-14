@@ -22,15 +22,10 @@ Or install it yourself as:
 
     $ gem install nixieberry-service
 
-## Usage
-
-TODO: Write usage instructions here
-
-
 
 = nixie-berry service
 
-A telnet client to drive nixie tubes
+A telnet based client to drive nixie tubes via rest interface
 
 == Managing daemon
 
@@ -42,16 +37,12 @@ Manage the daemon with
 
 == Controlling
 
-The daemon is controlled via redis. The following keys are used:
-
-* mode - operation mode, accepts display_free_value display_time
-* free_value - tube values if mode is display_free_value
-* time_format - output format "%H%M%S", see http://www.ruby-doc.org/core-1.9.3/Time.html
+The daemon is controlled via sinatra web application, see the example page at [YOURIP]:9999
 
 == State machine
 
 The service uses a state machine to handle local executions.
-Generate a state machine diagram with
+Generate a state machine diagram with for example:
 
     rake state_machine:draw FILE=./lib/nixieberry/handlers/tube_handler_state_machine.rb CLASS=NixieBerry::TubeHandlerStateMachine --trace
 
