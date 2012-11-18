@@ -37,9 +37,8 @@ module NixieBerry
     #
     # @param [Integer] bar
     # @param [Integer] percent
-    def write_percent(bar, percent)
-      @bar_values[bar.to_i] = percent
-      value = (percent / 100.0 * 255.0).round.to_i
+    def write_to_bar(bar, value)
+      @bar_values[bar.to_i] = value
       log.debug "write bar #{bar}, #{percent}% value #{value}"
       @client.pwm_write(@pin_array[bar.to_i], value)
     end

@@ -9,6 +9,8 @@ module NixieBerry
     class Animation
       include Logging
 
+      attr_accessor :thread
+
       @@subclasses = {}
 
       ##

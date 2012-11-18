@@ -27,7 +27,7 @@ module NixieBerry
     end
 
     get '/tubes' do
-      @info = NixieBerry::TubeHandlerStateMachine.instance.state_info
+      @info = NixieBerry::TubeHandlerStateMachine.instance.state_information
       #body({tubes: Control.instance[:tubes]}.to_json)
       content_type 'application/json'
       @info.to_json
@@ -46,8 +46,8 @@ module NixieBerry
         status 400
         redirect("/")
       else
-        enqueue(:tubes, :value, data[:value])
-        enqueue(:tubes, :mode, data[:mode])
+        enqueue(:tubes, data)
+
         status 200
         redirect("/")
       end

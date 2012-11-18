@@ -27,7 +27,7 @@ module NixieBerry
         animation_values = Array.new(number_of_tubes, 0)
         start = Time.now
         total_time = @options[:total] * 1000.0
-        @t = Thread.new do
+        @thread = Thread.new do
           elapsed = time_diff_milli(start, Time.now)
           value = ease_in_out_quad(elapsed, 0, 255, total_time)
 
@@ -41,7 +41,7 @@ module NixieBerry
         write(initial_values, index)
       end
 
-      @t.join
+      @thread.join
     end
 
   end
