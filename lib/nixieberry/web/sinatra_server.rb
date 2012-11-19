@@ -3,19 +3,23 @@ require 'json'
 require_relative '../configurations/state_hash'
 require 'haml'
 require_relative '../../../lib/nixieberry/command_queue'
+require_relative '../configurations/settings'
+require_relative '../logging/logging'
 
 module NixieBerry
   class RESTServer < Sinatra::Base
     include CommandQueue
+    extend Logging
+
+    at_exit { log.info "Sinatra shut down..., don't restart" }
 
     set :static, false
     #set :run, true
     #set :public, File.expand_path('..', __FILE__) # set up the static dir (with images/js/css inside)
 
     #set :views, File.expand_path('../views', __FILE__) # set up the views dir
-    #set :haml, {:format => :html5} # if you use haml
-
-    set :port, 9999
+    set :haml, {:format => :html5} # if you use haml
+    set :port, Settings.rest_server.port
 
     before '/\s' do
       content_type 'application/json'
@@ -53,10 +57,35 @@ module NixieBerry
       end
     end
 
+    post '/bars' do
+      data = params
+      if data.nil? or !data.has_key?(:mode) then
+        status 400
+        redirect ("/")
+      else
+        enqueue(:bars, data)
+        status 200
+        redirect("/")
+      end
+    end
+
+    post '/lamps' do
+      data = params
+      if data.nil? or !data.has_key?(:mode) then
+        status 400
+        redirect ("/")
+      else
+        enqueue(:lamps, data)
+        status 200
+        redirect("/")
+      end
+    end
+
     private
 
+    # @Deprecated
     def sanitize(data)
-      data = Hash[data.map{|a| [a.first.to_sym, a.last]}] #to sym hash
+      data = Hash[data.map { |a| [a.first.to_sym, a.last] }] #to sym hash
 
       case data[:mode]
         when 'display_free_value'
@@ -71,7 +100,7 @@ module NixieBerry
           data[:value] = {animation_name: data[:value]}
         when 'test'
           data[:value] = {}
-        end
+      end
 
       data
     end
@@ -82,8 +111,3 @@ module NixieBerry
 
   end
 end
-
-# Run the app!
-#
-#puts "Hello, you're running your web app from a gem!"
-#SingingRain.run!

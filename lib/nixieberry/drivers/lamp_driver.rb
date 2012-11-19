@@ -1,3 +1,4 @@
+require 'singleton'
 require_relative '../logging/logging'
 require_relative '../configurations/settings'
 
@@ -5,25 +6,20 @@ require_relative '../configurations/settings'
 module NixieBerry
   class LampDriver
     include Logging
+    include Singleton
 
     def initialize
       @client = NixieBerry::AbioCardClient.instance
-      @controlconfig = NixieBerry::Control.instance
       @pin_array = Settings.in1_pins
     end
 
     ##
-    # Turn on a lamp
-    # @param [Integer] lamp_number
-    def on(lamp_number)
-      @client.pwm_write(@pin_array[lamp_number], 255)
-    end
-
-    ##
-    # Turn off a lamp
-    # @param [Integer] lamp_number
-    def off(lamp_number)
-      @client.pwm_write(@pin_array[lamp_number], 0)
+    # Write to a single lamp
+    # @param [Integer] number
+    # @param [Integer] value 0 or > 1
+    def write_to_lamp(number, value)
+      value = value >= 1 ? 255 : 0
+      @client.pwm_write(@pin_array[lamp_number], value)
     end
 
     ##
@@ -36,31 +32,3 @@ module NixieBerry
     end
   end
 end
-
-=begin
-    #todo merge with generic animation module
-    def stop_blinking
-      Thread.kill(@blink_thread)
-    end
-
-    def start_blinking(frequency_in_seconds = 1, times = nil)
-      @blink_thread = Thread.new do
-        if times
-          times.times { self.blink(frequency_in_seconds) }
-        else
-          loop { self.blink(frequency_in_seconds) }
-        end
-      end
-    end
-  end
-
-  private
-  def blink(frequency_in_seconds)
-    self.on
-    sleep frequency_in_seconds
-    self.off
-    sleep frequency_in_seconds
-  end
-=end
-
-

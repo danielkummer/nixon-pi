@@ -4,6 +4,7 @@ module NixieBerry
     ##
     # Tube control parameters to be passed via the command queue
     # only use the ones you need...
+    #Todo refactor!
     def control_parameters(handler)
       case handler
         when :tubes
@@ -20,6 +21,11 @@ module NixieBerry
               #pass values as array containing nil where no change
               values: nil,
               time: nil
+          }
+        when :lamps
+          {
+            values: nil,
+            time: nil
           }
         else
           raise NotImplementedError "Unknown control parameters -- implement if new function"

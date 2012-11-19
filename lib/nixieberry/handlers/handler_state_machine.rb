@@ -13,6 +13,8 @@ module NixieBerry
     include CommandQueue
     extend ControlParameters
 
+    StateMachine::Machine.ignore_method_conflicts = true
+
     attr_accessor :current_state_parameters
 
     def self.register_driver(driver)
@@ -41,6 +43,7 @@ module NixieBerry
       write
     end
 
+    protected
     def handle_command_queue
       unless queue(@queue_name).empty?
         state_change = queu(@queue_name).pop
@@ -64,6 +67,20 @@ module NixieBerry
       block.call
       object.current_state_parameters[:state] = object.state
       object.log.debug "new state: #{object.state}"
+    end
+
+    def values_changed?(bar_values)
+      if @current_state_parameters[:last_values].nil?
+        true
+      else
+        bar_values.each_with_index do |value, index|
+          unless bar_values[index].nil?
+            if @current_state_parameters[:last_values][index] != value
+              return true
+            end
+          end
+        end
+      end
     end
   end
 end

@@ -1,14 +1,14 @@
 require 'state_machine'
 require 'singleton'
-require_relative '../drivers/bar_graph_driver'
+require_relative '../../../lib/nixieberry/drivers/lamp_driver'
 require_relative 'handler_state_machine'
 
 module NixieBerry
-  class BarHandlerStateMachine < HandlerStateMachine
+  class LampHandlerStateMachine < HandlerStateMachine
     include Singleton
 
-    register_driver NixieBerry::BarGraphDriver.instance
-    register_queue_name :bars
+    register_driver NixieBerry::LampDriver.instance
+    register_queue_name :lamps
 
 
     state_machine :initial => :display_free_value do
@@ -22,8 +22,8 @@ module NixieBerry
       end
 
 
-      event :display_bar_animation do
-        transition all => :display_bar_animation
+      event :display_lamp_animation do
+        transition all => :display_lamp_animation
       end
 
       event :test do
@@ -33,12 +33,12 @@ module NixieBerry
 
       state :display_free_value do
         def write
-          bar_values = @current_state_parameters[:values]
-          unless values_changed?(bar_values)
-            if bar_values.include? nil
-              bar_values.each_with_index { |value, index| @driver.write_to_bar(index, value) unless value.nil? }
+          lamp_values = @current_state_parameters[:values]
+          unless values_changed?(lamp_values)
+            if lamp_values.include? nil
+              lamp_values.each_with_index { |value, index| @driver.write_to_lamp(index, value) unless value.nil? }
             else
-              @driver.write(bar_values)
+              @driver.write(lamp_values)
             end
           end
         end
@@ -56,7 +56,5 @@ module NixieBerry
         end
       end
     end
-
   end
-
 end

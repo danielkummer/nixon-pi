@@ -4,6 +4,8 @@ development:
     host: 192.168.1.31
     port: 5678
   default_time_format: "%H%M%S"
+  rest_server:
+    port: 9999
   in12a_tubes:
     data_pin:  2
     clock_pin: 1
@@ -28,6 +30,8 @@ test:
   telnet_server:
     host: localhost
     port: 5678
+  rest_server:
+    port: 9999
   tubes:
     data_pin:  3
     clock_pin: 2
