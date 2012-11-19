@@ -11,6 +11,7 @@ development:
     clock_pin: 1
     latch_pin: 0
     count: 12
+    write_blanks: true
   in1_pins:
     - 4
     - 5
@@ -43,6 +44,7 @@ test:
     clock_pin: 2
     latch_pin: 1
     count: 12
+    write_blanks: true
   in1_pins:
     - 4
     - 5

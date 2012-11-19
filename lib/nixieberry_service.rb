@@ -45,12 +45,12 @@ module NixieBerry
       log.info "Start running..."
       #todo there must be a better way to control creating and shutting down!
       #unless ENV['NIXIE_BERRY_ENVIRONMENT'] = 'test'
-=begin
+
         t = Thread.new do
           @server.run!
         end
       #end
-=end
+
       loop do
         @tsm.handle
         @bsm.handle

@@ -1,16 +1,12 @@
-require 'singleton'
+require_relative 'driver'
 
-require_relative '../logging/logging'
-require_relative '../configurations/settings'
 
 module NixieBerry
-  class BarGraphDriver
-    include Logging
+  class BarGraphDriver < Driver
     include Singleton
 
     def initialize
-      #create accessor for each bar
-      @client = NixieBerry::AbioCardClient.instance
+      super()
       @client.pwm_reset
       dim_all(100)
       @bar_values = {}

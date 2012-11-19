@@ -13,9 +13,12 @@ module NixieBerry
 
     at_exit { log.info "Sinatra shut down..., don't restart" }
 
-    set :static, false
+    #set :static, true
     #set :run, true
-    #set :public, File.expand_path('..', __FILE__) # set up the static dir (with images/js/css inside)
+    set :root, File.dirname(__FILE__)
+    #set :public_folder, Proc.new { File.join(root, "public") }
+    set :public_folder, File.join(File.dirname(__FILE__), 'public')
+
 
     #set :views, File.expand_path('../views', __FILE__) # set up the views dir
     set :haml, {:format => :html5} # if you use haml

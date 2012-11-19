@@ -1,8 +1,11 @@
-.tube-control
-
+.sixteen.columns
+  %h1.remove-bottom{:style => "margin-top: 40px"} NixieBerry Control
+  %hr/
+.one-third.column
+  %h3 Tube Control
   %form{ :action => "/tubes", :method => "POST"}
     %fieldset
-      %ol
+      %ul
         %li
           %label{:for => "value"} Tube values:
           %input{:type => "text", :name => "value", :class => "text"}
@@ -11,7 +14,7 @@
 
   %form{ :action => "/tubes", :method => "POST"}
     %fieldset
-      %ol
+      %ul
         %li
           %label{:for => "value"} Time Format
           %input{:type => "text", :name => "value", :class => "text", value: "%H%M%S"}
@@ -20,7 +23,7 @@
 
   %form{ :action => "/tubes", :method => "POST"}
     %fieldset
-      %ol
+      %ul
         %li
           %label{:for => "body"} Animation:
           %select{:name => "value"}
@@ -35,29 +38,30 @@
 
   %form{ :action => "/tubes", :method => "POST"}
     %fieldset
-      %ol
+      %ul
         %li
           %label{:for => "body"} Test:
       %input{:type => "hidden", :name => "mode", :value => "display_test"}
       %input{:type => "submit", :value => "Test", :class => "button"}
-
-.bar-control
-  %form{ :action => "/bars", :method => "POST"}
-    %fieldset
-      %ol
-        %li
-          %label{:for => "value"} Bar values 0 - 255:
-          %input{:type => "text", :name => "values[]", :class => "text", value: "0"}
-          %input{:type => "text", :name => "values[]", :class => "text", value: "0"}
-          %input{:type => "text", :name => "values[]", :class => "text", value: "0"}
-          %input{:type => "text", :name => "values[]", :class => "text", value: "0"}
-      %input{:type => "hidden", :name => "mode", :value => "display_free_value"}
-      %input{:type => "submit", :value => "Send", :class => "button"}
-
-.lamp-control
+.one-third.column
+  %h3 Bar Control
+  .bar-control
+    %form{ :action => "/bars", :method => "POST"}
+      %fieldset
+        %ul
+          %li
+            %label{:for => "value"} Bar values 0 - 255:
+            %input{:type => "text", :name => "values[]", :class => "text", value: "0"}
+            %input{:type => "text", :name => "values[]", :class => "text", value: "0"}
+            %input{:type => "text", :name => "values[]", :class => "text", value: "0"}
+            %input{:type => "text", :name => "values[]", :class => "text", value: "0"}
+        %input{:type => "hidden", :name => "mode", :value => "display_free_value"}
+        %input{:type => "submit", :value => "Send", :class => "button"}
+.one-third.column
+  %h3 Lamp Control
   %form{ :action => "/lamps", :method => "POST"}
     %fieldset
-      %ol
+      %ul
         %li
           %label{:for => "value"} Lamp values 0 or 1:
           %input{:type => "text", :name => "values[]", :class => "text", value: "0"}

@@ -1,21 +1,18 @@
 require 'singleton'
 
-require_relative '../logging/logging'
+require_relative 'driver'
 require_relative '../configurations/settings'
 require_relative '../client/abio_card_client'
 
 module NixieBerry
-  class TubeDriver
-    include Logging
+  class TubeDriver < Driver
     include Singleton
 
     BLANK_NUM = 10
     #elementOrder 1,6,2,7,5,0,4,9,8,3
 
-
-
     def initialize
-      @client = AbioCardClient.instance
+      super()
       init_pins
     end
 
@@ -25,7 +22,7 @@ module NixieBerry
 
 
       output.split('').reverse.each do |digit|
-       digit =~ /\s|_/ ? serialize_digit(BLANK_NUM) : serialize_digit(digit)
+        digit =~ /\s|_/ ? serialize_digit(BLANK_NUM) : serialize_digit(digit)
       end
       @client.io_write(@latch_pin, 1)
       @client.io_write(@latch_pin, 0)
@@ -35,8 +32,14 @@ module NixieBerry
     # Write number
     # @param [String] output
     def write(output)
-      write_number_string_with_blanks(output)
-=begin
+      if Settings.in12a_tubes['write_blanks']
+        write_number_string_with_blanks(output)
+      else
+        write_number_string_with_zeros(output)
+      end
+    end
+
+    def write_number_string_with_zeros(output)
       log.info "write : #{output.to_s} in reverse order"
       @client.io_write(@latch_pin, 0)
       output.split('').reverse.each do |digit|
@@ -44,7 +47,6 @@ module NixieBerry
       end
       @client.io_write(@latch_pin, 1)
       @client.io_write(@latch_pin, 0)
-=end
     end
 
     ##

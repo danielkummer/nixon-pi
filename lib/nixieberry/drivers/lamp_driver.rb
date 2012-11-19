@@ -1,15 +1,14 @@
 require 'singleton'
-require_relative '../logging/logging'
+require_relative 'driver'
 require_relative '../configurations/settings'
 
-#todo refactor for usage with pwm and any number of lamps
 module NixieBerry
-  class LampDriver
+  class LampDriver < Driver
     include Logging
     include Singleton
 
     def initialize
-      @client = NixieBerry::AbioCardClient.instance
+      super()
       @pin_array = Settings.in1_pins
     end
 
@@ -19,7 +18,7 @@ module NixieBerry
     # @param [Integer] value 0 or > 1
     def write_to_lamp(number, value)
       value = value >= 1 ? 255 : 0
-      @client.pwm_write(@pin_array[lamp_number], value)
+      @client.pwm_write(@pin_array[number], value)
     end
 
     ##
