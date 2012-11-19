@@ -16,8 +16,8 @@ module NixieBerry
       init_pins
     end
 
-    def write_number_string_with_blanks(output)
-      log.info "write number with blanks #{output}"
+    def write_string_with_blanks(output)
+      log.info "write number with blanks '#{output}'"
       client.io_write(@latch_pin, 0)
 
       output.split('').reverse.each do |digit|
@@ -32,7 +32,7 @@ module NixieBerry
     # @param [String] output
     def write(output)
       if Settings.in12a_tubes['write_blanks']
-        write_number_string_with_blanks(output)
+        write_string_with_blanks(output)
       else
         write_number_string_with_zeros(output)
       end
@@ -116,7 +116,6 @@ module NixieBerry
     # writeDigit must be 0 <= x <= 10
     # @param [Integer] digit
     def serialize_digit(digit)
-      log.info "serialize digit: #{digit}"
       bitmask = 8
       client.io_write(@data_pin, 0)
       #send out the bits of the nibble MSB -> LSB
@@ -124,7 +123,6 @@ module NixieBerry
         client.io_write(@clock_pin, 0)
         current_bit = bitmask & digit.to_i
         current_bit = current_bit == 0 ? 0 : 1
-        log.debug "current bit: #{current_bit}"
         client.io_write(@data_pin, current_bit)
         client.io_write(@clock_pin, 1)
         bitmask = bitmask >> 1

@@ -22,7 +22,7 @@ module NixieBerry
 
     #set :views, File.expand_path('../views', __FILE__) # set up the views dir
     set :haml, {:format => :html5} # if you use haml
-    set :port, Settings.rest_server.port
+    set :port, Settings['rest_server'].nil? ? '8080' : Settings['rest_server']['port']
 
     before '/\s' do
       content_type 'application/json'

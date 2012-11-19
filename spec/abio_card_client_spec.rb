@@ -55,7 +55,7 @@ describe NixieBerry::AbioCardClient do
 
   it "should write to pwm registers" do
     @client.pwm_write(0, 124)
-    $last_cmd.should eq "PW00107CFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+    $last_cmd.should eq "PW00107C000000000000000000000000000000"
   end
 
   it "should reset all pwm registers" do
