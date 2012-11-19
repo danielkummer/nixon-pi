@@ -20,7 +20,7 @@ module NixieBerry
         sleep_step = @options[:sleep]
         value = start
 
-        @t = Thread.new do
+        @thread = Thread.new do
           original_length = value.length
           pad_times = original_length
           first_number_position = value.index(/\d/)
@@ -44,7 +44,7 @@ module NixieBerry
           end
         end
 
-        @t.join
+        @thread.join
       end
     end
   end

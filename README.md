@@ -1,38 +1,73 @@
-# Nixieberry::Service
+# NixieBerry - The Raspberry Pi based Nixie Display
 
-TODO: Write a gem description
+## The components
 
-## Build
+The NixieBerry Display consists of Nixie Tubes provided by [Ogilumen](http://www.ogilumen.com/), driven by a Raspberry Pi Model B with an [Axiris](http://www.axiris.be/) I/O expansion card.
 
-Build with
+### 1x Raspberry Pi Model B
 
-    gem build nixieberry-service.gemspec
+<img src="http://www.raspberrypi.org/wp-content/uploads/2012/04/Raspi_Iso_Blue.png" width="200" height="150">
+---
+The [Raspberry Pi](http://www.raspberrypi.org/) is ideal for the project as it's a fully flegded mini computer which is capable of running all the things we need (Ruby, a web server, ...).
 
-## Installation
+### 1x [Axiris](http://www.axiris.be/) I/O Card for Raspberry Pi
 
-Add this line to your application's Gemfile:
+<img src="http://www.axiris.be/en/images/stories/bcm2835/bcm2835_013_500.jpg" width="200" height="150">
+---
+Because the Raspberry Pi only has limited IO capabilites the [Axisis I/O card](http://www.axiris.be/en/index.php?option=com_content&view=article&id=51:i2c-io-card-for-use-with-raspberry-pi-computer&catid=14:io-cards&Itemid=34) is the perfect addition to fully satisfy our needs. It adds:
 
-    gem 'nixieberry-service'
+* Very high accuracy real-time clock based on the PCF2129A with CR2032 backup battery.
+* 8 quasi bidirectional I/O lines (PCF8574), 5V levels.
+* 8 12-bit ADC inputs (MAX11614EEE+), 0 - 4.096V range.
+* Model B only - 16 output channels providing 12-bit pulse-width modulation (PWM) output channels at about 40 to 1000 Hz with LED drive capability, 10 mA source, 25 mA sink, 5 V levels.
 
-And then execute:
+### 6x Nixie Duo Kits
 
-    $ bundle
+<img src="http://www.ogilumen.com/images/product_pics/n2xdp1.jpg" width="200" height="150">
+---
 
-Or install it yourself as:
+[Ogilumen](http://www.ogilumen.com/) sells beautiful, compact and easy to assemble nixie tube kits containing two IN-12A tubes each.
 
-    $ gem install nixieberry-service
-
-## Usage
-
-TODO: Write usage instructions here
+### 4x IN-13 Bar Graphs
 
 
+<img src="http://www.ogilumen.com/images/product_pics/IN-13a.jpg" width="200" height="150">
+---
 
-= nixie-berry service
+The IN-13 Neon Bar Graphs sold by Ogilumen are a beautiful way to display a variable length glowing bar.
 
-A telnet client to drive nixie tubes
 
-== Managing daemon
+### 5x IN-1 Neon
+
+
+<img src="http://www.ogilumen.com/images/product_pics/n1a.jpg" width="200" height="150">
+---
+The IN-1 Neon Lamps are simply a nice LED-alternative and they have a nice warm orange glow...
+
+
+## 1x 50 mA Nixie Tube Power Supply
+
+<img src="http://www.ogilumen.com/images/product_pics/smps1.jpg" width="200" height="150">
+---
+
+Lastly we need a power supply to drive all our high-voltage Nixie goodness. Luckly ogilumen provides us with a readily assembled power supply capable of providing all the power we need...
+
+
+
+## Circuit Diagrams
+
+TODO
+
+## Case Designs
+
+TODO
+
+
+## The Service
+
+A telnet based client to drive nixie tubes via rest interface
+
+### Manage the daemon process
 
 Manage the daemon with
 
@@ -40,23 +75,34 @@ Manage the daemon with
     ruby app/nixieserver_control.rb restart
     ruby app/nixieserver_control.rb stop
 
-== Controlling
+### Controlling
 
-The daemon is controlled via redis. The following keys are used:
+The daemon is controlled via sinatra web application (REST-full), see the example page at [YOUR-IP]:9999
 
-* mode - operation mode, accepts display_free_value display_time
-* free_value - tube values if mode is display_free_value
-* time_format - output format "%H%M%S", see http://www.ruby-doc.org/core-1.9.3/Time.html
+## The Gem
 
-== State machine
+The NixieBerry Service is packed as a standalone gem which can be run as a daemon.
+
+### Build
+
+Build with
+
+    gem build nixieberry-service.gemspec
+
+
+### Install
+
+    $ gem install nixie-berry-service
+
+
+
+### State machine
 
 The service uses a state machine to handle local executions.
-Generate a state machine diagram with
+Generate state machine diagrams with the following command:
 
-    rake state_machine:draw FILE=./lib/nixieberry/handlers/tube_handler_state_machine.rb CLASS=NixieBerry::TubeHandlerStateMachine --trace
+    rake state_machine:draw FILE=./lib/nixieberry/handlers/tube_handler_state_machine.rb CLASS=NixieBerry::TubeHandlerStateMachine
 
-== Copyright
+# Copyright
 
-Copyright (c) 2012 Daniel Kummer. See LICENSE.txt for
-further details.
-
+Copyright (c) 2012 Daniel Kummer.

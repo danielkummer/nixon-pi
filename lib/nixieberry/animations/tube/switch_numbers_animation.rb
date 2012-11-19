@@ -21,7 +21,7 @@ module NixieBerry
         duration = @options[:duration]
         sleep_step = @options[:sleep]
         value = start
-        @t = Thread.new do
+        @thread = Thread.new do
           duration.times.with_index do |index|
             value = value.each_char.collect do |x|
               if x =~ /\d/
@@ -37,7 +37,7 @@ module NixieBerry
           log.debug "write value: #{value}"
           write(start, duration + 1 )
         end
-        @t.join
+        @thread.join
       end
 
     end

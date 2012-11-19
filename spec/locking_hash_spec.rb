@@ -1,6 +1,7 @@
 require_relative 'spec_helper'
 require_relative '../lib/nixieberry/configurations/state_hash'
 
+=begin
 describe NixieBerry::LockingHash do
 
   it "should create a new lockinghash instance" do
@@ -19,3 +20,4 @@ describe NixieBerry::LockingHash do
   end
 
 end
+=end

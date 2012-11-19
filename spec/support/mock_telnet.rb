@@ -6,8 +6,9 @@ class MockTelnet
 
   def cmd(string)
     #STDERR.puts(string + " binary: " + string[2..3].to_i(16).to_s(2).rjust(8, '0'))
-    STDERR.puts "telnet mock: " << string
+    STDERR.puts "telnet mock: " << string.to_s
     $last_cmd = string
+
 
     case string
       when "ER"
@@ -20,6 +21,12 @@ class MockTelnet
         ret = "PR0011FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF" #all pwm on 255
       else
         ret = ""
+    end
+
+    if string.class == Hash
+      if string['String'] == 'HI'
+        ret = "HIFF"
+      end
     end
 
     if block_given?
