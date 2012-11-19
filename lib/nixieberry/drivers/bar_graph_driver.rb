@@ -2,12 +2,12 @@ require_relative 'driver'
 
 
 module NixieBerry
-  class BarGraphDriver < Driver
+  class BarGraphDriver
     include Singleton
+    include Driver
 
     def initialize
-      super()
-      @client.pwm_reset
+      client.pwm_reset
       dim_all(100)
       @bar_values = {}
       @pin_array = Settings.in13_pins
@@ -24,7 +24,7 @@ module NixieBerry
     def write(value_array)
       log.error "more values than configured lamps" and return if value_array.size > number_of_bars
       value_array.map! { |x| x > 255 ? 255 : x }
-      @client.pwm_write_registers(start_index: @pin_array.first, values: value_array)
+      client.pwm_write_registers(start_index: @pin_array.first, values: value_array)
     end
 
     ##
@@ -35,7 +35,7 @@ module NixieBerry
     def write_to_bar(bar, value)
       @bar_values[bar.to_i] = value
       log.debug "write bar #{bar}, #{percent}% value #{value}"
-      @client.pwm_write(@pin_array[bar.to_i], value)
+      client.pwm_write(@pin_array[bar.to_i], value)
     end
 
     ##
@@ -45,7 +45,7 @@ module NixieBerry
     def dim_all(percent)
       value = (percent / 100.0 * 255.0).round.to_i
       log.debug "dim all  #{percent}% value #{value}"
-      @client.pwm_global_dim(value)
+      client.pwm_global_dim(value)
     end
 
   end

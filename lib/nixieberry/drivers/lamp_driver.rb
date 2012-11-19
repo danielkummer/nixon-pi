@@ -3,12 +3,12 @@ require_relative 'driver'
 require_relative '../configurations/settings'
 
 module NixieBerry
-  class LampDriver < Driver
+  class LampDriver
     include Logging
     include Singleton
+    include Driver
 
     def initialize
-      super()
       @pin_array = Settings.in1_pins
     end
 
@@ -18,7 +18,7 @@ module NixieBerry
     # @param [Integer] value 0 or > 1
     def write_to_lamp(number, value)
       value = value >= 1 ? 255 : 0
-      @client.pwm_write(@pin_array[number], value)
+      client.pwm_write(@pin_array[number], value)
     end
 
     ##
@@ -27,7 +27,7 @@ module NixieBerry
     def write(value_array)
       log.error "more values than configured lamps" and return if value_array.size > @pin_array.size
       value_array.map!{|x| x >= 1 ? 255 : 0 }
-      @client.pwm_write_registers(start_index: @pin_array.first, values: value_array)
+      client.pwm_write_registers(start_index: @pin_array.first, values: value_array)
     end
   end
 end
