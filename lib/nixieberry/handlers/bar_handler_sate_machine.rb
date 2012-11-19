@@ -46,7 +46,9 @@ module NixieBerry
       end
 
       state :display_bar_animation do
-        raise NotImplementedError
+        def write
+          raise NotImplementedError
+        end
       end
     end
 

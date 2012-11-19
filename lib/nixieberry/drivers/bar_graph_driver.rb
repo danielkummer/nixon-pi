@@ -11,7 +11,6 @@ module NixieBerry
     def initialize
       #create accessor for each bar
       @client = NixieBerry::AbioCardClient.instance
-      #@client = MockAbiocardClient.instance # for testing - must find a better solution here
       @client.pwm_reset
       dim_all(100)
       @bar_values = {}
