@@ -30,7 +30,8 @@ module NixieBerry
       @pwm_register_array = Array.new(NUMBER_OF_PWM_PORTS, 0)
       @io_register = Array.new(NUMBER_OF_IO_PORTS, 0)
 
-      load_last_values
+      @mutex = Mutex.new
+      #load_last_values currently not used
     end
 
 
@@ -72,12 +73,12 @@ module NixieBerry
     # @return [Struct] rtc, io, adc, pwm
     def info
       #handle {
-        connection.cmd("String" => "HI", "Match" => /HI.*/) do |return_value|
-          return_value.strip!
-          info_bits = hex_to_bit(return_value[3]).to_s.split('') #bits 4..7 are reserved, only 0..3 matter
-          @hardware_information = Struct.new(:rtc, :io, :adc, :pwm).new(info_bits[3], info_bits[2], info_bits[1], info_bits[0])
-          log.info ("read hardware information: " + @hardware_information.to_s)
-        end
+      connection.cmd("String" => "HI", "Match" => /HI.*/) do |return_value|
+        return_value.strip!
+        info_bits = hex_to_bit(return_value[3]).to_s.split('') #bits 4..7 are reserved, only 0..3 matter
+        @hardware_information = Struct.new(:rtc, :io, :adc, :pwm).new(info_bits[3], info_bits[2], info_bits[1], info_bits[0])
+        log.info ("read hardware information: " + @hardware_information.to_s)
+      end
       #}
       @hardware_information
     end
@@ -207,10 +208,13 @@ module NixieBerry
     ##
     # Connect to abiocard telnet server
     def connection
-      retryable do
-        @conn ||= connection_for(ENV['NIXIE_BERRY_ENVIRONMENT'])
-      end
+      #todo test sync
+      @mutex.synchronize {
+        retryable do
+          @conn ||= connection_for(ENV['NIXIE_BERRY_ENVIRONMENT'])
+        end
       @conn
+      }
     end
 
     def connection_for(env)

@@ -1,15 +1,17 @@
 require 'state_machine'
-require 'singleton'
+
 require_relative '../drivers/bar_graph_driver'
 require_relative 'handler_state_machine'
 
 module NixieBerry
   class BarHandlerStateMachine < HandlerStateMachine
-    include Singleton
 
-    register_driver NixieBerry::BarGraphDriver.instance
-    register_queue_name :bars
+    register_as :bars
 
+    def after_create
+      register_driver NixieBerry::BarGraphDriver
+      register_queue_name :bars
+    end
 
     state_machine :initial => :display_free_value do
 
@@ -26,8 +28,8 @@ module NixieBerry
         transition all => :display_bar_animation
       end
 
-      event :test do
-        transition all => :test
+      event :display_test do
+        transition all => :display_test
       end
 
 
@@ -36,9 +38,9 @@ module NixieBerry
           bar_values = @current_state_parameters[:values]
           unless values_changed?(bar_values)
             if bar_values.include? nil
-              bar_values.each_with_index { |value, index| @driver.write_to_bar(index, value) unless value.nil? }
+              bar_values.each_with_index { |value, index| driver.write_to_bar(index, value) unless value.nil? }
             else
-              @driver.write(bar_values)
+              driver.write(bar_values)
             end
           end
         end
@@ -50,7 +52,7 @@ module NixieBerry
         end
       end
 
-      state :test do
+      state :display_test do
         def write
           raise NotImplementedError
         end

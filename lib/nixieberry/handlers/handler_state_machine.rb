@@ -5,34 +5,36 @@ require_relative '../configurations/state_hash'
 require 'active_support/inflector'
 require_relative '../command_queue'
 require_relative '../control_parameters'
+require_relative '../factory'
 
 
 module NixieBerry
   class HandlerStateMachine
     include Logging
     include CommandQueue
+    extend Factory
     extend ControlParameters
-
-    StateMachine::Machine.ignore_method_conflicts = true
 
     attr_accessor :current_state_parameters
 
-    def self.register_driver(driver)
-      @driver = driver
-    end
-
-    def self.register_queue_name(name)
-      @queue_name = name.to_sym
-    end
-
     def initialize
-
       @current_state_parameters = StateHash.new
       @current_state_parameters[:last_state] = nil
 
       super() # NOTE: This *must* be called, otherwise states won't get initialized
     end
 
+    def register_driver(driver)
+      @driver = driver
+    end
+
+    def driver
+      @driver.instance
+    end
+
+    def register_queue_name(name)
+      @queue_name = name.to_sym
+    end
 
     def state_information
       @current_state_parameters

@@ -8,7 +8,7 @@ module NixieBerry
   module Animations
     class SingleFlyInAnimation < Animation
 
-      register_animation :single_fly_in
+      register_as :single_fly_in
 
       def initialize(options = {})
         @options = {sleep: 0.3}.merge(options)

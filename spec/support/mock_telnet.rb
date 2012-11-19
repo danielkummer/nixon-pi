@@ -5,8 +5,8 @@ class MockTelnet
   include NixieBerry::Logging
 
   def cmd(string)
-    #STDERR.puts(string + " binary: " + string[2..3].to_i(16).to_s(2).rjust(8, '0'))
-    STDERR.puts "telnet mock: " << string.to_s
+    #enable for more debug output..
+    #STDERR.puts "telnet mock: " << string.to_s
     $last_cmd = string
 
 

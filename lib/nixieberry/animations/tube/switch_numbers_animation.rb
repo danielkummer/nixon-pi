@@ -6,7 +6,7 @@ module NixieBerry
   module Animations
     class SwitchNumbersAnimation < Animation
 
-      register_animation :switch_numbers
+      register_as :switch_numbers
 
       ##
       # @param [Hash] options

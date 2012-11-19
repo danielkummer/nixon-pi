@@ -1,6 +1,5 @@
 require 'state_machine'
 require 'festivaltts4r'
-require 'singleton'
 
 
 require_relative '../drivers/tube_driver'
@@ -13,10 +12,13 @@ require_relative 'handler_state_machine'
 
 module NixieBerry
   class TubeHandlerStateMachine < HandlerStateMachine
-    include Singleton
 
-    register_driver NixieBerry::TubeDriver.instance
-    register_queue_name :tubes
+    register_as :tubes
+
+    def after_create
+      register_driver NixieBerry::TubeDriver
+      register_queue_name :tubes
+    end
 
     state_machine :initial => :display_time do
 
@@ -36,8 +38,8 @@ module NixieBerry
         transition all => :display_tube_animation
       end
 
-      event :test do
-        transition all => :test
+      event :display_test do
+        transition all => :display_test
       end
 
       state :display_time do
@@ -51,7 +53,7 @@ module NixieBerry
           end
 
           time = Time.now.strftime(format).rjust(tubes_count, ' ')
-          @driver.write(time) unless time == @current_state_parameters[:last_value] or time.nil?
+          driver.write(time) unless time == @current_state_parameters[:last_value] or time.nil?
           #todo might be unneccessary
           @current_state_parameters[:last_value] = time
         end
@@ -61,7 +63,7 @@ module NixieBerry
         def write
           value = @current_state_parameters[:value]
           unless value == @current_state_parameters[:last_value] or value.nil?
-            @driver.write(value)
+            driver.write(value)
             @current_state_parameters[:last_value] = value
           end
         end
@@ -80,7 +82,7 @@ module NixieBerry
         end
       end
 
-      state :test do
+      state :display_test do
         def write
           unless @current_state_parameters[:test_done]
             number_of_digits = 12
@@ -91,7 +93,7 @@ module NixieBerry
             i = 0
             bm = Benchmark.measure do
               test_data.each do |val|
-                @driver.write(val)
+                driver.write(val)
                 #sleep 0.1
                 i += 1
               end
@@ -105,7 +107,6 @@ module NixieBerry
             puts bm
             self.fire_state_event(@current_state_parameters[:last_state])
           end
-
         end
       end
     end

@@ -2,7 +2,7 @@ require 'rubygems'
 require 'json'
 require 'logger'
 require 'benchmark'
-require 'profiler'
+#require 'profiler'
 
 require_relative 'nixieberry/version'
 require_relative 'nixieberry/delegators/multi_delegator'
@@ -24,9 +24,9 @@ module NixieBerry
 
     def initialize
       log.info "Initializing Service.."
-      @tsm = NixieBerry::TubeHandlerStateMachine.instance
-      @bsm = NixieBerry::BarHandlerStateMachine.instance
-      @lsm = NixieBerry::LampHandlerStateMachine.instance
+      @tsm = NixieBerry::HandlerStateMachine.create(:tubes)
+      @bsm = NixieBerry::HandlerStateMachine.create(:bars)
+      @lsm = NixieBerry::HandlerStateMachine.create(:lamps)
       @server = RESTServer
     end
 

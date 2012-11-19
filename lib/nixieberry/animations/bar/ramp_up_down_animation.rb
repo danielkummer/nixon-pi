@@ -8,7 +8,7 @@ module NixieBerry
     class RampUpDownAnimation < Animation
       include Easing
 
-      register_animation :ramp_up_down
+      register_as :ramp_up_down
 
       ##
       # @param [Hash] options

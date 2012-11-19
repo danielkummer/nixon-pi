@@ -1,6 +1,7 @@
 require 'thread'
 require_relative '../logging/logging'
 require_relative '../drivers/tube_driver'
+require_relative '../factory'
 #useage
 #Animation.create(:switch_numbers).run
 
@@ -8,30 +9,9 @@ module NixieBerry
   module Animations
     class Animation
       include Logging
+      extend Factory
 
       attr_accessor :thread
-
-      @@subclasses = {}
-
-      ##
-      # Create a new instance of the specified animation type
-      # @param [Symbol] type
-      # @param [Hash] options
-      def self.create(type, options = {})
-        c = @@subclasses[type]
-        if c
-          c.new(options)
-        else
-          raise "Bad type: #{type}"
-        end
-      end
-
-      ##
-      # Register the animation for calling it later with create
-      # @param [Symbol] name
-      def self.register_animation(name)
-        @@subclasses[name] = self
-      end
 
       def initialize
         @semaphore = Mutex.new
