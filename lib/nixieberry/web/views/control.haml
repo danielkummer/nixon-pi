@@ -70,3 +70,12 @@
           %input{:type => "text", :name => "values[]", :class => "text", value: "0"}
       %input{:type => "hidden", :name => "mode", :value => "display_free_value"}
       %input{:type => "submit", :value => "Send", :class => "button"}
+.one-third.column
+  %form{ :action => "/say", :method => "POST"}
+  %fieldset
+    %ul
+      %li
+        %label{:for => "value"} Say what?:
+        %input{:type => "text", :name => "value", :class => "text"}
+
+    %input{:type => "submit", :value => "Send", :class => "button"}

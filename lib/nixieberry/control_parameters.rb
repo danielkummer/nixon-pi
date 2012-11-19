@@ -27,6 +27,10 @@ module NixieBerry
             values: nil,
             time: nil
           }
+        when :say
+          {
+              value: nil
+          }
         else
           raise NotImplementedError "Unknown control parameters -- implement if new function"
       end

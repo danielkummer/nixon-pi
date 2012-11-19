@@ -84,6 +84,11 @@ module NixieBerry
       end
     end
 
+    post '/say' do
+      data = params
+      enqueue(:say, data)
+    end
+
     private
 
     # @Deprecated
