@@ -1,67 +1,151 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Nixie-berry-service by danielkummer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="javascripts/scale.fix.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+
+    <title>Nixie-berry-service by danielkummer</title>
   </head>
+
   <body>
-    <div class="wrapper">
-      <header>
-        <h1 class="header">Nixie-berry-service</h1>
-        <p class="header">Control ogilumen nixie tubes with raspberry pi and abiocard shield</p>
+    <header>
+      <div class="inner">
+        <h1>Nixie-berry-service</h1>
+        <h2>Raspberry Pi + Nixie Tubes </h2>
+        <a href="https://github.com/danielkummer/nixie-berry-service" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
 
-        <ul>
-          <li class="download"><a class="buttons" href="https://github.com/danielkummer/nixie-berry-service/zipball/master">Download ZIP</a></li>
-          <li class="download"><a class="buttons" href="https://github.com/danielkummer/nixie-berry-service/tarball/master">Download TAR</a></li>
-          <li><a class="buttons github" href="https://github.com/danielkummer/nixie-berry-service">View On GitHub</a></li>
-        </ul>
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>NixieBerry - The Raspberry Pi based Nixie Display</h1>
 
-        <p class="header">This project is maintained by <a class="header name" href="https://github.com/danielkummer">danielkummer</a></p>
+<h2>The components</h2>
 
+<p>The NixieBerry Display consists of Nixie Tubes provided by <a href="http://www.ogilumen.com/">Ogilumen</a>, driven by a Raspberry Pi Model B with an <a href="http://www.axiris.be/">Axiris</a> I/O expansion card.</p>
 
-      </header>
-      <section>
-        <h3>Welcome to GitHub Pages.</h3>
+<h3>1x Raspberry Pi Model B</h3>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<h2><img src="http://www.raspberrypi.org/wp-content/uploads/2012/04/Raspi_Iso_Blue.png" width="200" height="150"></h2>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
+<p>The <a href="http://www.raspberrypi.org/">Raspberry Pi</a> is ideal for the project as it's a fully flegded mini computer which is capable of running all the things we need (Ruby, a web server, ...).</p>
+
+<h3>1x <a href="http://www.axiris.be/">Axiris</a> I/O Card for Raspberry Pi</h3>
+
+<h2><img src="http://www.axiris.be/en/images/stories/bcm2835/bcm2835_013_500.jpg" width="200" height="150"></h2>
+
+<p>Because the Raspberry Pi only has limited IO capabilites the <a href="http://www.axiris.be/en/index.php?option=com_content&amp;view=article&amp;id=51:i2c-io-card-for-use-with-raspberry-pi-computer&amp;catid=14:io-cards&amp;Itemid=34">Axisis I/O card</a> is the perfect addition to fully satisfy our needs. It adds:</p>
+
+<ul>
+<li>Very high accuracy real-time clock based on the PCF2129A with CR2032 backup battery.</li>
+<li>8 quasi bidirectional I/O lines (PCF8574), 5V levels.</li>
+<li>8 12-bit ADC inputs (MAX11614EEE+), 0 - 4.096V range.</li>
+<li>Model B only - 16 output channels providing 12-bit pulse-width modulation (PWM) output channels at about 40 to 1000 Hz with LED drive capability, 10 mA source, 25 mA sink, 5 V levels.</li>
+</ul><h3>6x Nixie Duo Kits</h3>
+
+<h2><img src="http://www.ogilumen.com/images/product_pics/n2xdp1.jpg" width="200" height="150"></h2>
+
+<p><a href="http://www.ogilumen.com/">Ogilumen</a> sells beautiful, compact and easy to assemble nixie tube kits containing two IN-12A tubes each.</p>
+
+<h3>4x IN-13 Bar Graphs</h3>
+
+<h2><img src="http://www.ogilumen.com/images/product_pics/IN-13a.jpg" width="200" height="150"></h2>
+
+<p>The IN-13 Neon Bar Graphs sold by Ogilumen are a beautiful way to display a variable length glowing bar.</p>
+
+<h3>5x IN-1 Neon</h3>
+
+<h2><img src="http://www.ogilumen.com/images/product_pics/n1a.jpg" width="200" height="150"></h2>
+
+<p>The IN-1 Neon Lamps are simply a nice LED-alternative and they have a nice warm orange glow...</p>
+
+<h2>1x 50 mA Nixie Tube Power Supply</h2>
+
+<h2><img src="http://www.ogilumen.com/images/product_pics/smps1.jpg" width="200" height="150"></h2>
+
+<p>Lastly we need a power supply to drive all our high-voltage Nixie goodness. Luckly ogilumen provides us with a readily assembled power supply capable of providing all the power we need...</p>
+
+<h2>Circuit Diagrams</h2>
+
+<p>TODO</p>
+
+<h2>Case Designs</h2>
+
+<p>TODO</p>
+
+<h2>The Service</h2>
+
+<p>A telnet based client to drive nixie tubes via rest interface</p>
+
+<h3>Manage the daemon process</h3>
+
+<p>Manage the daemon with</p>
+
+<pre><code>ruby app/nixieserver_control.rb start
+ruby app/nixieserver_control.rb restart
+ruby app/nixieserver_control.rb stop
 </code></pre>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<h3>Controlling</h3>
 
-<h3>Designer Templates</h3>
+<p>The daemon is controlled via sinatra web application (REST-full), see the example page at [YOUR-IP]:9999</p>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+<h2>The Gem</h2>
 
-<h3>Rather Drive Stick?</h3>
+<p>The NixieBerry Service is packed as a standalone gem which can be run as a daemon.</p>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<h3>Build</h3>
 
-<h3>Authors and Contributors</h3>
+<p>Build with</p>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<pre><code>gem build nixieberry-service.gemspec
+</code></pre>
 
-<h3>Support or Contact</h3>
+<h3>Install</h3>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
-      </section>
-      <footer>
-        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
-      </footer>
+<pre><code>$ gem install nixie-berry-service
+</code></pre>
+
+<h3>State machine</h3>
+
+<p>The service uses a state machine to handle local executions.
+Generate state machine diagrams with the following command:</p>
+
+<pre><code>rake state_machine:draw FILE=./lib/nixieberry/handlers/tube_handler_state_machine.rb CLASS=NixieBerry::TubeHandlerStateMachine
+</code></pre>
+
+<h1>Copyright</h1>
+
+<p>Copyright (c) 2012 Daniel Kummer.</p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/danielkummer/nixie-berry-service/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/danielkummer/nixie-berry-service/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/danielkummer/nixie-berry-service"></a> is maintained by <a href="https://github.com/danielkummer">danielkummer</a>.</p>
+
+          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
     </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-		
+
+  
   </body>
 </html>
