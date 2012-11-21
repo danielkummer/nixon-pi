@@ -1,11 +1,11 @@
 require_relative 'spec_helper'
-require_relative '../lib/nixieberry/web/sinatra_server'
+require_relative '../lib/nixieberry/web/web_server'
 
 
-describe NixieBerry::RESTServer, exclude: true do
+describe NixieBerry::WebServer, exclude: true do
 
   it "should start a new webserver" do
-    @server = NixieBerry::RESTServer.run!
+    @server = NixieBerry::WebServer.run!
 
     @server
   end

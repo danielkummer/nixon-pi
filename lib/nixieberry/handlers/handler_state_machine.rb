@@ -12,32 +12,28 @@ module NixieBerry
   class HandlerStateMachine
     include Logging
     include CommandQueue
-    extend Factory
+    include Factory
     extend ControlParameters
 
-    attr_accessor :current_state_parameters
+    @@state_parameters = {}
 
     def initialize
-      @current_state_parameters = StateHash.new
-      @current_state_parameters[:last_state] = nil
-
       super() # NOTE: This *must* be called, otherwise states won't get initialized
     end
 
-    def register_driver(driver)
-      @driver = driver
+    def self.state_parameters_for(type)
+      @@state_parameters[type]
     end
 
-    def driver
-      @driver.instance
+    ##
+    # Get the current state parameters from the global class state hash, lazy initialized
+    def current_state_parameters
+      @@state_parameters[registered_as_type] ||= initialize_state_hash
     end
 
-    def register_queue_name(name)
-      @queue_name = name.to_sym
-    end
 
     def state_information
-      @current_state_parameters
+      current_state_parameters
     end
 
     def handle
@@ -46,18 +42,42 @@ module NixieBerry
     end
 
     protected
+    ##
+    # Lazy initialize state hash if not already existing
+    def initialize_state_hash
+      @@state_parameters[registered_as_type] = StateHash.new
+      @@state_parameters[registered_as_type][:last_state] = nil
+      @@state_parameters[registered_as_type]
+    end
+
+
+    ##
+    # Register a driver to be used by the state machine
+    def register_driver(driver)
+      @driver = driver
+    end
+
+    ##
+    # Get an instance of the underlying driver
+    def driver
+      @driver.instance
+    rescue "Driver missing"
+    end
+
+    ##
+    # Handle the queue assigned to the registered type, assign state parameters and do the state switch
     def handle_command_queue
-      unless queue(@queue_name).empty?
-        state_change = queu(@queue_name).pop
+      unless queue(registered_as_type).empty?
+        state_change = queue(registered_as_type).pop
         log.debug("New possible state change: #{state_change}")
-        state_change.delete_if { |k, v| !control_parameters(@queue_name).keys.include?(k) or v.nil? }
+        state_change.delete_if { |k, v| !control_parameters(registered_as_type).keys.include?(k) or v.nil? }
 
         #do nothing if command is older than 2 seconds
         if state_change[:time] + 2 > Time.now
           log.debug("State change accepted: #{state_change}")
-          @current_state_parameters.merge(state_change)
+          current_state_parameters.merge(state_change)
           #trigger the event
-          self.fire_state_event(state_change[:mode].to_sym) if state_change[:mode] and self.state != state_change[:mode]
+          self.fire_state_event(state_change[:mode].to_sym) if state_change[:mode] and self.state != @@state_parameters[registered_as_type][:last_state]
         end
       end
     end
@@ -72,12 +92,12 @@ module NixieBerry
     end
 
     def values_changed?(bar_values)
-      if @current_state_parameters[:last_values].nil?
+      if current_state_parameters[:last_values].nil?
         true
       else
         bar_values.each_with_index do |value, index|
           unless bar_values[index].nil?
-            if @current_state_parameters[:last_values][index] != value
+            if current_state_parameters[:last_values][index] != value
               return true
             end
           end

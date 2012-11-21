@@ -9,7 +9,7 @@ module NixieBerry
   module Animations
     class Animation
       include Logging
-      extend Factory
+      include Factory
 
       attr_accessor :thread
 

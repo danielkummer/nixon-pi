@@ -17,7 +17,6 @@ module NixieBerry
 
     def after_create
       register_driver NixieBerry::TubeDriver
-      register_queue_name :tubes
     end
 
     state_machine :initial => :display_time do
@@ -45,7 +44,7 @@ module NixieBerry
       state :display_time do
         def write
           tubes_count = Settings.in12a_tubes.count
-          format = @current_state_parameters[:time_format]
+          format = current_state_parameters[:time_format]
 
           if format.nil? or format.size > tubes_count
             #log.debug "Using default time format, 6 tubes needed"
@@ -53,18 +52,18 @@ module NixieBerry
           end
 
           time = Time.now.strftime(format).rjust(tubes_count, ' ')
-          driver.write(time) unless time == @current_state_parameters[:last_value] or time.nil?
+          driver.write(time) unless time == current_state_parameters[:last_value] or time.nil?
           #todo might be unneccessary
-          @current_state_parameters[:last_value] = time
+          current_state_parameters[:last_value] = time
         end
       end
 
       state :display_free_value do
         def write
-          value = @current_state_parameters[:value]
-          unless value == @current_state_parameters[:last_value] or value.nil?
+          value = current_state_parameters[:value]
+          unless value == current_state_parameters[:last_value] or value.nil?
             driver.write(value)
-            @current_state_parameters[:last_value] = value
+            current_state_parameters[:last_value] = value
           end
         end
       end
@@ -73,18 +72,18 @@ module NixieBerry
 
       state :display_tube_animation do
         def write
-          animation_name = @current_state_parameters[:animation_name]
-          animation_options = @current_state_parameters[:animation_options]
+          animation_name = current_state_parameters[:animation_name]
+          animation_options = current_state_parameters[:animation_options]
           animation_options ||= {}
-          start_value = @current_state_parameters[:last_value]
+          start_value = current_state_parameters[:last_value]
           NixieBerry::Animations::Animation.create(animation_name.to_sym, animation_options).run(start_value)
-          self.send(@current_state_parameters[:last_state]) #go back to old state again and do whatever was done before
+          self.send(current_state_parameters[:last_state]) #go back to old state again and do whatever was done before
         end
       end
 
       state :display_test do
         def write
-          unless @current_state_parameters[:test_done]
+          unless current_state_parameters[:test_done]
             number_of_digits = 12
             test_data = Array.new
             9.times do |time|
@@ -105,7 +104,7 @@ module NixieBerry
 
             puts "Benchmark write 2-pair strings from 00 to 99:"
             puts bm
-            self.fire_state_event(@current_state_parameters[:last_state])
+            self.fire_state_event(current_state_parameters[:last_state])
           end
         end
       end

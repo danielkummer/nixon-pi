@@ -12,7 +12,7 @@ module NixieBerry
 
     #Todo kinda hack basing it on the handlerstatemachine superclass
     def write
-      @current_state_parameters[:value].to_speech
+      current_state_parameters[:value].to_speech
     end
   end
 end

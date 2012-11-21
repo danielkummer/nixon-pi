@@ -16,7 +16,7 @@ require_relative 'nixieberry/handlers/bar_handler_sate_machine'
 require_relative 'nixieberry/handlers/tube_handler_state_machine'
 require_relative 'nixieberry/handlers/lamp_handler_state_machine'
 require_relative 'nixieberry/animations/animation'
-require_relative 'nixieberry/web/sinatra_server'
+require_relative 'nixieberry/web/web_server'
 
 module NixieBerry
   class NixieService
@@ -27,7 +27,7 @@ module NixieBerry
       @tsm = NixieBerry::HandlerStateMachine.create(:tubes)
       @bsm = NixieBerry::HandlerStateMachine.create(:bars)
       @lsm = NixieBerry::HandlerStateMachine.create(:lamps)
-      @server = RESTServer
+      @server = WebServer
     end
 
     ##

@@ -1,11 +1,12 @@
 require 'singleton'
 require_relative 'settings'
 require 'active_support/core_ext/hash/indifferent_access'
-
+require 'json'
 
 module NixieBerry
   class StateHash < ::HashWithIndifferentAccess
     require 'sync'
+
 
 
     def initialize(*args, &block)
@@ -48,6 +49,10 @@ module NixieBerry
         end
       EndEval
     end
+  end
+
+  def to_json
+    JSON.encode(self)
   end
 
 

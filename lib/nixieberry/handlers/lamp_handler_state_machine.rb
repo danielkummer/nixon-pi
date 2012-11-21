@@ -9,7 +9,6 @@ module NixieBerry
 
     def after_create
       register_driver NixieBerry::LampDriver
-      register_queue_name :lamps
     end
 
     state_machine :initial => :display_free_value do
@@ -34,7 +33,7 @@ module NixieBerry
 
       state :display_free_value do
         def write
-          lamp_values = @current_state_parameters[:values]
+          lamp_values = current_state_parameters[:values]
           unless values_changed?(lamp_values)
             if lamp_values.include? nil
               lamp_values.each_with_index { |value, index| driver.write_to_lamp(index, value) unless value.nil? }

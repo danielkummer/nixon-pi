@@ -10,7 +10,6 @@ module NixieBerry
 
     def after_create
       register_driver NixieBerry::BarGraphDriver
-      register_queue_name :bars
     end
 
     state_machine :initial => :display_free_value do
@@ -35,7 +34,7 @@ module NixieBerry
 
       state :display_free_value do
         def write
-          bar_values = @current_state_parameters[:values]
+          bar_values = current_state_parameters[:values]
           unless values_changed?(bar_values)
             if bar_values.include? nil
               bar_values.each_with_index { |value, index| driver.write_to_bar(index, value) unless value.nil? }
