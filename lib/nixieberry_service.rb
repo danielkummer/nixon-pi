@@ -46,9 +46,9 @@ module NixieBerry
       #todo there must be a better way to control creating and shutting down!
       #unless ENV['NIXIE_BERRY_ENVIRONMENT'] = 'test'
 
-        t = Thread.new do
-          @server.run!
-        end
+      t = Thread.new do
+        @server.run!
+      end
       #end
 
       loop do

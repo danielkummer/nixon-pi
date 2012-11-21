@@ -10,6 +10,7 @@ module NixieBerry
 
     def initialize
       @pin_array = Settings.in1_pins
+      log.info "Initializing lamps with pins: #{@pin_array.to_s}"
     end
 
     ##

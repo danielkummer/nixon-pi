@@ -15,8 +15,13 @@ module NixieBerry
     include CommandQueue
     extend Logging
 
-    at_exit { log.info "Sinatra shut down..., don't restart" }
+    at_exit do
+      log.info "Sinatra shut down..., don't restart"
+      exit
+    end
 
+    set :run, false
+    set :server, "thin"
     set :json_encoder, JSON
     set :root, File.dirname(__FILE__)
     set :public_folder, File.join(File.dirname(__FILE__), 'public')
@@ -66,6 +71,7 @@ module NixieBerry
       status 400
       redirect("/")
     else
+      data[:value] = data[:value].rjust(12, " ")
       enqueue(:tubes, data)
 
       status 200
@@ -100,34 +106,6 @@ module NixieBerry
   post '/say' do
     data = params
     enqueue(:say, data)
-  end
-
-  private
-
-  # @Deprecated
-  def sanitize(data)
-    data = Hash[data.map { |a| [a.first.to_sym, a.last] }] #to sym hash
-
-    case data[:mode]
-      when 'display_free_value'
-        value = data[:value].rjust(12, " ")
-        data[:value] = {value: value}
-      when 'display_time'
-        data[:value] = {time_format: data[:value]}
-      when 'display_free_value'
-        data[:value] = {value: data[:value]}
-      when 'display_tube_animation'
-        #data[:value] = {animation_name: data[:value], animation_options: data[:options]}
-        data[:value] = {animation_name: data[:value]}
-      when 'test'
-        data[:value] = {}
-    end
-
-    data
-  end
-
-  def valid_tube_value?(s)
-    s.to_s.match(/^\d{1,12}$/) == nil ? false : true
   end
 
 end

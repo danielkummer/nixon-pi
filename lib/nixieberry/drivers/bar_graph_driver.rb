@@ -11,18 +11,22 @@ module NixieBerry
       dim_all(100)
       @bar_values = {}
       @pin_array = Settings.in13_pins
-      log.info "initialize nixie pwm bars"
+      log.info "initialize nixie pwm bars #{@pin_array.to_s}"
     end
 
     def bar_values
       @bar_values.values
     end
 
+    def bar_pins
+      @pin_array
+    end
+
     ##
     # Write a value array to multiple bargraphs
     #
     def write(value_array)
-      log.error "more values than configured lamps" and return if value_array.size > number_of_bars
+      log.error "more values than configured lamps" and return if value_array.size > @pin_array.size
       value_array.map! { |x| x > 255 ? 255 : x }
       client.pwm_write_registers(start_index: @pin_array.first, values: value_array)
     end

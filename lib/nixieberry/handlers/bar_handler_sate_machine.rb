@@ -2,6 +2,9 @@ require 'state_machine'
 
 require_relative '../drivers/bar_graph_driver'
 require_relative 'handler_state_machine'
+require_relative '../animations/animation'
+require_relative '../../nixieberry/animations/bar/ramp_up_down_animation'
+
 
 module NixieBerry
   class BarHandlerStateMachine < HandlerStateMachine
@@ -12,10 +15,10 @@ module NixieBerry
       register_driver NixieBerry::BarGraphDriver
     end
 
-    state_machine :initial => :display_free_value do
+    state_machine :initial => :display_test do
 
       around_transition do |object, transition, block|
-        handle_around_transition(object, transition, block)
+        HandlerStateMachine.handle_around_transition(object, transition, block)
       end
 
       event :display_free_value do
@@ -47,13 +50,21 @@ module NixieBerry
 
       state :display_bar_animation do
         def write
-          raise NotImplementedError
+          animation_name = current_state_parameters[:animation_name]
+          animation_options = current_state_parameters[:animation_options]
+          animation_options ||= {}
+          start_value = current_state_parameters[:last_value]
+          NixieBerry::Animations::Animation.create(animation_name.to_sym, animation_options).run(start_value)
+          self.send(current_state_parameters[:last_state]) #go back to old state again and do whatever was done before
+
         end
       end
 
       state :display_test do
         def write
-          raise NotImplementedError
+          #careful, endless loop!!
+          #NixieBerry::Animations::Animation.create(:ramp_up_down).run
+          self.fire_state_event(:display_free_value)
         end
       end
     end

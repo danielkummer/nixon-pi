@@ -82,7 +82,7 @@ module NixieBerry
       end
     end
 
-    def handle_around_transition(object, transition, block)
+    def self.handle_around_transition(object, transition, block)
       object.log.debug "transition  #{transition.event} from state: #{object.state}"
       object.current_state_parameters[:last_state] = object.state
       #transition.event.to_s.humanize.to_speech #say the current state transition

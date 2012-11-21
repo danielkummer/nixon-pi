@@ -34,7 +34,7 @@ module NixieBerry
       end
 
       event :display_tube_animation do
-        transition all => :display_tube_animation
+        transition all => :display_animation
       end
 
       event :display_test do
@@ -70,7 +70,7 @@ module NixieBerry
 
       #todo bug here - the thread could still be running inside the animation run method!
 
-      state :display_tube_animation do
+      state :display_animation do
         def write
           animation_name = current_state_parameters[:animation_name]
           animation_options = current_state_parameters[:animation_options]
