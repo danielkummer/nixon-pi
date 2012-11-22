@@ -21,7 +21,6 @@ module NixieBerry
     end
 
     set :run, false
-    set :server, "thin"
     set :json_encoder, JSON
     set :root, File.dirname(__FILE__)
     set :public_folder, File.join(File.dirname(__FILE__), 'public')
@@ -56,56 +55,56 @@ module NixieBerry
         f.json { @info.to_json }
       end
     end
-  end
 
-  get '/info', :provides => [:html, :json] do
-    client = AbioCardClient.instance
-    @info = client.info
-    haml :info, locals: {info: @info}
-  end
-
-  post '/tubes' do
-    #data = JSON.parse(params[:data])
-    data = sanitize(params)
-    if data.nil? or !data.has_key?(:mode) then
-      status 400
-      redirect("/")
-    else
-      data[:value] = data[:value].rjust(12, " ")
-      enqueue(:tubes, data)
-
-      status 200
-      redirect("/")
+    get '/info', :provides => [:html, :json] do
+      client = AbioCardClient.instance
+      @info = client.info
+      haml :info, locals: {info: @info}
     end
-  end
 
-  post '/bars' do
-    data = params
-    if data.nil? or !data.has_key?(:mode) then
-      status 400
-      redirect ("/")
-    else
-      enqueue(:bars, data)
-      status 200
-      redirect("/")
+    post '/tubes' do
+      #data = JSON.parse(params[:data])
+      data = params
+      if data.nil? or !data.has_key?(:mode) then
+        status 400
+        redirect("/")
+      else
+        data[:value] = data[:value].rjust(12, " ")
+        enqueue(:tubes, data)
+
+        status 200
+        redirect("/")
+      end
     end
-  end
 
-  post '/lamps' do
-    data = params
-    if data.nil? or !data.has_key?(:mode) then
-      status 400
-      redirect ("/")
-    else
-      enqueue(:lamps, data)
-      status 200
-      redirect("/")
+    post '/bars' do
+      data = params
+      if data.nil? or !data.has_key?(:mode) then
+        status 400
+        redirect ("/")
+      else
+        enqueue(:bars, data)
+        status 200
+        redirect("/")
+      end
     end
-  end
 
-  post '/say' do
-    data = params
-    enqueue(:say, data)
-  end
+    post '/lamps' do
+      data = params
+      if data.nil? or !data.has_key?(:mode) then
+        status 400
+        redirect ("/")
+      else
+        enqueue(:lamps, data)
+        status 200
+        redirect("/")
+      end
+    end
 
+    post '/say' do
+      data = params
+      enqueue(:say, data)
+    end
+
+  end
 end
