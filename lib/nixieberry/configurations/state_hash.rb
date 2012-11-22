@@ -1,10 +1,10 @@
 require 'singleton'
 require_relative 'settings'
-require 'active_support/core_ext/hash/indifferent_access'
+#require 'active_support/core_ext/hash/indifferent_access'
 require 'json'
 
 module NixieBerry
-  class StateHash < ::HashWithIndifferentAccess
+  class StateHash < ::Hash
     require 'sync'
 
 

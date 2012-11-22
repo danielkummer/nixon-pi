@@ -65,16 +65,11 @@ module NixieBerry
     post '/tubes' do
       data = string_key_to_sym(params)
       if data.nil? or !data.has_key?(:mode) then
-
-        puts "NOT added to queue #{data}"
-
         status 400
         redirect("/")
       else
-        puts "queueing #{data}"
         data[:value] = data[:value].rjust(12, " ")
         enqueue(:tubes, data)
-        puts "added to queue"
 
         status 200
         redirect("/")
