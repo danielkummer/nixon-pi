@@ -51,12 +51,32 @@ module NixieBerry
       end
       #end
 
-      loop do
-        @tsm.handle
-        @bsm.handle
-        @lsm.handle
-        sleep 0.3 #tacted at 30ms, adjust if necessary
+      threads = []
+      threads << Thread.new do
+        loop do
+          #puts "tsm active"
+          @tsm.handle
+          sleep 0.3 #tacted at 300ms, adjust if necessary
+        end
       end
+
+      threads << Thread.new do
+        loop do
+          #puts "bsm active"
+          @bsm.handle
+          sleep 0.3 #tacted at 300ms, adjust if necessary
+        end
+      end
+
+      threads << Thread.new do
+        loop do
+          #puts "lsm active"
+          @lsm.handle
+          sleep 0.3 #tacted at 300ms, adjust if necessary
+        end
+      end
+
+      threads.each {|thread| thread.join }
 
     end
   end

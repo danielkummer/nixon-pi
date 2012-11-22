@@ -68,6 +68,7 @@ module NixieBerry
     # Handle the queue assigned to the registered type, assign state parameters and do the state switch
     def handle_command_queue
       unless queue(registered_as_type).empty?
+        puts "registered as #{registered_as_type}"
         state_change = queue(registered_as_type).pop
         log.debug("New possible state change: #{state_change}")
         state_change.delete_if { |k, v| !control_parameters(registered_as_type).keys.include?(k) or v.nil? }

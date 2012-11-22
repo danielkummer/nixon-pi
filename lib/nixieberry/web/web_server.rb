@@ -63,14 +63,18 @@ module NixieBerry
     end
 
     post '/tubes' do
-      #data = JSON.parse(params[:data])
-      data = params
+      data = string_key_to_sym(params)
       if data.nil? or !data.has_key?(:mode) then
+
+        puts "NOT added to queue #{data}"
+
         status 400
         redirect("/")
       else
+        puts "queueing #{data}"
         data[:value] = data[:value].rjust(12, " ")
         enqueue(:tubes, data)
+        puts "added to queue"
 
         status 200
         redirect("/")
@@ -78,7 +82,7 @@ module NixieBerry
     end
 
     post '/bars' do
-      data = params
+      data = string_key_to_sym(params)
       if data.nil? or !data.has_key?(:mode) then
         status 400
         redirect ("/")
@@ -90,7 +94,7 @@ module NixieBerry
     end
 
     post '/lamps' do
-      data = params
+      data = string_key_to_sym(params)
       if data.nil? or !data.has_key?(:mode) then
         status 400
         redirect ("/")
@@ -102,8 +106,16 @@ module NixieBerry
     end
 
     post '/say' do
-      data = params
+      data = string_key_to_sym(params)
       enqueue(:say, data)
+    end
+
+    def string_key_to_sym(hash)
+      ret = {}
+      hash.each do |k,v|
+        ret[k.to_sym] = v
+      end
+      ret
     end
 
   end
