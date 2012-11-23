@@ -33,3 +33,7 @@ test:
 
 production:
   <<: *defaults
+  telnet_server:
+      host: localhost
+      port: 5678
+
