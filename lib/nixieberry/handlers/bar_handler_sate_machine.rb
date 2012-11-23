@@ -27,6 +27,7 @@ module NixieBerry
 
 
       event :display_bar_animation do
+        puts "in display_bar_animation"
         transition all => :display_bar_animation
       end
 
@@ -56,7 +57,6 @@ module NixieBerry
           start_value = current_state_parameters[:last_value]
           NixieBerry::Animations::Animation.create(animation_name.to_sym, animation_options).run(start_value)
           self.send(current_state_parameters[:last_state]) #go back to old state again and do whatever was done before
-
         end
       end
 

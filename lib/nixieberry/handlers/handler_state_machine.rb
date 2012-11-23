@@ -75,7 +75,7 @@ module NixieBerry
         if state_change[:time] + 2 > Time.now
           log.debug("State change accepted: #{state_change}")
           current_state_parameters.merge!(state_change)
-          self.fire_state_event(state_change[:mode].to_sym) if state_change[:mode] and self.state != @@state_parameters[registered_as_type][:last_state]
+          self.fire_state_event(state_change[:mode].to_sym) if state_change[:mode]
         end
       end
     end
