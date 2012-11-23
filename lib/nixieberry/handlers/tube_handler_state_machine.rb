@@ -47,13 +47,11 @@ module NixieBerry
           format = current_state_parameters[:time_format]
 
           if format.nil? or format.size > tubes_count
-            #log.debug "Using default time format, 6 tubes needed"
             format = Settings.default_time_format
           end
 
           time = Time.now.strftime(format).rjust(tubes_count, ' ')
-          driver.write(time) unless time == current_state_parameters[:last_value] or time.nil?
-          #todo might be unneccessary
+          driver.write(time) unless time.nil?
           current_state_parameters[:last_value] = time
         end
       end
@@ -62,9 +60,7 @@ module NixieBerry
         def write
           value = current_state_parameters[:value]
           puts "write: current_state_parameters #{current_state_parameters}"
-          puts "start writing value #{value}"
-          unless value == current_state_parameters[:last_value] or value.nil?
-            puts "write value #{value}"
+          unless value == value.nil?
             driver.write(value)
             current_state_parameters[:last_value] = value
           end

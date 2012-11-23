@@ -73,16 +73,12 @@ module NixieBerry
     def handle_command_queue
       unless queue(registered_as_type).empty?
         state_change = queue(registered_as_type).pop
-        log.debug("New possible state change: #{state_change}")
         state_change.delete_if { |k, v| !control_parameters(registered_as_type).keys.include?(k) or v.nil? }
 
         #do nothing if command is older than 2 seconds
         if state_change[:time] + 2 > Time.now
           log.debug("State change accepted: #{state_change}")
-          puts "current_state_parameters before merge #{current_state_parameters}"
           current_state_parameters = current_state_parameters.merge(state_change)
-          puts "current_state_parameters #{current_state_parameters}"
-          #trigger the event
           self.fire_state_event(state_change[:mode].to_sym) if state_change[:mode] and self.state != @@state_parameters[registered_as_type][:last_state]
         end
       end
