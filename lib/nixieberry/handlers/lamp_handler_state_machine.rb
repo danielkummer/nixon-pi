@@ -34,7 +34,7 @@ module NixieBerry
       state :display_free_value do
         def write
           lamp_values = current_state_parameters[:values]
-          unless values_changed?(lamp_values)
+          unless lamp_values.nil?
             if lamp_values.include? nil
               lamp_values.each_with_index { |value, index| driver.write_to_lamp(index, value) unless value.nil? }
             else
