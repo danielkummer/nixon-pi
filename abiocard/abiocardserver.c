@@ -242,13 +242,8 @@ FLAG  flush_rsp (VOID)
     {
         int     n;
 
-        if(commandline_mode) {
-
-        } else {
-            n = send(client_socket,snd_rsp,snd_rsp_si,0);
-            if (n < 0) return 0;
-        }
-
+        n = send(client_socket,snd_rsp,snd_rsp_si,0);
+        if (n < 0) return 0;
 
         // Reset the response buffer
         snd_rsp_si = 0;
@@ -881,7 +876,7 @@ FLAG  process_rcv_cmd (VOID)
     U32         cmd_left;
     FLAG        ok;
 
-
+/*
     // DBG.
     {
         U32     u;
@@ -890,7 +885,7 @@ FLAG  process_rcv_cmd (VOID)
         for (u = 0; u < rcv_cmd_si; u++) printf("%c",rcv_cmd[u]);
         printf("\n");
     }
-
+*/
 
     // Reset the command receive buffer
     rcv_cmd_fi = 0;
@@ -1009,7 +1004,6 @@ VOID  process_client (VOID)
 {
 #ifndef DISABLE_ABIOCARD
     FLAG    ok;
-
 
     // Initialise the AbioCard driver
     ok = abiocard_init(&abiocard_init_io);
@@ -1274,6 +1268,7 @@ int  main (int argc, char *argv[])
 
     //Check if command line mode
     if(commandline_mode == 1){
+
 #ifndef DISABLE_ABIOCARD
             FLAG    ok;
 
@@ -1292,8 +1287,8 @@ int  main (int argc, char *argv[])
 
 
 
-        //Read the commands from command line instead of opening a telent server.
-        printf("Accept commands\n");
+         //Read the commands from command line instead of opening a telent server.
+         printf("Accept commands\n");
        
 	     int     n;
 	
