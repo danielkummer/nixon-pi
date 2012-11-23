@@ -46,6 +46,8 @@ module NixieBerry
 
 
     get '/' do
+      @bars = Settings.in13_pins;
+      @lamps = Settings.in1_pins;
       haml :control
     end
 

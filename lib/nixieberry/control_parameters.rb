@@ -19,13 +19,21 @@ module NixieBerry
         when :bars
           {
               #pass values as array containing nil where no change
+              mode: nil,
               values: nil,
+              time_format: nil,
+              animation_name: nil,
+              animation_options: nil,
               time: nil
           }
         when :lamps
           {
-            values: nil,
-            time: nil
+              mode: nil,
+              values: nil,
+              time_format: nil,
+              animation_name: nil,
+              animation_options: nil,
+              time: nil
           }
         when :say
           {
