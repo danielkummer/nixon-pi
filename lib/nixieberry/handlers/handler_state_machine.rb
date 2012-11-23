@@ -17,6 +17,7 @@ module NixieBerry
 
     @@state_parameters = {}
 
+
     def initialize
       super() # NOTE: This *must* be called, otherwise states won't get initialized
     end

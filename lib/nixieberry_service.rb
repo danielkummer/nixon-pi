@@ -17,6 +17,7 @@ require_relative 'nixieberry/handlers/tube_handler_state_machine'
 require_relative 'nixieberry/handlers/lamp_handler_state_machine'
 require_relative 'nixieberry/animations/animation'
 require_relative 'nixieberry/web/web_server'
+require_relative 'nixieberry/handlers/machine_manager'
 
 module NixieBerry
   class NixieService
@@ -24,9 +25,7 @@ module NixieBerry
 
     def initialize
       log.info "Initializing Service.."
-      @tsm = NixieBerry::HandlerStateMachine.create(:tubes)
-      @bsm = NixieBerry::HandlerStateMachine.create(:bars)
-      @lsm = NixieBerry::HandlerStateMachine.create(:lamps)
+      NixieBerry::MachineManager.add_state_machines(:tubes, :bars, :lamps)
       @server = WebServer
     end
 
@@ -41,47 +40,21 @@ module NixieBerry
         end
       end
 
+      begin
+        log.info "Start running..."
+        #todo there must be a better way to control creating and shutting down!
+        #unless $environment  = 'test'
 
-      log.info "Start running..."
-      #todo there must be a better way to control creating and shutting down!
-      #unless ENV['NIXIE_BERRY_ENVIRONMENT'] = 'test'
-
-      t = Thread.new do
-        @server.run!
-      end
-      #end
-
-      threads = []
-      threads << Thread.new do
-        loop do
-          #puts "tsm active"
-          @tsm.handle
-          sleep 0.3 #tacted at 100ms, adjust if necessary
+        t = Thread.new do
+          @server.run!
         end
+        #end
+
+        NixieBerry::MachineManager.start_state_machines
+        NixieBerry::MachineManager.on_exit
+      rescue Interrupt
+        puts "Exiting..."
       end
-
-      threads << Thread.new do
-        loop do
-          #puts "bsm active"
-          begin
-            @bsm.handle
-          rescue Exception => e
-            log.error e.message
-          end
-
-          sleep 0.3 #tacted at 100ms, adjust if necessary
-        end
-      end
-
-      threads << Thread.new do
-        loop do
-          #puts "lsm active"
-          @lsm.handle
-          sleep 0.3 #tacted at 100ms, adjust if necessary
-        end
-      end
-
-      threads.each { |thread| thread.join }
 
     end
   end
