@@ -4,7 +4,7 @@ module NixieBerry
   class DirectIO
 
     def initialize
-      @stdin, @stdout, @stderr, @wait_thr = Open3.popen3('abiocardserver -cl')
+      @stdin, @stdout, @stderr, @wait_thr = Open3.popen3("#{Dir.pwd}/abiocard/abiocardserver -cl")
       #pid = @wait_thr[:pid]
     end
 
