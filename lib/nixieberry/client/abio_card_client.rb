@@ -212,29 +212,28 @@ module NixieBerry
       #todo test sync
       @mutex.synchronize {
         retryable do
-          @conn ||= connection_for(ENV['NIXIE_BERRY_ENVIRONMENT'])
+          @conn ||= connection_for($environment)
         end
         @conn
       }
     end
 
-    def connection_for(env)
-      case env.to_sym
-        when :development, :production
-          #todo refactor
-          case ENV['DRIVER']
-            when 'telnet'
-              @conn.close if @conn != nil
-              Net::Telnet::new("Host" => @host, "Port" => @port, "Telnetmode" => false, "Prompt" => //, "Binmode" => true) do |resp|
-                log.debug(resp)
-              end
-            when 'open3'
-              NixieBerry::DirectIO.new
+    def connection_for(environment)
+      case environment.to_sym
+        when :production
+          NixieBerry::DirectIO.new
+
+        when :development
+          @conn.close if @conn != nil
+          Net::Telnet::new("Host" => @host, "Port" => @port, "Telnetmode" => false, "Prompt" => //, "Binmode" => true) do |resp|
+            log.debug(resp)
           end
+
         when :test
           MockTelnet.new
       end
     end
+
 
     ##
     # Handle telnet exceptions
