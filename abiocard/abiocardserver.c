@@ -242,8 +242,13 @@ FLAG  flush_rsp (VOID)
     {
         int     n;
 
-        n = send(client_socket,snd_rsp,snd_rsp_si,0);
-        if (n < 0) return 0;
+        if(commandline_mode) {
+
+        } else {
+            n = send(client_socket,snd_rsp,snd_rsp_si,0);
+            if (n < 0) return 0;
+        }
+
 
         // Reset the response buffer
         snd_rsp_si = 0;
@@ -876,7 +881,7 @@ FLAG  process_rcv_cmd (VOID)
     U32         cmd_left;
     FLAG        ok;
 
-/*
+
     // DBG.
     {
         U32     u;
@@ -885,7 +890,7 @@ FLAG  process_rcv_cmd (VOID)
         for (u = 0; u < rcv_cmd_si; u++) printf("%c",rcv_cmd[u]);
         printf("\n");
     }
-*/
+
 
     // Reset the command receive buffer
     rcv_cmd_fi = 0;
@@ -1004,6 +1009,7 @@ VOID  process_client (VOID)
 {
 #ifndef DISABLE_ABIOCARD
     FLAG    ok;
+
 
     // Initialise the AbioCard driver
     ok = abiocard_init(&abiocard_init_io);
@@ -1156,6 +1162,7 @@ FLAG  parse_cmdline (int argc, char *argv[])
         if (strcmp(argv[arg_index],"-cl") == 0)
         {
             commandline_mode = 1;
+            return 1;
         }
         else
             return 0;
@@ -1184,6 +1191,7 @@ VOID  usage_cmdline (VOID)
         "-p n       Server port, n=1..65535\n" \
         "-t n       Time-out value (seconds) for the client connection, n=5..65535\n" \
         "-bsc n     Choose the BSC controller, n=0..1\n" \
+        "-cl        Use command line mode instead of telnet server\n" \
         "\n"
     );
 }
@@ -1266,7 +1274,26 @@ int  main (int argc, char *argv[])
 
     //Check if command line mode
     if(commandline_mode == 1){
+#ifndef DISABLE_ABIOCARD
+            FLAG    ok;
+
+
+            // Initialise the AbioCard driver
+            ok = abiocard_init(&abiocard_init_io);
+            if (!ok) return;
+#else
+            // Emulate
+            abiocard_init_io.rtc_present   = 0;
+            abiocard_init_io.ioexp_present = 0;
+            abiocard_init_io.adc_present   = 0;
+            abiocard_init_io.pwm_present   = 1;
+            abiocard_init_io.pwm2_present  = 0;
+#endif
+
+
+
         //Read the commands from command line instead of opening a telent server.
+        printf("Accept commands\n");
        
 	     int     n;
 	
@@ -1276,54 +1303,68 @@ int  main (int argc, char *argv[])
 	     // Reset the received command buffer
 	     rcv_cmd_si    = 0;
 	     rcv_cmd_error = 0;
-	     
 	     for (;;)
 	     {
-            int c = fgetc(stdin);
-            if ((c == 13) || (c == 10))
-            {
-                if (!rcv_cmd_error)
+             for (;;)
+             {
+                int c = fgetc(stdin);
+                if ((c == 13) || (c == 10))
                 {
-                    if (rcv_cmd_si > 0)
+                    if (!rcv_cmd_error)
                     {
-                        process_rcv_cmd();
-                        if (req_exit) return;
+                        if (rcv_cmd_si > 0)
+                        {
+                            process_rcv_cmd();
+                            if (req_exit)
+                             {
+#ifndef DISABLE_ABIOCARD
+                                 // De-initialise the AbioCard driver
+                                 abiocard_deinit();
+#endif
+                                 return 0;
+                             }
+                        }
+                    } else {
+                        printf("Receive command error\n");
+                    }
+                    // Reset the received command buffer
+                    rcv_cmd_si    = 0;
+                    rcv_cmd_error = 0;
+                    break;
+                }
+                else
+                if ((c >= 32) && (c <= 126))
+                {
+                    if (!rcv_cmd_error)
+                    {
+                        if (rcv_cmd_si < RCV_CMD_LEN)
+                        {
+                            rcv_cmd[rcv_cmd_si] = c;
+                            rcv_cmd_si++;
+                        }
+                        else
+                        {
+                            // Command buffer overflow
+                            rcv_cmd_error = 1;
+                        }
                     }
                 }
-                // Reset the received command buffer
-                rcv_cmd_si    = 0;
-                rcv_cmd_error = 0;
-            }
-            else
-            if ((c >= 32) && (c <= 126))
-            {
-                if (!rcv_cmd_error)
+                else
                 {
-                    if (rcv_cmd_si < RCV_CMD_LEN)
-                    {
-                        rcv_cmd[rcv_cmd_si] = c;
-                        rcv_cmd_si++;
-                    }
-                    else
-                    {
-                        // Command buffer overflow
-                        rcv_cmd_error = 1;
-                    }
+                    // Invalid character received
+                    rcv_cmd_error = 1;
                 }
             }
-            else
+            if (snd_rsp_si > 0)
             {
-                // Invalid character received
-                rcv_cmd_error = 1;
+                U32 u;
+                for (u = 0; u < snd_rsp_si; u++) printf("%c",snd_rsp[u]);
+                printf("\n");
+                // Reset the response buffer
+                snd_rsp_si = 0;
             }
         }
-        // Flush any outstanding characters for transmission
-        if (snd_rsp_si > 0)
-        {
-            printf(snd_rsp);
-            // Reset the response buffer
-            snd_rsp_si = 0;
-        }
+
     }
     //END Command Line
     
