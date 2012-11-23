@@ -75,6 +75,7 @@ module NixieBerry
 
       state :display_animation do
         def write
+          puts "start animation #{current_state_parameters}"
           animation_name = current_state_parameters[:animation_name]
           animation_options = current_state_parameters[:animation_options]
           animation_options ||= {}

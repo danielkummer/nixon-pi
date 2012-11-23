@@ -31,11 +31,6 @@ module NixieBerry
       @@state_parameters[registered_as_type] ||= initialize_state_hash
     end
 
-    def current_state_parameters=(value)
-      @@state_parameters[registered_as_type] = value
-    end
-
-
     def state_information
       current_state_parameters
     end
@@ -79,9 +74,7 @@ module NixieBerry
         #do nothing if command is older than 2 seconds
         if state_change[:time] + 2 > Time.now
           log.debug("State change accepted: #{state_change}")
-          puts "current_state_parameters before merge #{current_state_parameters}"
-          current_state_parameters = current_state_parameters.merge(state_change)
-          puts "current_state_parameters #{current_state_parameters}"
+          current_state_parameters.merge!(state_change)
           #trigger the event
           self.fire_state_event(state_change[:mode].to_sym) if state_change[:mode] and self.state != @@state_parameters[registered_as_type][:last_state]
         end

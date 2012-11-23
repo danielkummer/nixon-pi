@@ -56,7 +56,7 @@ module NixieBerry
         loop do
           #puts "tsm active"
           @tsm.handle
-          sleep 0.3 #tacted at 300ms, adjust if necessary
+          sleep 0.03 #tacted at 30ms, adjust if necessary
         end
       end
 
@@ -64,7 +64,7 @@ module NixieBerry
         loop do
           #puts "bsm active"
           @bsm.handle
-          sleep 0.3 #tacted at 300ms, adjust if necessary
+          sleep 0.03 #tacted at 30ms, adjust if necessary
         end
       end
 
@@ -72,7 +72,7 @@ module NixieBerry
         loop do
           #puts "lsm active"
           @lsm.handle
-          sleep 0.3 #tacted at 300ms, adjust if necessary
+          sleep 0.03 #tacted at 30ms, adjust if necessary
         end
       end
 
