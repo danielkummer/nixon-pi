@@ -27,13 +27,17 @@ defaults: &defaults
 
 development:
   <<: *defaults
+  log_level: DEBUG
 
 test:
   <<: *defaults
 
 production:
   <<: *defaults
+  log_level: ERROR
   telnet_server:
       host: localhost
       port: 5678
+  web_server:
+    port: 80
 
