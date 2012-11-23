@@ -44,6 +44,7 @@ module NixieBerry
       state :display_time do
         def write
           tubes_count = Settings.in12a_tubes.count
+          puts "params #{current_state_parameters}"
           format = current_state_parameters[:time_format]
 
           if format.nil? or format.size > tubes_count
