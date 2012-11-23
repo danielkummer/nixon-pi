@@ -63,7 +63,12 @@ module NixieBerry
       threads << Thread.new do
         loop do
           #puts "bsm active"
-          @bsm.handle
+          begin
+            @bsm.handle
+          rescue Exception => e
+            log.error e.message
+          end
+
           sleep 0.1 #tacted at 100ms, adjust if necessary
         end
       end
@@ -76,7 +81,7 @@ module NixieBerry
         end
       end
 
-      threads.each {|thread| thread.join }
+      threads.each { |thread| thread.join }
 
     end
   end

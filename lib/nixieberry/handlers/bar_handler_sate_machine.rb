@@ -38,7 +38,7 @@ module NixieBerry
       state :display_free_value do
         def write
           bar_values = current_state_parameters[:values]
-          unless values_changed?(bar_values)
+          if !bar_values.nil? and values_changed?(bar_values)
             if bar_values.include? nil
               bar_values.each_with_index { |value, index| driver.write_to_bar(index, value) unless value.nil? }
             else

@@ -190,8 +190,8 @@ module NixieBerry
 
       #convert values to hex string
       values.each do |value|
-        value = 0 unless (0..255).include?(value) #set to 0 if out of bounds
-        output_array_string << value.round.to_s(16).rjust(2, '0')
+        value = 0 unless (0..255).include?(value.to_i) #set to 0 if out of bounds
+        output_array_string << value.to_i.round.to_s(16).rjust(2, '0')
       end
 
       command = ("PW" + start_at_register + register_count + output_array_string).upcase

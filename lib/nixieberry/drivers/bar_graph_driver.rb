@@ -27,7 +27,7 @@ module NixieBerry
     #
     def write(value_array)
       log.error "more values than configured lamps" and return if value_array.size > @pin_array.size
-      value_array.map! { |x| x > 255 ? 255 : x }
+      value_array.map! { |x| x.to_i > 255 ? 255 : x.to_i }
       client.pwm_write_registers(start_index: @pin_array.first, values: value_array)
     end
 
