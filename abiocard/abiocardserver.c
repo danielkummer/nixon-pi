@@ -80,6 +80,8 @@ static  U16                 client_timeout_sec  = 30;
 static  BCM2835_DETECT_IO   detect_io           = { 0 };
 static  FLAG                bsc_parsed          = 0;
 
+static  FLAG                commandline_mode    = 0;
+
 static  ABIOCARD_INIT_IO    abiocard_init_io    = { 0 };
 
 static  U16                 server_port;
@@ -1151,6 +1153,11 @@ FLAG  parse_cmdline (int argc, char *argv[])
             arg_index++;
         }
         else
+        if (strcmp(argv[arg_index],"-cl") == 0)
+        {
+            commandline_mode = 1;
+        }
+        else
             return 0;
     }
 
@@ -1257,6 +1264,70 @@ int  main (int argc, char *argv[])
 #endif
 
 
+    //Check if command line mode
+    if(commandline_mode == 1){
+        //Read the commands from command line instead of opening a telent server.
+       
+	     int     n;
+	
+	     // Reset the response buffer
+	     snd_rsp_si = 0;
+	
+	     // Reset the received command buffer
+	     rcv_cmd_si    = 0;
+	     rcv_cmd_error = 0;
+	     
+	     for (;;)
+	     {
+            int c = fgetc(stdin);
+            if ((c == 13) || (c == 10))
+            {
+                if (!rcv_cmd_error)
+                {
+                    if (rcv_cmd_si > 0)
+                    {
+                        process_rcv_cmd();
+                        if (req_exit) return;
+                    }
+                }
+                // Reset the received command buffer
+                rcv_cmd_si    = 0;
+                rcv_cmd_error = 0;
+            }
+            else
+            if ((c >= 32) && (c <= 126))
+            {
+                if (!rcv_cmd_error)
+                {
+                    if (rcv_cmd_si < RCV_CMD_LEN)
+                    {
+                        rcv_cmd[rcv_cmd_si] = c;
+                        rcv_cmd_si++;
+                    }
+                    else
+                    {
+                        // Command buffer overflow
+                        rcv_cmd_error = 1;
+                    }
+                }
+            }
+            else
+            {
+                // Invalid character received
+                rcv_cmd_error = 1;
+            }
+        }
+        // Flush any outstanding characters for transmission
+        if (snd_rsp_si > 0)
+        {
+            printf(snd_rsp);
+            // Reset the response buffer
+            snd_rsp_si = 0;
+        }
+    }
+    //END Command Line
+    
+    
     // Create a blocking socket
     server_socket = socket(AF_INET,SOCK_STREAM,0);
     if (server_socket == -1)
