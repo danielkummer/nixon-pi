@@ -1,6 +1,7 @@
 #require 'profile'
 
 ENV['NIXIE_BERRY_ENVIRONMENT'] = 'development' #default value if nothing else is set
+ENV['DRIVER'] = 'telnet'
 
 if ARGV.any?
   require 'optparse'
@@ -11,6 +12,9 @@ if ARGV.any?
     op.on('-p port', 'set the webserver port (default is 8080)') do |val|
       require_relative '../lib/nixieberry/configurations/settings'
       NixieBerry::Settings['web_server']['port'] = val
+    end
+    op.on('-d', 'use direct io instead of telnet connection') do
+      ENV['DRIVER'] = 'open3'
     end
     op.on('-h', '--help', 'Display help') do
       puts op
