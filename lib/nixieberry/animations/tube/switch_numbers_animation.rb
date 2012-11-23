@@ -21,25 +21,21 @@ module NixieBerry
         duration = @options[:duration]
         sleep_step = @options[:sleep]
         value = start
-        @thread = Thread.new do
-          duration.times.with_index do |index|
-            value = value.each_char.collect do |x|
-              if x =~ /\d/
-                x.to_i + 1 % 10
-              else
-                x
-              end
-            end.join
-            log.debug "write value: #{value}"
-            write(value, index)
-            sleep sleep_step
-          end
+        duration.times.with_index do |index|
+          value = value.each_char.collect do |x|
+            if x =~ /\d/
+              x.to_i + 1 % 10
+            else
+              x
+            end
+          end.join
           log.debug "write value: #{value}"
-          write(start, duration + 1 )
+          write(value, index)
+          sleep sleep_step
         end
-        @thread.join
+        log.debug "write value: #{value}"
+        write(start, duration + 1 )
       end
-
     end
   end
 end

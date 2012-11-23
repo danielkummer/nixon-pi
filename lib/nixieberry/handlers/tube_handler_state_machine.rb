@@ -64,8 +64,6 @@ module NixieBerry
         end
       end
 
-      #todo bug here - the thread could still be running inside the animation run method!
-
       state :display_animation do
         def write
           puts "start animation #{current_state_parameters}"

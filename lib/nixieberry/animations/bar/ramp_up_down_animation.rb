@@ -26,22 +26,19 @@ module NixieBerry
         animation_values = Array.new(number_of_tubes, 0)
         start = Time.now
         total_time = @options[:total] * 1000.0
-        @thread = Thread.new do
-          index = 0
-          elapsed = time_diff_milli(start, Time.now)
-          while elapsed < total_time do
+        index = 0
+        elapsed = time_diff_milli(start, Time.now)
+        while elapsed < total_time do
 
-            value = ease_in_out_quad(elapsed, 0, 255, total_time)
+          value = ease_in_out_quad(elapsed, 0, 255, total_time)
 
-            animation_values = [value] * number_of_tubes
+          animation_values = [value] * number_of_tubes
 
-            log.debug "write value: #{animation_values}"
-            write(animation_values, index)
-            index += 1
-            sleep sleep_step
-          end
+          log.debug "write value: #{animation_values}"
+          write(animation_values, index)
+          index += 1
+          sleep sleep_step
         end
-        @thread.join
       end
 
 
