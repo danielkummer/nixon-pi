@@ -220,6 +220,7 @@ module NixieBerry
     def connection_for(env)
       case env.to_sym
         when :development, :production
+          @conn.close if @conn != nil
           Net::Telnet::new("Host" => @host, "Port" => @port, "Telnetmode" => false, "Prompt" => //, "Binmode" => true) do |resp|
             log.debug(resp)
           end
@@ -234,11 +235,15 @@ module NixieBerry
       begin
         yield
           #rescue Exception => exception
-      rescue TimeoutError => exception
-        log.error exception.message
-        connection || raise
       rescue Exception => e
-        raise e
+        case e
+          when Errno::ECONNRESET,Errno::ECONNABORTED,Errno::ETIMEDOUT,Errno::EPIPE
+            log.error e.message
+            connection || raise
+          else
+            log.error e.message
+            raise e
+        end
       end
     end
 

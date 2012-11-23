@@ -59,11 +59,8 @@ module NixieBerry
       state :display_free_value do
         def write
           value = current_state_parameters[:value]
-          puts "write: current_state_parameters #{current_state_parameters}"
-          unless value == value.nil?
-            driver.write(value)
-            current_state_parameters[:last_value] = value
-          end
+          driver.write(value)
+          current_state_parameters[:last_value] = value
         end
       end
 
@@ -71,6 +68,7 @@ module NixieBerry
 
       state :display_animation do
         def write
+          puts "start animation #{current_state_parameters}"
           animation_name = current_state_parameters[:animation_name]
           animation_options = current_state_parameters[:animation_options]
           animation_options ||= {}

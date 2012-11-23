@@ -31,11 +31,6 @@ module NixieBerry
       @@state_parameters[registered_as_type] ||= initialize_state_hash
     end
 
-    def current_state_parameters=(value)
-      @@state_parameters[registered_as_type] = value
-    end
-
-
     def state_information
       current_state_parameters
     end
@@ -73,12 +68,13 @@ module NixieBerry
     def handle_command_queue
       unless queue(registered_as_type).empty?
         state_change = queue(registered_as_type).pop
+        log.debug("New possible state change: #{state_change}")
         state_change.delete_if { |k, v| !control_parameters(registered_as_type).keys.include?(k) or v.nil? }
 
         #do nothing if command is older than 2 seconds
         if state_change[:time] + 2 > Time.now
           log.debug("State change accepted: #{state_change}")
-          current_state_parameters = current_state_parameters.merge(state_change)
+          current_state_parameters.merge!(state_change)
           self.fire_state_event(state_change[:mode].to_sym) if state_change[:mode] and self.state != @@state_parameters[registered_as_type][:last_state]
         end
       end
