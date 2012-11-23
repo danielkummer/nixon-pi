@@ -26,12 +26,12 @@
       %ul
         %li
           %label{:for => "body"} Animation:
-          %select{:name => "value"}
+          %select{:name => "animation_name"}
             %option{:selected => "", :value => "switch_numbers"} switch numbers
             %option{:value => "single_fly_in"} fly in
         %li
           %label{:for => "value"} Options (Hash)
-          %input{:type => "text", :name => "options", :class => "text"}
+          %input{:type => "text", :name => "animation_options", :class => "text"}
       %input{:type => "hidden", :name => "mode", :value => "display_tube_animation"}
       %input{:type => "submit", :value => "Send", :class => "button"}
 

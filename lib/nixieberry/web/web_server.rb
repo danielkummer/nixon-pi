@@ -68,7 +68,7 @@ module NixieBerry
         status 400
         redirect("/")
       else
-        data[:value] = data[:value].rjust(12, " ")
+        data[:value] = data[:value].rjust(12, " ") unless data[:value].nil?
         enqueue(:tubes, data)
 
         status 200
