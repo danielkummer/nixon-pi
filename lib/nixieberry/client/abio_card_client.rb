@@ -7,6 +7,7 @@ require_relative 'retryable'
 require_relative 'conversion_helper'
 require_relative '../logging/logging'
 require_relative '../configurations/settings'
+require_relative 'direct_io'
 
 require_relative '../../../spec/support/mock_telnet'
 
@@ -213,16 +214,22 @@ module NixieBerry
         retryable do
           @conn ||= connection_for(ENV['NIXIE_BERRY_ENVIRONMENT'])
         end
-      @conn
+        @conn
       }
     end
 
     def connection_for(env)
       case env.to_sym
         when :development, :production
-          @conn.close if @conn != nil
-          Net::Telnet::new("Host" => @host, "Port" => @port, "Telnetmode" => false, "Prompt" => //, "Binmode" => true) do |resp|
-            log.debug(resp)
+          #todo refactor
+          case ENV['DRIVER']
+            when 'telnet'
+              @conn.close if @conn != nil
+              Net::Telnet::new("Host" => @host, "Port" => @port, "Telnetmode" => false, "Prompt" => //, "Binmode" => true) do |resp|
+                log.debug(resp)
+              end
+            when 'open3'
+              NixieBerry::DirectIO.new
           end
         when :test
           MockTelnet.new
@@ -237,18 +244,19 @@ module NixieBerry
           #rescue Exception => exception
       rescue Exception => e
         case e
-          when Errno::ECONNRESET,Errno::ECONNABORTED,Errno::ETIMEDOUT,Errno::EPIPE
+          when Errno::ECONNRESET, Errno::ECONNABORTED, Errno::ETIMEDOUT, Errno::EPIPE
             log.error e.message
             connection || raise
           else
             log.error e.message
+            exit
             raise e
         end
       end
     end
 
     ##
-    # Close telent connection
+    # Close telnet connection
     def exit
       connection.close
     end
