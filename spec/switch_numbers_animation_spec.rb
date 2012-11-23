@@ -1,14 +1,14 @@
 require_relative 'spec_helper'
 require_relative '../lib/nixieberry/animations/tube/switch_numbers_animation'
 
-describe NixieBerry::Animations::SwitchNumbersAnimation do
+describe NixonPi::Animations::SwitchNumbersAnimation do
 
   before :each do
-    @an = NixieBerry::Animations::Animation.create(:switch_numbers, duration: 3)
+    @an = NixonPi::Animations::Animation.create(:switch_numbers, duration: 3)
   end
 
   it "should return a correct instance" do
-    @an.should be_a(NixieBerry::Animations::SwitchNumbersAnimation)
+    @an.should be_a(NixonPi::Animations::SwitchNumbersAnimation)
   end
 
   it "should run the animation" do

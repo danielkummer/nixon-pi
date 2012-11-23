@@ -10,8 +10,8 @@ if ARGV.any?
       $environment  = val
     end
     op.on('-p port', 'set the webserver port (default is 8080)') do |val|
-      require_relative '../lib/nixieberry/configurations/settings'
-      NixieBerry::Settings['web_server']['port'] = val
+      require_relative '../lib/nixonpi/configurations/settings'
+      NixonPi::Settings['web_server']['port'] = val
     end
     op.on('-h', '--help', 'Display help') do
       puts op
@@ -19,7 +19,7 @@ if ARGV.any?
     end
   }.parse!(ARGV.dup)
 end
-require_relative '../lib/nixieberry_service'
-server = NixieBerry::NixieService.new
+require_relative '../lib/nixonpi_service'
+server = NixonPi::NixieService.new
 server.run
 

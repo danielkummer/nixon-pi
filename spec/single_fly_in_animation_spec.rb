@@ -1,14 +1,14 @@
 require_relative 'spec_helper'
 require_relative '../lib/nixieberry/animations/tube/single_fly_in_animation'
 
-describe NixieBerry::Animations::SingleFlyInAnimation do
+describe NixonPi::Animations::SingleFlyInAnimation do
 
   before :each do
-    @an = NixieBerry::Animations::Animation.create(:single_fly_in, duration: 3)
+    @an = NixonPi::Animations::Animation.create(:single_fly_in, duration: 3)
   end
 
   it "should return a correct instance" do
-    @an.should be_a(NixieBerry::Animations::SingleFlyInAnimation)
+    @an.should be_a(NixonPi::Animations::SingleFlyInAnimation)
   end
 
   it "should run the animation" do

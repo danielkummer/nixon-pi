@@ -1,10 +1,10 @@
 require_relative 'spec_helper'
 require_relative '../lib/nixieberry/client/abio_card_client'
 
-describe NixieBerry::AbioCardClient do
+describe NixonPi::AbioCardClient do
 
   before :each do
-    @client = NixieBerry::AbioCardClient.instance
+    @client = NixonPi::AbioCardClient.instance
   end
 
   it "should get a valid singleton instance" do

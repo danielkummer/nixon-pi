@@ -1,11 +1,11 @@
 require_relative 'spec_helper'
 require_relative '../lib/nixieberry/animations/easing'
 
-describe NixieBerry::Easing do
+describe NixonPi::Easing do
 
   before :each do
     @object = Object.new
-    @object.extend(NixieBerry::Easing)
+    @object.extend(NixonPi::Easing)
   end
 
 

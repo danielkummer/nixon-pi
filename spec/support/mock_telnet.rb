@@ -2,7 +2,7 @@ require_relative '../../lib/nixieberry/logging/logging'
 
 
 class MockTelnet
-  include NixieBerry::Logging
+  include NixonPi::Logging
 
   def cmd(string)
     #enable for more debug output..
