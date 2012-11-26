@@ -9,7 +9,9 @@ require_relative '../logging/logging'
 require_relative '../configurations/settings'
 require_relative 'direct_io'
 
-require_relative '../../../spec/support/mock_telnet'
+if $environment == 'test'
+  require_relative '../../../spec/support/mock_telnet'
+end
 
 module NixonPi
   class AbioCardClient
@@ -25,24 +27,25 @@ module NixonPi
     ##
     # Initialize client connection to telnet server
     def initialize
-      @host = Settings.telnet_server.host
-      @port = Settings.telnet_server.port
+      @environment = $environment
 
-      @pwm_register_array = Array.new(NUMBER_OF_PWM_PORTS, 0)
-      @io_register = Array.new(NUMBER_OF_IO_PORTS, 0)
-
-      @mutex = Mutex.new
-      #load_last_values currently not used
+      unless Settings['telnet_server'].nil?
+        @host, @port = Settings.telnet_server.host, Settings.telnet_server.port
+      end
+      @pwm_register_array, @io_register, @mutex = Array.new(NUMBER_OF_PWM_PORTS, 0), Array.new(NUMBER_OF_IO_PORTS, 0), Mutex.new
     end
 
-
+    ##
+    # Read analog values from pin
+    # @param [Integer] pin
     def read_adc(pin)
       #TODO
       raise NotImplementedError
     end
 
 
-    ## Write to the rtc clock
+    ##
+    # Write to the rtc clock
     # @param [Time] time
     def clock_write(time)
       time_string = time.strftime("%y%m%d%H%M%S")
@@ -200,6 +203,8 @@ module NixonPi
     end
 
     protected
+    ##
+    # Load the last written values directly from the io card
     def load_last_values
       log.debug "loading last values"
       pwm_read_registers
@@ -209,26 +214,27 @@ module NixonPi
     ##
     # Connect to abiocard telnet server
     def connection
-      #todo test sync
       @mutex.synchronize {
         retryable do
-          @conn ||= connection_for($environment)
+          @conn ||= connection_for(@environment)
         end
         @conn
       }
     end
 
+    ##
+    # Get a connection for the specified environment, in production it's open3 directIO, in development telnet
+    # and in test a mock object for verbose output
+    # @param [String]
     def connection_for(environment)
       case environment.to_sym
         when :production
           NixonPi::DirectIO.new
-
         when :development
           @conn.close if @conn != nil
           Net::Telnet::new("Host" => @host, "Port" => @port, "Telnetmode" => false, "Prompt" => //, "Binmode" => true) do |resp|
             log.debug(resp)
           end
-
         when :test
           MockTelnet.new
       end
@@ -255,7 +261,7 @@ module NixonPi
     end
 
     ##
-    # Close telnet connection
+    # Close the connection
     def exit
       connection.close
     end

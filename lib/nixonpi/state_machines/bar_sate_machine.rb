@@ -7,7 +7,7 @@ require_relative '../../nixonpi/animations/bar/ramp_up_down_animation'
 
 
 module NixonPi
-  class BarHandlerStateMachine < HandlerStateMachine
+  class BarStateMachine < HandlerStateMachine
 
     register_as :bars
 

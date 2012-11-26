@@ -1,4 +1,4 @@
-require_relative '../../lib/nixieberry/logging/logging'
+require_relative '../../lib/nixonpi/logging/logging'
 
 
 class MockTelnet

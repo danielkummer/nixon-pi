@@ -11,7 +11,7 @@ require_relative 'handler_state_machine'
 
 
 module NixonPi
-  class TubeHandlerStateMachine < HandlerStateMachine
+  class TubeStateMachine < HandlerStateMachine
 
     register_as :tubes
 

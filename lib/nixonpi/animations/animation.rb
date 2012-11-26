@@ -30,6 +30,7 @@ module NixonPi
       #
       # @param [String] value  value to write
       # @param [Integer] index iteration index
+      # Todo the semaphore should be obsolete now...
       def write(value, index)
         @semaphore.synchronize {
           if block_given?

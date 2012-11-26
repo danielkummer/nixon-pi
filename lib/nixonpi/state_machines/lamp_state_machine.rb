@@ -3,7 +3,7 @@ require_relative '../../../lib/nixonpi/drivers/lamp_driver'
 require_relative 'handler_state_machine'
 
 module NixonPi
-  class LampHandlerStateMachine < HandlerStateMachine
+  class LampStateMachine < HandlerStateMachine
 
     register_as :lamps
 

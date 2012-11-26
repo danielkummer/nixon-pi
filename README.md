@@ -101,7 +101,7 @@ Build with
 The service uses a state machine to handle local executions.
 Generate state machine diagrams with the following command:
 
-    rake state_machine:draw FILE=./lib/nixieberry/handlers/tube_handler_state_machine.rb CLASS=NixieBerry::TubeHandlerStateMachine
+    rake state_machine:draw FILE=./lib/nixieberry/state_machines/tube_state_machine.rb CLASS=NixieBerry::TubeHandlerStateMachine
 
 # Copyright
 
