@@ -1,8 +1,8 @@
-# NixieBerry - The Raspberry Pi based Nixie Display
+# Nixon-&PI; - The Raspberry Pi based Nixie Display
 
 ## The components
 
-The NixieBerry Display consists of Nixie Tubes provided by [Ogilumen](http://www.ogilumen.com/), driven by a Raspberry Pi Model B with an [Axiris](http://www.axiris.be/) I/O expansion card.
+The Nixon-&PI; Display consists of Nixie Tubes provided by [Ogilumen](http://www.ogilumen.com/), driven by a Raspberry Pi Model B with an [Axiris](http://www.axiris.be/) I/O expansion card.
 
 ### 1x Raspberry Pi Model B
 
@@ -81,13 +81,13 @@ The daemon is controlled via sinatra web application (REST-full), see the exampl
 
 ## The Gem
 
-The NixieBerry Service is packed as a standalone gem which can be run as a daemon.
+The Nixon-&PI; Service is packed as a standalone gem which can be run as a daemon.
 
 ### Build
 
 Build with
 
-    gem build nixieberry-service.gemspec
+    gem build Nixon-&PI;-service.gemspec
 
 
 ### Install
@@ -101,8 +101,8 @@ Build with
 The service uses a state machine to handle local executions.
 Generate state machine diagrams with the following command:
 
-    rake state_machine:draw FILE=./lib/nixieberry/state_machines/tube_state_machine.rb CLASS=NixieBerry::TubeHandlerStateMachine
+    rake state_machine:draw FILE=./lib/nixon-pi/state_machines/tube_state_machine.rb CLASS=NixonPi;::TubeHandlerStateMachine
 
 # Copyright
 
-Copyright (c) 2012 Daniel Kummer.
+
