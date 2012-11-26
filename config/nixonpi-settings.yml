@@ -1,0 +1,43 @@
+defaults: &defaults
+  log_level: DEBUG
+  telnet_server:
+    host: 10.0.0.101
+    port: 5678
+  default_time_format: "%H%M%S"
+  web_server:
+    port: 8080
+  in12a_tubes:
+    data_pin:  2
+    clock_pin: 1
+    latch_pin: 0
+    count: 12
+    write_blanks: true
+  in1_pins:
+    - 9
+    - 10
+    - 11
+    - 12
+    - 13
+  in13_pins:
+    - 0
+    - 1
+    - 2
+    - 3
+
+
+development:
+  <<: *defaults
+  log_level: DEBUG
+
+test:
+  <<: *defaults
+
+production:
+  <<: *defaults
+  log_level: ERROR
+  telnet_server:
+      host: localhost
+      port: 5678
+  web_server:
+    port: 80
+

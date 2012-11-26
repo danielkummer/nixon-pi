@@ -1,4 +1,4 @@
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in nixieberry.gemspec
+# Specify your gem's dependencies in nixonpi.gemspec
 gemspec

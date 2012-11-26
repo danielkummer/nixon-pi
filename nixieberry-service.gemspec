@@ -1,11 +1,11 @@
 # -*- encoding: utf-8 -*-
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'nixieberry/version'
+require 'nixonpi/version'
 
 Gem::Specification.new do |gem|
-  gem.name          = "nixieberry"
-  gem.version       = NixieBerry::Service::VERSION
+  gem.name          = "nixon-pi"
+  gem.version       = NixonPi::VERSION
   gem.authors       = ["Daniel Kummer"]
   gem.email         = ["daniel.kummer@gmail.com"]
   gem.description   = %q{Drive nixie tubes over a raspberry pi abiocard shield}
@@ -16,7 +16,7 @@ Gem::Specification.new do |gem|
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
-  gem.default_executable = 'nixieberry-daemon'
+  gem.default_executable = 'nixonpi-daemon'
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib", "config"]
 
@@ -27,6 +27,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'festivaltts4r'
   gem.add_dependency 'webrick'
   gem.add_dependency 'sinatra'
+  gem.add_dependency 'sinatra-contrib'
   gem.add_dependency 'json'
   gem.add_dependency 'haml'
 
