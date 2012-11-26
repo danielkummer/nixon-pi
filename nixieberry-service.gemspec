@@ -4,8 +4,8 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'nixonpi/version'
 
 Gem::Specification.new do |gem|
-  gem.name          = "nixonpi"
-  gem.version       = NixonPi::Service::VERSION
+  gem.name          = "nixon-pi"
+  gem.version       = NixonPi::VERSION
   gem.authors       = ["Daniel Kummer"]
   gem.email         = ["daniel.kummer@gmail.com"]
   gem.description   = %q{Drive nixie tubes over a raspberry pi abiocard shield}

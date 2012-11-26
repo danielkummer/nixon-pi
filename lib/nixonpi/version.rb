@@ -1,5 +1,3 @@
 module NixonPi
-  module Service
-    VERSION = "0.0.3"
-  end
+  VERSION = "0.1.0"
 end
