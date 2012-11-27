@@ -26,21 +26,32 @@ module NixonPi
       @@state_parameters[type]
     end
 
-
-    def state_information
+    ##
+    # Get the current state information hash
+    def state_info_hash
       current_state_parameters
     end
 
+    ##
+    # Main handle method for all state machines
     def handle
       handle_command_queue
       write
+    end
+
+    ##
+    # Get the current state parameters from the global class state hash, lazy initialized
+    def current_state_parameters
+      @@state_parameters[registered_as_type] ||= initialize_state_hash
     end
 
     protected
     ##
     # Lazy initialize state hash if not already existing
     def initialize_state_hash
-      @@state_parameters[registered_as_type] = StateHash[last_value: nil]
+      @@state_parameters[registered_as_type] = StateHash.new
+      @@state_parameters[registered_as_type][:last_state] = nil
+      @@state_parameters[registered_as_type]
     end
 
     ##
@@ -56,18 +67,13 @@ module NixonPi
     # @param [block] block
     def self.handle_around_transition(object, transition, block)
       object.log.debug "transition  #{transition.event} from state: #{object.state}"
-      object.current_state_parameters[:last_state] = object.state
+      object.current_state_parameters[:last_state] = object.state unless object.state.nil?
       #transition.event.to_s.humanize.to_speech #say the current state transition
       block.call
       object.current_state_parameters[:state] = object.state
       object.log.debug "new state: #{object.state}"
     end
 
-    ##
-    # Get the current state parameters from the global class state hash, lazy initialized
-    def current_state_parameters
-      @@state_parameters[registered_as_type] ||= initialize_state_hash
-    end
 
     ##
     # Get an instance of the underlying driver

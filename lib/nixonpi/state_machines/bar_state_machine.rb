@@ -31,8 +31,8 @@ module NixonPi
         transition all => :animation
       end
 
-      event :test do
-        transition all => :test
+      event :run_test do
+        transition all => :run_test
       end
 
 
@@ -59,7 +59,7 @@ module NixonPi
         end
       end
 
-      state :test do
+      state :run_test do
         def write
           #careful, endless loop!!
           #NixieBerry::Animations::Animation.create(:ramp_up_down).run

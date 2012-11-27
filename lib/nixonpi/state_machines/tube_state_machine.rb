@@ -19,7 +19,7 @@ module NixonPi
       register_driver NixonPi::TubeDriver
     end
 
-    state_machine :initial => :time do
+    state_machine :initial => :startup do
 
       around_transition do |object, transition, block|
         HandlerStateMachine.handle_around_transition(object, transition, block)
@@ -37,8 +37,15 @@ module NixonPi
         transition all => :animation
       end
 
-      event :test do
-        transition all => :test
+      event :run_test do
+        transition all => :run_test
+      end
+
+      state :startup do
+        def write
+          #do some startup animation stuff....
+          self.fire_state_event(:time)
+        end
       end
 
       state :time do
@@ -71,11 +78,11 @@ module NixonPi
           options ||= {}
           start_value = current_state_parameters[:last_value]
           NixonPi::Animations::Animation.create(name.to_sym, options).run(start_value)
-          self.send(current_state_parameters[:last_state]) #go back to old state again and do whatever was done before
+          self.fire_state_event(current_state_parameters[:last_state]) #go back to old state again and do whatever was done before
         end
       end
 
-      state :test do
+      state :run_test do
         def write
           unless current_state_parameters[:test_done]
             number_of_digits = 12

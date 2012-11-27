@@ -20,39 +20,33 @@ module NixonPi
     include Logging
 
     def initialize
-      log.info "Initializing Service.."
+      log.info "Initializing Nixon-Pi service.."
+      log.info "Environment: #{$environment}"
       NixonPi::MachineManager.add_state_machines(:tubes, :bars, :lamps)
       @server = WebServer
     end
 
     ##
     # Run service run
-    def run
+    def run!
       [:INT, :TERM].each do |sig|
-        trap(sig) do
-          log.info "Shutting down..."
-          log.info "Bye ;)"
-          exit(0)
-        end
+        trap(sig) { quit!() }
       end
 
-      begin
-        log.info "Start running..."
-        #todo there must be a better way to control creating and shutting down!
-        #unless $environment  = 'test'
+      log.info "Start running..."
+      @web_thread = Thread.new { @server.run! }
+      NixonPi::MachineManager.start_state_machines
+      NixonPi::MachineManager.join_threads
+    end
 
-        t = Thread.new do
-          @server.run!
-        end
-        #end
+    def quit!
+      log.info "Nixon Pi is shutting down..."
+      Thread.kill(@web_thread)
 
-        NixonPi::MachineManager.start_state_machines
-        NixonPi::MachineManager.on_exit
-      rescue Interrupt
-        puts "Exiting..."
-      end
-
+      log.info "Bye ;)"
+      exit(0)
     end
   end
 end
+
 
