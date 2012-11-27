@@ -1,10 +1,10 @@
 require 'thread'
-require_relative 'control_parameters'
+require_relative 'command_parameters'
 
 
 module NixonPi
   class CommandQueue
-    include ControlParameters
+    include CommandParameters
 
     @@queues = {}
 
@@ -15,7 +15,7 @@ module NixonPi
       # @param [Symbol] worker
       # @param [Hash] params
       def enqueue(worker, params)
-        command = control_parameters(worker).merge(params)
+        command = command_parameters(worker).merge(params)
         command[:time] = Time.now
         queue(worker) << command
       end
