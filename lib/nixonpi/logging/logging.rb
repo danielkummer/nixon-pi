@@ -19,7 +19,7 @@ module NixonPi
       end
 
       def configure_logger_for(classname)
-        path = File.join(Dir.pwd, 'nixie.log')
+        path = File.join(Dir.home, 'nixon-pi.log')
         logger = Logger.new MultiDelegator.delegate(:write, :close).to(STDOUT, File.open(path, "a"))
         logger.level = eval "Logger::#{Settings.log_level}"
         logger.progname = classname
