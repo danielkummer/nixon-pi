@@ -1,7 +1,4 @@
 require 'rubygems'
-require 'json'
-require 'logger'
-require 'benchmark'
 
 require_relative 'nixonpi/version'
 require_relative 'nixonpi/delegators/multi_delegator'

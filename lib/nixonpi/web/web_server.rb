@@ -1,18 +1,17 @@
 require 'sinatra'
 require 'sinatra/base'
 require 'sinatra/contrib'
-#require 'json'
-require_relative '../configurations/state_hash'
 require 'haml'
+require 'json'
+
 require_relative '../../../lib/nixonpi/command_queue'
+require_relative '../configurations/state_hash'
 require_relative '../configurations/settings'
 require_relative '../logging/logging'
-require 'json'
 
 module NixonPi
   class WebServer < Sinatra::Base
     register Sinatra::RespondWith
-    include CommandQueue
     extend Logging
 
     at_exit do
@@ -71,7 +70,7 @@ module NixonPi
         redirect("/")
       else
         data[:value] = data[:value].rjust(12, " ") unless data[:value].nil?
-        enqueue(:tubes, data)
+        CommandQueue.enqueue(:tubes, data)
 
         status 200
         redirect("/")
@@ -84,7 +83,7 @@ module NixonPi
         status 400
         redirect ("/")
       else
-        enqueue(:bars, data)
+        CommandQueue.enqueue(:bars, data)
         status 200
         redirect("/")
       end
@@ -96,7 +95,7 @@ module NixonPi
         status 400
         redirect ("/")
       else
-        enqueue(:lamps, data)
+        CommandQueue.enqueue(:lamps, data)
         status 200
         redirect("/")
       end
@@ -104,7 +103,7 @@ module NixonPi
 
     post '/say' do
       data = string_key_to_sym(params)
-      enqueue(:say, data)
+      CommandQueue.enqueue(:say, data)
     end
 
     def string_key_to_sym(hash)

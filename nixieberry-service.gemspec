@@ -22,7 +22,6 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'activesupport', '>= 3.2.8'
   gem.add_dependency 'settingslogic'
-  gem.add_dependency 'daemons'
   gem.add_dependency 'state_machine'
   gem.add_dependency 'festivaltts4r'
   gem.add_dependency 'webrick'

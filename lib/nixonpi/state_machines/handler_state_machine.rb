@@ -11,12 +11,10 @@ require_relative '../factory'
 module NixonPi
   class HandlerStateMachine
     include Logging
-    include CommandQueue
     include Factory
     extend ControlParameters
 
     @@state_parameters = {}
-
 
     def initialize
       super() # NOTE: This *must* be called, otherwise states won't get initialized
@@ -67,8 +65,8 @@ module NixonPi
     ##
     # Handle the queue assigned to the registered type, assign state parameters and do the state switch
     def handle_command_queue
-      unless queue(registered_as_type).empty?
-        state_change = queue(registered_as_type).pop
+      unless CommandQueue.queue(registered_as_type).empty?
+        state_change = CommandQueue.queue(registered_as_type).pop
         log.debug("New possible state change: #{state_change}")
         state_change.delete_if { |k, v| !control_parameters(registered_as_type).keys.include?(k) or v.nil? }
 

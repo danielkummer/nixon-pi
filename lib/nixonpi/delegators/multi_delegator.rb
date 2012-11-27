@@ -16,7 +16,7 @@ module NixonPi
       self
     end
 
-    class <<self
+    class << self
       alias to new
     end
   end
