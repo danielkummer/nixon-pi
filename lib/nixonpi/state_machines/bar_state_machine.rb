@@ -15,28 +15,28 @@ module NixonPi
       register_driver NixonPi::BarGraphDriver
     end
 
-    state_machine :initial => :display_test do
+    state_machine :initial => :test do
 
       around_transition do |object, transition, block|
         HandlerStateMachine.handle_around_transition(object, transition, block)
       end
 
-      event :display_free_value do
-        transition all => :display_free_value
+      event :free_value do
+        transition all => :free_value
       end
 
 
-      event :display_bar_animation do
-        puts "in display_bar_animation"
-        transition all => :display_bar_animation
+      event :animation do
+        puts "in animation"
+        transition all => :animation
       end
 
-      event :display_test do
-        transition all => :display_test
+      event :test do
+        transition all => :test
       end
 
 
-      state :display_free_value do
+      state :free_value do
         def write
           bar_values = current_state_parameters[:values]
           if !bar_values.nil? and values_changed?(bar_values)
@@ -49,22 +49,21 @@ module NixonPi
         end
       end
 
-      state :display_bar_animation do
+      state :animation do
         def write
-          animation_name = current_state_parameters[:animation_name]
-          animation_options = current_state_parameters[:animation_options]
-          animation_options ||= {}
+          name, options = current_state_parameters[:animation_name], current_state_parameters[:animation_options]
+          options ||= {}
           start_value = current_state_parameters[:last_value]
-          NixonPi::Animations::Animation.create(animation_name.to_sym, animation_options).run(start_value)
+          NixonPi::Animations::Animation.create(name.to_sym, options).run(start_value)
           self.send(current_state_parameters[:last_state]) #go back to old state again and do whatever was done before
         end
       end
 
-      state :display_test do
+      state :test do
         def write
           #careful, endless loop!!
           #NixieBerry::Animations::Animation.create(:ramp_up_down).run
-          self.fire_state_event(:display_free_value)
+          self.fire_state_event(:free_value)
         end
       end
     end
