@@ -9,7 +9,7 @@
         %li
           %label{:for => "value"} Tube values:
           %input{:type => "text", :name => "value", :class => "text"}
-      %input{:type => "hidden", :name => "mode", :value => "display_free_value"}
+      %input{:type => "hidden", :name => "mode", :value => "free_value"}
       %input{:type => "submit", :value => "Send", :class => "button"}
   %hr/
 
@@ -19,7 +19,7 @@
         %li
           %label{:for => "value"} Time Format
           %input{:type => "text", :name => "time_format", :class => "text", value: "%H%M%S"}
-      %input{:type => "hidden", :name => "mode", :value => "display_time"}
+      %input{:type => "hidden", :name => "mode", :value => "time"}
       %input{:type => "submit", :value => "Send", :class => "button"}
   %hr/
 
@@ -34,7 +34,7 @@
         %li
           %label{:for => "value"} Options (Hash)
           %input{:type => "text", :name => "animation_options", :class => "text"}
-      %input{:type => "hidden", :name => "mode", :value => "display_tube_animation"}
+      %input{:type => "hidden", :name => "mode", :value => "tube_animation"}
       %input{:type => "submit", :value => "Send", :class => "button"}
   %hr/
 
@@ -42,8 +42,22 @@
     %fieldset
       %ul
         %li
+          %label{:for => "body"} Countdown:
+        %li
+          %label{:for => "value"} Duration
+          %input{:type => "text", :name => "value", :class => "text"}
+      %input{:type => "hidden", :name => "mode", :value => "countdown"}
+      %input{:type => "submit", :value => "Send", :class => "button"}
+      .examples
+        %p 12.4 secs, 4:01:01, 3 mins 4 sec, 2 hrs 20 min, 2h20min, 3 weeks and 2 days
+    %hr/
+
+  %form{ :action => "/tubes", :method => "POST"}
+    %fieldset
+      %ul
+        %li
           %label{:for => "body"} Test:
-      %input{:type => "hidden", :name => "mode", :value => "display_test"}
+      %input{:type => "hidden", :name => "mode", :value => "test"}
       %input{:type => "submit", :value => "Test", :class => "button"}
 .one-fourth.column
   %h3 Bar Control
@@ -58,7 +72,7 @@
             %input{:type => "range", :name => "values[]", :class => "range", min: "0", max: "255", value: "0"}
             100%
             %br
-        %input{:type => "hidden", :name => "mode", :value => "display_free_value"}
+        %input{:type => "hidden", :name => "mode", :value => "free_value"}
         %input{:type => "submit", :value => "Send", :class => "button"}
   %hr/
 
@@ -72,7 +86,7 @@
         %li
           %label{:for => "value"} Options (Hash)
           %input{:type => "text", :name => "animation_options", :class => "text"}
-      %input{:type => "hidden", :name => "mode", :value => "display_bar_animation"}
+      %input{:type => "hidden", :name => "mode", :value => "bar_animation"}
       %input{:type => "submit", :value => "Send", :class => "button"}
 
 .one-fourth.column
@@ -87,7 +101,7 @@
           %input{:type => "range", :name => "values[]", :class => "range", min: "0", max: "1", value: "0"}
           on
           %br
-      %input{:type => "hidden", :name => "mode", :value => "display_free_value"}
+      %input{:type => "hidden", :name => "mode", :value => "free_value"}
       %input{:type => "submit", :value => "Send", :class => "button"}
   %hr/
 

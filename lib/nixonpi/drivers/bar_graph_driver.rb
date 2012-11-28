@@ -1,6 +1,5 @@
 require_relative 'driver'
 
-
 module NixonPi
   class BarGraphDriver
     include Singleton
@@ -16,10 +15,6 @@ module NixonPi
 
     def bar_values
       @bar_values.values
-    end
-
-    def bar_pins
-      @pin_array
     end
 
     ##

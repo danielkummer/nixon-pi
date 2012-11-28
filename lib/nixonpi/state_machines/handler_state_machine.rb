@@ -1,44 +1,48 @@
 require 'state_machine'
+require 'active_support/inflector'
 
 require_relative '../logging/logging'
 require_relative '../configurations/state_hash'
-require 'active_support/inflector'
 require_relative '../command_queue'
-require_relative '../control_parameters'
+require_relative '../command_parameters'
 require_relative '../factory'
-
 
 module NixonPi
   class HandlerStateMachine
     include Logging
-    include CommandQueue
     include Factory
-    extend ControlParameters
+    extend CommandParameters
 
     @@state_parameters = {}
 
-
     def initialize
-      super() # NOTE: This *must* be called, otherwise states won't get initialized
+      super # NOTE: This *must* be called, otherwise states won't get initialized
     end
 
+    ##
+    # Get the state parameters for the registered state machine
+    # @param [Symbol] type
     def self.state_parameters_for(type)
       @@state_parameters[type]
+    end
+
+    ##
+    # Get the current state information hash
+    def state_info_hash
+      current_state_parameters
+    end
+
+    ##
+    # Main handle method for all state machines
+    def handle
+      handle_command_queue
+      write
     end
 
     ##
     # Get the current state parameters from the global class state hash, lazy initialized
     def current_state_parameters
       @@state_parameters[registered_as_type] ||= initialize_state_hash
-    end
-
-    def state_information
-      current_state_parameters
-    end
-
-    def handle
-      handle_command_queue
-      write
     end
 
     protected
@@ -50,12 +54,26 @@ module NixonPi
       @@state_parameters[registered_as_type]
     end
 
-
     ##
     # Register a driver to be used by the state machine
     def register_driver(driver)
       @driver = driver
     end
+
+    ##
+    # Handle around transitions, mainly remember the last and the current state
+    # @param [Object] object State machine class instance
+    # @param [Transition] transition
+    # @param [block] block
+    def self.handle_around_transition(object, transition, block)
+      object.log.debug "transition  #{transition.event} from state: #{object.state}"
+      object.current_state_parameters[:last_state] = object.state unless object.state.nil?
+      #transition.event.to_s.humanize.to_speech #say the current state transition
+      block.call
+      object.current_state_parameters[:state] = object.state
+      object.log.debug "new state: #{object.state}"
+    end
+
 
     ##
     # Get an instance of the underlying driver
@@ -67,29 +85,23 @@ module NixonPi
     ##
     # Handle the queue assigned to the registered type, assign state parameters and do the state switch
     def handle_command_queue
-      unless queue(registered_as_type).empty?
-        state_change = queue(registered_as_type).pop
-        log.debug("New possible state change: #{state_change}")
-        state_change.delete_if { |k, v| !control_parameters(registered_as_type).keys.include?(k) or v.nil? }
+      queue = CommandQueue.queue(registered_as_type)
 
-        #do nothing if command is older than 2 seconds
-        if state_change[:time] + 2 > Time.now
-          log.debug("State change accepted: #{state_change}")
-          current_state_parameters.merge!(state_change)
-          self.fire_state_event(state_change[:mode].to_sym) if state_change[:mode]
+      unless queue.empty?
+        command = queue.pop
+
+        log.debug("Got command: #{command}, checking for invalid control parameters...")
+
+        command.delete_if { |k, v| !command_parameters(registered_as_type).keys.include?(k) or v.nil? }
+
+        if command[:time] + 2 > Time.now #do nothing if command is older than 2 seconds
+          current_state_parameters.merge!(command)
+          self.fire_state_event(command[:mode].to_sym) if command[:mode]
         end
       end
     end
 
-    def self.handle_around_transition(object, transition, block)
-      object.log.debug "transition  #{transition.event} from state: #{object.state}"
-      object.current_state_parameters[:last_state] = object.state
-      #transition.event.to_s.humanize.to_speech #say the current state transition
-      block.call
-      object.current_state_parameters[:state] = object.state
-      object.log.debug "new state: #{object.state}"
-    end
-
+    #todo refactor
     def values_changed?(bar_values)
       if current_state_parameters[:last_values].nil?
         true

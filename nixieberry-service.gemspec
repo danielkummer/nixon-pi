@@ -22,7 +22,6 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'activesupport', '>= 3.2.8'
   gem.add_dependency 'settingslogic'
-  gem.add_dependency 'daemons'
   gem.add_dependency 'state_machine'
   gem.add_dependency 'festivaltts4r'
   gem.add_dependency 'webrick'
@@ -30,6 +29,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'sinatra-contrib'
   gem.add_dependency 'json'
   gem.add_dependency 'haml'
+  gem.add_dependency 'chronic_duration'
 
   gem.add_development_dependency 'rdoc'
   gem.add_development_dependency 'rspec'

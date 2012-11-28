@@ -19,32 +19,46 @@ module NixonPi
       register_driver NixonPi::TubeDriver
     end
 
-    state_machine :initial => :display_time do
+    state_machine :initial => :startup do
 
       around_transition do |object, transition, block|
         HandlerStateMachine.handle_around_transition(object, transition, block)
       end
 
-      event :display_free_value do
-        transition all => :display_free_value
+      event :free_value do
+        transition all => :free_value
       end
 
-      event :display_time do
-        transition all => :display_time
+      event :time do
+        transition all => :time
       end
 
-      event :display_tube_animation do
-        transition all => :display_animation
+      event :animation do
+        transition all => :animation
       end
 
-      event :display_test do
-        transition all => :display_test
+      event :countdown do
+        transition all => :countdown
       end
 
-      state :display_time do
+      event :run_test do
+        transition all => :run_test
+      end
+
+      state :startup do
+        def write
+          current_state_parameters[:animation_name] = "single_fly_in"
+          current_state_parameters[:animation_options] = ""
+          current_state_parameters[:last_value] = "0000"
+          self.fire_state_event(:animation)
+          current_state_parameters[:last_state] = :time #after startup animation, switch to :time state
+        end
+      end
+
+      state :time do
         def write
           tubes_count = Settings.in12a_tubes.count
-          puts "params #{current_state_parameters}"
+
           format = current_state_parameters[:time_format]
 
           if format.nil? or format.size > tubes_count
@@ -57,7 +71,7 @@ module NixonPi
         end
       end
 
-      state :display_free_value do
+      state :free_value do
         def write
           value = current_state_parameters[:value]
           driver.write(value)
@@ -65,18 +79,24 @@ module NixonPi
         end
       end
 
-      state :display_animation do
+      state :animation do
         def write
-          animation_name = current_state_parameters[:animation_name]
-          animation_options = current_state_parameters[:animation_options]
-          animation_options ||= {}
+          name, options = current_state_parameters[:animation_name], current_state_parameters[:animation_options]
+          options ||= {}
           start_value = current_state_parameters[:last_value]
-          NixonPi::Animations::Animation.create(animation_name.to_sym, animation_options).run(start_value)
-          self.send(current_state_parameters[:last_state]) #go back to old state again and do whatever was done before
+          NixonPi::Animations::Animation.create(name.to_sym, options).run(start_value)
+          puts "state #{current_state_parameters}"
+          self.fire_state_event(current_state_parameters[:last_state]) #go back to old state again and do whatever was done before
         end
       end
 
-      state :display_test do
+      state :countdown do
+        def write
+
+        end
+      end
+
+      state :run_test do
         def write
           unless current_state_parameters[:test_done]
             number_of_digits = 12

@@ -1,5 +1,7 @@
 require_relative '../animation'
 require_relative '../easing'
+require_relative '../../configurations/settings'
+
 ##
 # This animation increments every number by one, the number of turnarounds can be specified
 #
@@ -21,7 +23,7 @@ module NixonPi
       end
 
       def run(start)
-        number_of_tubes = @driver.bar_pins.size
+        number_of_tubes = Settings.in13_pins.size
         sleep_step = @options[:sleep]
         animation_values = Array.new(number_of_tubes, 0)
         start = Time.now

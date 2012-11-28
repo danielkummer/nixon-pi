@@ -1,12 +1,12 @@
 module NixonPi
-  module ControlParameters
+  module CommandParameters
 
     ##
     # Tube control parameters to be passed via the command queue
     # only use the ones you need...
-    #Todo refactor!
-    def control_parameters(handler)
-      case handler
+    # @param [Symbol] state_machine the handling state machine
+    def command_parameters(state_machine)
+      case state_machine
         when :tubes
           {
               mode: nil,
@@ -18,7 +18,6 @@ module NixonPi
           }
         when :bars
           {
-              #pass values as array containing nil where no change
               mode: nil,
               values: nil,
               time_format: nil,
