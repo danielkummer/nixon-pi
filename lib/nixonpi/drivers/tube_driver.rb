@@ -17,7 +17,7 @@ module NixonPi
     end
 
     def write_string_with_blanks(output)
-      log.info "write number with blanks '#{output}'"
+      #log.debug "write number with blanks '#{output}'"
       client.io_write(@latch_pin, 0)
 
       output.split('').reverse.each do |digit|

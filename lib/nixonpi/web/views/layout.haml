@@ -13,8 +13,21 @@
       %script{:src => "/js/libs/less-1.3.1.min.js", :type => "text/javascript"}
     - if settings.production?
       %link{:href => "/css/style.css", :rel => "stylesheet"}
+    %link{:href => "http://fonts.googleapis.com/css?family=Josefin+Sans:400,700", :rel => "stylesheet", :type => "text/css"}
+    %link{:href => "http://fonts.googleapis.com/css?family=Lobster+Two:400,700", :rel => "stylesheet", :type => "text/css"}
+
+
       /compile:  $ lessc public/less/style.less > public/css/mycss.css
       /source: http://stackoverflow.com/questions/11481203/how-to-start-using-twitter-bootstrap-and-sass-in-a-sinatra-project
 %body
   .container
-    = yield
+    .content
+      .row
+        .span12
+          .hero-unit
+            %h1 Nixon-Pi
+      .row
+        = yield
+    %footer.footer
+      %p
+        &copy; Daniel Kummer
