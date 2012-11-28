@@ -11,7 +11,7 @@ module NixonPi
       register_driver NixonPi::LampDriver
     end
 
-    state_machine :initial => :free_value do
+    state_machine :initial => :startup do
 
       around_transition do |object, transition, block|
         handle_around_transition(object, transition, block)
@@ -47,6 +47,13 @@ module NixonPi
       state :bar_animation do
         def write
           raise NotImplementedError
+        end
+      end
+
+      state :startup do
+        def write
+          #do some startup animation stuff....
+          self.fire_state_event(:free_value)
         end
       end
 
