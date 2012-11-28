@@ -1,92 +1,28 @@
-.span12
+.span10
   %h2 Tubes
-  %form{ :action => "/tubes", :method => "POST"}
+  %form{ :action => "/tubes", :method => "POST", :class=> "form-horizontal"}
     %fieldset
-      %ul
-        %li
-          %label{:for => "value"} Tube values:
-          %input{:type => "text", :name => "value", :class => "text"}
       %input{:type => "hidden", :name => "mode", :value => "free_value"}
-      %input{:type => "submit", :value => "Send", :class => "button"}
-  %hr/
+      %input{:type => "text", :name => "value", :class => "input-tubes search-query  span8"}
+      %input{:type => "submit", :value => "Send", :class => "btn btn-large"}
+      %label Mode
+      %select{:name => "mode", :class => "input_mode"}
+        %option{:selected => "", :value => "free_value"} Free value
+        %option{:value => "time_format"} Time format
+        %option{:value => "tube_animation"} Tube animation
+        %option{:value => "countdown"} Countdown
 
-  %form{ :action => "/tubes", :method => "POST"}
-    %fieldset
-      %ul
-        %li
-          %label{:for => "value"} Time Format
-          %input{:type => "text", :name => "time_format", :class => "text", value: "%H%M%S"}
-      %input{:type => "hidden", :name => "mode", :value => "time"}
-      %input{:type => "submit", :value => "Send", :class => "button"}
-  %hr/
+      %label Animation Name
+      %select{:name => "animation_name"}
+        %option{:selected => "", :value => "switch_numbers"} switch numbers
+        %option{:value => "single_fly_in"} fly in
 
-  %form{ :action => "/tubes", :method => "POST"}
-    %fieldset
-      %ul
-        %li
-          %label{:for => "body"} Animation:
-          %select{:name => "animation_name"}
-            %option{:selected => "", :value => "switch_numbers"} switch numbers
-            %option{:value => "single_fly_in"} fly in
-        %li
-          %label{:for => "value"} Options (Hash)
-          %input{:type => "text", :name => "animation_options", :class => "text"}
-      %input{:type => "hidden", :name => "mode", :value => "tube_animation"}
-      %input{:type => "submit", :value => "Send", :class => "button"}
-  %hr/
+      %label{:for => "value"} Options (Hash)
+      %input{:type => "text", :name => "animation_options", :class => "text"}
 
-  %form{ :action => "/tubes", :method => "POST"}
-    %fieldset
-      %ul
-        %li
-          %label{:for => "body"} Countdown:
-        %li
-          %label{:for => "value"} Duration
-          %input{:type => "text", :name => "value", :class => "text"}
-      %input{:type => "hidden", :name => "mode", :value => "countdown"}
-      %input{:type => "submit", :value => "Send", :class => "button"}
-      .examples
-        %p 12.4 secs, 4:01:01, 3 mins 4 sec, 2 hrs 20 min, 2h20min, 3 weeks and 2 days
-    %hr/
 
-  %form{ :action => "/tubes", :method => "POST"}
-    %fieldset
-      %ul
-        %li
-          %label{:for => "body"} Test:
-      %input{:type => "hidden", :name => "mode", :value => "test"}
-      %input{:type => "submit", :value => "Test", :class => "button"}
-.one-fourth.column
-  %h3 Bar Control
-  .bar-control
-    %form{ :action => "/bars", :method => "POST"}
-      %fieldset
-        %ul
-          %li
-            %label{:for => "value"} Bar values:
-          -@bars.each do |bar|
-            0
-            %input{:type => "range", :name => "values[]", :class => "range", min: "0", max: "255", value: "0"}
-            100%
-            %br
-        %input{:type => "hidden", :name => "mode", :value => "free_value"}
-        %input{:type => "submit", :value => "Send", :class => "button"}
-  %hr/
-
-  %form{ :action => "/bars", :method => "POST"}
-    %fieldset
-      %ul
-        %li
-          %label{:for => "body"} Animation:
-          %select{:name => "animation_name"}
-            %option{:selected => "", :value => "ramp_up_down"} ramp up / down
-        %li
-          %label{:for => "value"} Options (Hash)
-          %input{:type => "text", :name => "animation_options", :class => "text"}
-      %input{:type => "hidden", :name => "mode", :value => "bar_animation"}
-      %input{:type => "submit", :value => "Send", :class => "button"}
-
-.one-fourth.column
+.span12
+  .offset-by-eight
   %h3 Lamp Control
   %form{ :action => "/lamps", :method => "POST"}
     %fieldset

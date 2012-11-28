@@ -2,11 +2,49 @@
 @import "bootstrap/responsive.less";
 
 
+// Set the correct sprite paths
+@iconSpritePath: asset-path('imh/bootstrap/glyphicons-halflings.png');
+@iconWhiteSpritePath: asset-path('img/bootstrap/glyphicons-halflings-white.png');
+
+// Set the Font Awesome (Font Awesome is default. You can disable by commenting below lines)
+// Note: If you use asset_path() here, your compiled boostrap_and_overrides.css will not
+//       have the proper paths. So for now we use the absolute path.
+//@fontAwesomeEotPath: '/assets/fontawesome-webfont.eot';
+//@fontAwesomeWoffPath: '/assets/fontawesome-webfont.woff';
+//@fontAwesomeTtfPath: '/assets/fontawesome-webfont.ttf';
+//@fontAwesomeSvgPath: '/assets/fontawesome-webfont.svg';
+
+// Font Awesome
+//@import "fontawesome";
+
+
 body {
-  //font-family: 'Josefin Sans', sans-serif;
   font-family: 'Lobster Two', cursive;
 }
 
 div {
   border: 1px solid;
 }
+
+input.input-tubes {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 80px;
+  height: 90px;
+  line-height: 90px;
+  border-radius: 80px 80px 80px 80px;
+}
+
+input.input-mode {
+  font-family: 'Josefin Sans', sans-serif;
+}
+
+div.btn-group[data-toggle=buttons-radio] input[type=radio] {
+  display:    block;
+  position:   absolute;
+  top:        0;
+  left:       0;
+  width:      100%;
+  height:     100%;
+  opacity:    hidden;
+}
+
