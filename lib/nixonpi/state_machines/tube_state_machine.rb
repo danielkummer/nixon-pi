@@ -43,8 +43,11 @@ module NixonPi
 
       state :startup do
         def write
-          #do some startup animation stuff....
-          self.fire_state_event(:time)
+          current_state_parameters[:animation_name] = "single_fly_in"
+          current_state_parameters[:animation_options] = ""
+          current_state_parameters[:last_value] = "0000"
+          self.fire_state_event(:animation)
+          current_state_parameters[:last_state] = :time #after startup animation, switch to :time state
         end
       end
 
@@ -78,6 +81,7 @@ module NixonPi
           options ||= {}
           start_value = current_state_parameters[:last_value]
           NixonPi::Animations::Animation.create(name.to_sym, options).run(start_value)
+          puts "state #{current_state_parameters}"
           self.fire_state_event(current_state_parameters[:last_state]) #go back to old state again and do whatever was done before
         end
       end
