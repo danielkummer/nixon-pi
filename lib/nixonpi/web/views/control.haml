@@ -42,6 +42,20 @@
     %fieldset
       %ul
         %li
+          %label{:for => "body"} Countdown:
+        %li
+          %label{:for => "value"} Duration
+          %input{:type => "text", :name => "value", :class => "text"}
+      %input{:type => "hidden", :name => "mode", :value => "countdown"}
+      %input{:type => "submit", :value => "Send", :class => "button"}
+      .examples
+        %p 12.4 secs, 4:01:01, 3 mins 4 sec, 2 hrs 20 min, 2h20min, 3 weeks and 2 days
+    %hr/
+
+  %form{ :action => "/tubes", :method => "POST"}
+    %fieldset
+      %ul
+        %li
           %label{:for => "body"} Test:
       %input{:type => "hidden", :name => "mode", :value => "test"}
       %input{:type => "submit", :value => "Test", :class => "button"}

@@ -1,6 +1,7 @@
 require 'sinatra'
 require 'sinatra/base'
 require 'sinatra/contrib'
+require 'chronic_duration'
 require 'haml'
 require 'json'
 
@@ -69,7 +70,16 @@ module NixonPi
         status 400
         redirect("/")
       else
+        case data[:mode].to_sym
+          when :countdown
+            chrono_format = ChronicDuration.parse(data[:value], format: :chrono)
+            chrono_format.gsub!(/:/, ' ')      #todo maybe not even space
+          else
+        end
         data[:value] = data[:value].rjust(12, " ") unless data[:value].nil?
+
+
+
         CommandQueue.enqueue(:tubes, data)
 
         status 200

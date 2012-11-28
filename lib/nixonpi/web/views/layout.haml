@@ -5,9 +5,16 @@
     %meta{:content => "", :name => "description"}
     %meta{:content => "", :name => "author"}
     %meta{:content => "width=device-width, initial-scale=1, maximum-scale=1", :name => "viewport"}
-    %link{:href => "css/base.css", :rel => "stylesheet"}
-    %link{:href => "css/skeleton.css", :rel => "stylesheet"}
-    %link{:href => "css/layout.css", :rel => "stylesheet"}
+    /%link{:href => "css/base.css", :rel => "stylesheet"}
+    /%link{:href => "css/skeleton.css", :rel => "stylesheet"}
+    /%link{:href => "css/layout.css", :rel => "stylesheet"}
+    - if settings.development?
+      %link{:href => "/less/style.less", :rel => "stylesheet/less"}
+      %script{:src => "/js/libs/less-1.3.1.min.js", :type => "text/javascript"}
+    - if settings.production?
+      %link{:href => "/css/style.css", :rel => "stylesheet"}
+      /compile:  $ lessc public/less/style.less > public/css/mycss.css
+      /source: http://stackoverflow.com/questions/11481203/how-to-start-using-twitter-bootstrap-and-sass-in-a-sinatra-project
 %body
   .container
     = yield

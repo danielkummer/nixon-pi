@@ -29,6 +29,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'sinatra-contrib'
   gem.add_dependency 'json'
   gem.add_dependency 'haml'
+  gem.add_dependency 'chronic_duration'
 
   gem.add_development_dependency 'rdoc'
   gem.add_development_dependency 'rspec'

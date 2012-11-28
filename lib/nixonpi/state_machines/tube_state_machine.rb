@@ -37,6 +37,10 @@ module NixonPi
         transition all => :animation
       end
 
+      event :countdown do
+        transition all => :countdown
+      end
+
       event :run_test do
         transition all => :run_test
       end
@@ -79,6 +83,12 @@ module NixonPi
           start_value = current_state_parameters[:last_value]
           NixonPi::Animations::Animation.create(name.to_sym, options).run(start_value)
           self.fire_state_event(current_state_parameters[:last_state]) #go back to old state again and do whatever was done before
+        end
+      end
+
+      state :countdown do
+        def write
+
         end
       end
 
