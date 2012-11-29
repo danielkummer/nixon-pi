@@ -41,14 +41,26 @@
         %input{type: "submit", value: "GO", class: "btn btn-success"}
     .span6
       %h2 Bars
-      %form{ action: "/bars", method: "POST", class: "form-horizontal"}
-      -@bars.each do |bar|
-        .control-group
-          %label.control-label
-            = "Bar #{bar}"
-          .controls
-            %input{:type => "range", :name => "values[]", :class => "range", min: "0", max: "255", value: "0"}
-      %input{type: "submit", value: "GO", class: "btn btn-success"}
+      %ul.nav.nav-tabs
+        %li
+          %a{"data-toggle" => "tab", :href => "#free_value"} Free value
+        %li
+          %a{"data-toggle" => "tab", :href => "#animation"} Animation
+        %li
+          %a{"data-toggle" => "tab", :href => "#something_else"} ...
+
+
+      .tab-content
+        #free_value.tab-pane.active
+          %form{ action: "/bars", method: "POST", class: "form"}
+            -@bars.each do |bar|
+              .control-group
+                .controls.bar-control
+                  %input{:type => "range", :name => "values[]", :class => "range", min: "0", max: "255", value: "0"}
+            %input{type: "submit", value: "GO", class: "btn btn-success"}
+        #animation.tab-pane
+        #something_else.tab-pane
+
 
 :javascript
   $(":range").rangeinput();
