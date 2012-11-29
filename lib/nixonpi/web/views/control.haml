@@ -1,50 +1,54 @@
 .span10
   %h2 Tubes
-  %form{ :action => "/tubes", :method => "POST", :class=> "form-horizontal"}
-    %fieldset
-      %input{:type => "hidden", :name => "mode", :value => "free_value"}
-      %input{:type => "text", :name => "value", :class => "input-tubes search-query  span8"}
-      %input{:type => "submit", :value => "Send", :class => "btn btn-large"}
-      %label Mode
-      %select{:name => "mode", :class => "input_mode"}
-        %option{:selected => "", :value => "free_value"} Free value
-        %option{:value => "time_format"} Time format
-        %option{:value => "tube_animation"} Tube animation
-        %option{:value => "countdown"} Countdown
+  %form{ action: "/tubes", method: "POST", class: "form-inline"}
+    .input-append
+      %input{type: "text", name: "value", class: "input-tubes search-query  input-block-level"}
+      %button{type: "submit", value: "Send", class: "btn btn-large btn-tubes btn-success"}
+        GO
 
-      %label Animation Name
-      %select{:name => "animation_name"}
-        %option{:selected => "", :value => "switch_numbers"} switch numbers
-        %option{:value => "single_fly_in"} fly in
+    .control-group
+      %label.control-label Mode
+      %select{name: "mode", class: "input_mode input-medium"}
+        %option{selected: "", value: "free_value"} Free value
+        %option{value: "time_format"} Time format
+        %option{value: "tube_animation"} Tube animation
+        %option{value: "countdown"} Countdown
+      %label.control-label Animation Name
+      %select{name: "animation_name", class: "input-medium"}
+        %option{selected: "", value: "switch_numbers"} switch numbers
+        %option{value: "single_fly_in"} fly in
+      %label.control-label{for: "value"} Options (Hash)
+      %input{type: "text", name: "animation_options", class: "input-medium"}
 
-      %label{:for => "value"} Options (Hash)
-      %input{:type => "text", :name => "animation_options", :class => "text"}
 
+.span10
+  %h2 Lamps (todo doesn't work)
+  %form{ action: "/lamps", method: "POST", class: "form-inline"}
+    -@lamps.each do |lamp|
+      %button{type: "button", class: "btn btn-lamp", "data-toggle" => "button" }
+        = lamp
+      %input{type: "hidden", name: "values[#{lamp}]", value: "0"}
+    %input{type: "hidden", name: "mode", value: "free_value"}
+    %button{type: "submit", value: "GO", class: "btn btn-success"} GO
 
-.span12
-  .offset-by-eight
-  %h3 Lamp Control
-  %form{ :action => "/lamps", :method => "POST"}
-    %fieldset
-      %ul
-        %li
-          %label{:for => "value"} Lamp values:
-        -@lamps.each do |lamp|
-          off
-          %input{:type => "range", :name => "values[]", :class => "range", min: "0", max: "1", value: "0"}
-          on
-          %br
-      %input{:type => "hidden", :name => "mode", :value => "free_value"}
-      %input{:type => "submit", :value => "Send", :class => "button"}
-  %hr/
+.span10
+  .row
+    .span3
+      %h2 Say
+      %form{ action: "/say", method: "POST"}
+      .input-append
+        %input{type: "text", name: "value", class: "text"}
+        %input{type: "submit", value: "GO", class: "btn btn-success"}
+    .span6
+      %h2 Bars
+      %form{ action: "/bars", method: "POST", class: "form-horizontal"}
+      -@bars.each do |bar|
+        .control-group
+          %label.control-label
+            = "Bar #{bar}"
+          .controls
+            %input{:type => "range", :name => "values[]", :class => "range", min: "0", max: "255", value: "0"}
+      %input{type: "submit", value: "GO", class: "btn btn-success"}
 
-.one-fourth.column
-  %h3 Speech Control
-  %form{ :action => "/say", :method => "POST"}
-  %fieldset
-    %ul
-      %li
-        %label{:for => "value"} Say what?:
-        %input{:type => "text", :name => "value", :class => "text"}
-
-    %input{:type => "submit", :value => "Send", :class => "button"}
+:javascript
+  $(":range").rangeinput();
