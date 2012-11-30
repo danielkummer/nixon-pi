@@ -12,6 +12,7 @@ module NixonPi
     include Logging
     include Factory
     extend CommandParameters
+    include CommandParameters
 
     @@state_parameters = {}
 

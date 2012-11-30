@@ -3,7 +3,7 @@
   %form{ action: "/tubes", method: "POST", class: "form-inline"}
     .input-append
       %input{type: "text", name: "value", class: "input-tubes search-query  input-block-level"}
-      %button{type: "submit", value: "Send", class: "btn btn-large btn-tubes btn-success"}
+      %button{type: "submit", value: "Send", class: "btn btn-large btn-tubes"}
         GO
 
     .control-group
@@ -24,12 +24,12 @@
 .span10
   %h2 Lamps (todo doesn't work)
   %form{ action: "/lamps", method: "POST", class: "form-inline"}
-    -@lamps.each do |lamp|
+    -@lamps.each_with_index do |lamp, index|
       %button{type: "button", class: "btn btn-lamp", "data-toggle" => "button" }
-        = lamp
-      %input{type: "hidden", name: "values[#{lamp}]", value: "0"}
+        = "#{index + 1}"
+      %input{type: "hidden", name: "values[#{index}]", value: "0"}
     %input{type: "hidden", name: "mode", value: "free_value"}
-    %button{type: "submit", value: "GO", class: "btn btn-success"} GO
+    %button{type: "submit", value: "GO", class: "btn"} GO
 
 .span10
   .row
@@ -38,7 +38,7 @@
       %form{ action: "/say", method: "POST"}
       .input-append
         %input{type: "text", name: "value", class: "text"}
-        %input{type: "submit", value: "GO", class: "btn btn-success"}
+        %input{type: "submit", value: "GO", class: "btn"}
     .span6
       %h2 Bars
       %ul.nav.nav-tabs
@@ -57,10 +57,18 @@
               .control-group
                 .controls.bar-control
                   %input{:type => "range", :name => "values[]", :class => "range", min: "0", max: "255", value: "0"}
-            %input{type: "submit", value: "GO", class: "btn btn-success"}
+            %input{type: "hidden", name: "mode", value: "free_value"}
+            %input{type: "submit", value: "GO", class: "btn"}
         #animation.tab-pane
+          %form{ action: "/bars", method: "POST", class: "form-inline"}
+            %select{name: "animation_name", class: "input-medium"}
+              %option{selected: "", value: "ramp_up_down"} ramp up down
+            %label.control-label{for: "value"} Options (Hash)
+            %input{type: "text", name: "animation_options", class: "input-medium"}
+            %input{type: "hidden", name: "mode", value: "animation"}
+            %input{type: "submit", value: "GO", class: "btn"}
         #something_else.tab-pane
 
 
 :javascript
-  $(":range").rangeinput();
+  $(":range").rangeinput({progress: true});

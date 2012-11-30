@@ -4,7 +4,7 @@ require_relative 'command_parameters'
 
 module NixonPi
   class CommandQueue
-    include CommandParameters
+    extend CommandParameters
 
     @@queues = {}
 
