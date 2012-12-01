@@ -2,7 +2,7 @@
   %h2 Tubes
   %form{ action: "/tubes", method: "POST", class: "form-inline"}
     .input-append
-      %input{type: "text", name: "value", class: "input-tubes search-query  input-block-level"}
+      %input{type: "text", name: "value", class: "input-tubes search-query  input-block-level", value: "#{@tube_data[:last_value]}"}
       %button{type: "submit", value: "Send", class: "btn btn-large btn-tubes"}
         GO
 

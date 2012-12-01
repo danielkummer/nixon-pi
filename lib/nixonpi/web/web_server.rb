@@ -48,6 +48,11 @@ module NixonPi
     get '/' do
       @bars = Settings.in13_pins;
       @lamps = Settings.in1_pins;
+
+      @tube_data = NixonPi::HandlerStateMachine.state_parameters_for(:tubes)
+      @bar_data = NixonPi::HandlerStateMachine.state_parameters_for(:bars)
+      @lamp_data = NixonPi::HandlerStateMachine.state_parameters_for(:lamps)
+
       haml :control
     end
 

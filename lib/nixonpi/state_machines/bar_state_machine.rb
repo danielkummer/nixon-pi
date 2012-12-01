@@ -44,6 +44,7 @@ module NixonPi
               bar_values.each_with_index { |value, index| driver.write_to_bar(index, value) unless value.nil? }
             else
               driver.write(bar_values)
+              current_state_parameters[:last_values] = bar_values
             end
           end
         end

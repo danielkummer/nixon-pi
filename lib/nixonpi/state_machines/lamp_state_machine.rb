@@ -39,12 +39,13 @@ module NixonPi
               lamp_values.each_with_index { |value, index| driver.write_to_lamp(index, value) unless value.nil? }
             else
               driver.write(lamp_values)
+              current_state_parameters[:last_values] = lamp_values
             end
           end
         end
       end
 
-      state :bar_animation do
+      state :animation do
         def write
           raise NotImplementedError
         end
