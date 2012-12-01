@@ -15,7 +15,7 @@ module NixonPi
       register_driver NixonPi::BarGraphDriver
     end
 
-    state_machine :initial => :test do
+    state_machine :initial => :startup do
 
       around_transition do |object, transition, block|
         HandlerStateMachine.handle_around_transition(object, transition, block)
@@ -29,6 +29,16 @@ module NixonPi
       event :animation do
         puts "in animation"
         transition all => :animation
+      end
+
+      state :startup do
+        def write
+          current_state_parameters[:animation_name] = "ramp_up_down"
+          current_state_parameters[:animation_options] = ""
+          current_state_parameters[:last_value] = "0000"
+          self.fire_state_event(:animation)
+          current_state_parameters[:last_state] = :free_value #after startup animation, switch to :free_value state
+        end
       end
 
       event :run_test do
