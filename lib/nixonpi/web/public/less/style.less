@@ -16,14 +16,22 @@
 // Font Awesome
 //@import "fontawesome";
 
+
 body {
   font-family: 'Lobster Two', cursive;
   background-image: url('/img/bo_play_pattern.png');
 }
 
+@shadow: #fd9b2e;
+@color: #feef4a;
+
+.text-style() {
+  text-shadow: 1px 1px 8px @shadow;
+    color: @color;
+}
+
 h1, h2, h3, p, label, a {
-  text-shadow: 1px 1px 8px #fd9b2e;
-  color: #feef4a;
+  .text-style();
 }
 
 .hero-unit {
@@ -31,35 +39,28 @@ h1, h2, h3, p, label, a {
   padding: 30px;
 
   h1 {
-    text-shadow: 1px 1px 8px #fd9b2e;
-    color: #FEFD3A;
+    .text-style();
   }
 }
 
 input.input-tubes {
   font-family: 'Josefin Sans', sans-serif;
-  font-size: 80px;
-  height: 90px;
-  line-height: 90px;
-  padding-left: 40px;
-  border-radius: 80px 0px 0px 80px;
-  text-shadow: 1px 1px 8px #fd9b2e;
-  color: #FEFD3A;
-  background-color: #666666;
-  border: 3px solid #474747;
+  font-size: 28px;
   letter-spacing: 0.3em;
+  height: 1.3em;
+
+  padding-left: 0px;
+  border-radius: 1em 0px 0px 1em;
+  .text-style();
+  background-color: #666666;
+  //border: 3px solid #474747;
 }
 
-.form-inline .input-append {
-  margin-bottom: 20px;
-}
 
-.btn-tubes:last-child {
-  font-family: 'Lobster Two', cursive;
-  font-size: 40px;
-  height: 90px;
-  line-height: 68px;
-  border-radius: 0px 80px 80px 0px !important;
+.btn-tubes {
+  font-size: 28px;
+  height: 1.3em;
+  border-radius: 0em 1em 1em 0em !important;
 }
 
 .btn {

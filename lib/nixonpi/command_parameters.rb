@@ -13,7 +13,7 @@ module NixonPi
               value: nil,
               time_format: nil,
               animation_name: nil,
-              animation_options: nil,
+              options: nil,
               time: nil
           }
         when :bars
@@ -22,7 +22,7 @@ module NixonPi
               values: nil,
               time_format: nil,
               animation_name: nil,
-              animation_options: nil,
+              options: nil,
               time: nil
           }
         when :lamps
@@ -31,7 +31,7 @@ module NixonPi
               values: nil,
               time_format: nil,
               animation_name: nil,
-              animation_options: nil,
+              options: nil,
               time: nil
           }
         when :say

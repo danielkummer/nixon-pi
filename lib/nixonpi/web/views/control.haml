@@ -1,24 +1,31 @@
 .span10
   %h2 Tubes
-  %form{ action: "/tubes", method: "POST", class: "form-inline"}
-    .input-append
-      %input{type: "text", name: "value", class: "input-tubes search-query  input-block-level", value: "#{@tube_data[:last_value]}"}
-      %button{type: "submit", value: "Send", class: "btn btn-large btn-tubes"}
-        GO
-
+  %form{ action: "/tubes", method: "POST", class: "form"}
     .control-group
-      %label.control-label Mode
-      %select{name: "mode", class: "input_mode input-medium"}
-        %option{selected: "", value: "free_value"} Free value
-        %option{value: "time_format"} Time format
-        %option{value: "tube_animation"} Tube animation
-        %option{value: "countdown"} Countdown
-      %label.control-label Animation Name
-      %select{name: "animation_name", class: "input-medium"}
-        %option{selected: "", value: "switch_numbers"} switch numbers
-        %option{value: "single_fly_in"} fly in
-      %label.control-label{for: "value"} Options (Hash)
-      %input{type: "text", name: "animation_options", class: "input-medium"}
+      .input-append
+        %input{type: "text", name: "value", class: "input-tubes search-query input-block-level", value: "#{@tube_data[:last_value]}"}
+        %button{type: "submit", value: "Send", class: "btn btn-tubes"}
+          GO
+    %a{class: "btn", 'data-toggle'=>"collapse",  href:"#more"} more
+    #more.collapse
+      .control-group
+        %label.control-label Mode
+        .controls
+          %select{name: "mode", class: "input_mode input-medium"}
+            %option{selected: "", value: "free_value"} Free value
+            %option{value: "time_format"} Time format
+            %option{value: "tube_animation"} Tube animation
+            %option{value: "countdown"} Countdown
+      .control-group
+        %label.control-label Animation Name
+        .controls
+          %select{name: "animation_name", class: "input-medium"}
+            %option{selected: "", value: "switch_numbers"} switch numbers
+            %option{value: "single_fly_in"} fly in
+      .control-group
+        %label.control-label{for: "value"} Options Hash (Animations, Countdown(Time Format (e.g.%H %M %S))
+        .controls
+          %input{type: "text", name: "options", class: "input-medium"}
 
 
 .span10
@@ -64,7 +71,7 @@
             %select{name: "animation_name", class: "input-medium"}
               %option{selected: "", value: "ramp_up_down"} ramp up down
             %label.control-label{for: "value"} Options (Hash)
-            %input{type: "text", name: "animation_options", class: "input-medium"}
+            %input{type: "text", name: "options", class: "input-medium"}
             %input{type: "hidden", name: "mode", value: "animation"}
             %input{type: "submit", value: "GO", class: "btn"}
         #something_else.tab-pane
