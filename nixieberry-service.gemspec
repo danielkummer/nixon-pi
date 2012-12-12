@@ -24,9 +24,13 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'settingslogic'
   gem.add_dependency 'state_machine'
   gem.add_dependency 'festivaltts4r'
-  gem.add_dependency 'webrick'
+
   gem.add_dependency 'sinatra'
   gem.add_dependency 'sinatra-contrib'
+  gem.add_dependency 'sinatra-activerecord'
+  gem.add_dependency 'sequel'
+  gem.add_dependency 'sqlite3'
+
   gem.add_dependency 'json'
   gem.add_dependency 'haml'
   gem.add_dependency 'chronic_duration'

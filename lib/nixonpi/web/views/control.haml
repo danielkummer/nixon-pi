@@ -1,6 +1,6 @@
 .span10
   %h2 Tubes
-  %form{ action: "/tubes", method: "POST", class: "form"}
+  %form{ action: "/tubes#{"/" + @lamp.id if lamps.id}", method: "POST", class: "form"}
     .control-group
       .input-append
         %input{type: "text", name: "value", class: "input-tubes search-query input-block-level", value: "#{@tube_data[:last_value]}"}
@@ -26,6 +26,11 @@
         %label.control-label{for: "value"} Options Hash (Animations, Countdown(Time Format (e.g.%H %M %S))
         .controls
           %input{type: "text", name: "options", class: "input-medium"}
+      .control-group
+        %label.control-label{for: "load_on_startup"}
+        .controls
+          %input{type: "checkbox", name: "initial", class: "input-medium"}
+
 
 
 .span10
