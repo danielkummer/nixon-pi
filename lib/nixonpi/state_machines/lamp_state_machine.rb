@@ -9,6 +9,7 @@ module NixonPi
 
     def after_create
       register_driver NixonPi::LampDriver
+      load_saved_values(:lamps)
     end
 
     state_machine :initial => :startup do
@@ -52,9 +53,17 @@ module NixonPi
       end
 
       state :startup do
+
+
         def write
           #do some startup animation stuff....
-          self.fire_state_event(:free_value)
+
+          #todo refactor
+          if current_state_parameters[:initial_state].nil?
+            self.fire_state_event(:free_value)
+          else
+            self.fire_state_event(current_state_parameters[:initial_state])
+          end
         end
       end
 

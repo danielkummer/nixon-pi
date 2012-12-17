@@ -1,6 +1,5 @@
 module NixonPi
   module Factory
-
     module ClassMethods
       @@subclasses = {}
       ##

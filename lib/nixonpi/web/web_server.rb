@@ -6,35 +6,33 @@ require 'chronic_duration'
 require 'haml'
 require 'json'
 require 'active_record'
+require 'sinatra/form_helpers'
+
 
 require_relative '../../../lib/nixonpi/command_queue'
 require_relative '../configurations/state_hash'
 require_relative '../configurations/settings'
 require_relative '../logging/logging'
 
+require_relative 'models'
+
 
 module NixonPi
   class WebServer < Sinatra::Base
     register Sinatra::RespondWith
+    register Sinatra::ActiveRecordExtension
+    helpers Sinatra::FormHelpers
+
+
     extend Logging
 
-    register Sinatra::ActiveRecordExtension
+
+    set :database, 'sqlite:///db/settings.db'
 
 
     at_exit do
       log.info "Sinatra shut down..., don't restart"
       exit
-    end
-
-    set :database, 'sqlite://../../../db/settings.db'
-
-
-    #This is automagically linked with the plural table (todos)
-    class Tube < ActiveRecord::Base
-    end
-    class Bar < ActiveRecord::Base
-    end
-    class Lamp < ActiveRecord::Base
     end
 
 
@@ -64,42 +62,33 @@ module NixonPi
 
 
     get '/' do
-      @bars = Settings.in13_pins
-      @lamps = Settings.in1_pins
+      @bar_count = Settings.in13_pins.size
+      @lamp_count = Settings.in1_pins.size
 
-      #todo refactor
-      #load default values if there are some..
-      @lamp = Lamp.first || Lamp.new
-      #@bar = Bar.first || Bar.new
-      #@tube = Tube.first || Tube.new
-      #todo use the settings in view
+      [:tubes, :lamps, :bars].each do |param|
+        command = Command.find(:first, conditions: ["initial = ? AND state_machine = ?", false, param]) || Command.new(state_machine: param)
+        instance_variable_set(("@" + param).to_sym, command)
+      end
 
-      @tube_data = NixonPi::HandlerStateMachine.state_parameters_for(:tubes)
-      @bar_data = NixonPi::HandlerStateMachine.state_parameters_for(:bars)
-      @lamp_data = NixonPi::HandlerStateMachine.state_parameters_for(:lamps)
-
-      haml :control
+      haml :control, format: :html5
     end
 
-    get '/tubes', :provides => [:html, :json] do
-      @info = NixonPi::HandlerStateMachine.state_parameters_for(:tubes)
-      respond_with :state_info do |f|
-        f.json { @info.to_json }
-      end
-    end
+    get '/info/?:state_machine?', :provides => [:html, :json] do
 
-    get '/lamps', :provides => [:html, :json] do
-      @info = NixonPi::HandlerStateMachine.state_parameters_for(:lamps)
-      respond_with :state_info do |f|
-        f.json { @info.to_json }
-      end
-    end
+      if %w(tubes bars lamps).contains? params[:state_machine]
 
-    get '/bars', :provides => [:html, :json] do
-      @info = NixonPi::HandlerStateMachine.state_parameters_for(:bars)
-      respond_with :state_info do |f|
-        f.json { @info.to_json }
+        state_machine = params[:state_machine]
+
+        @info = NixonPi::HandlerStateMachine.state_parameters_for(state_machine)
+        respond_with :state_info do |f|
+          f.json { @info.to_json }
+        end
+      else
+        status 400
+        render '/' if content_type == :html
       end
+
+
     end
 
     get '/info', :provides => [:html, :json] do
@@ -108,12 +97,37 @@ module NixonPi
       haml :info, locals: {info: @info}
     end
 
-    post '/tubes/?' do
+    ##
+    # save to the sqlite3 database
+    # @param [Hash] data attributes to save
+    # @class_type [Object] Model class to save to; e.g Lamp, Bar, Tube
+    def self.save_to_database(data, state_machine)
+      if data[:initial]
+        command = Command.find(:first, conditions: ["initial = ?", data[:initial], "state_machine = ?", state_machine.to_s])
+      elsif data[:id]
+        command = Command.find(:first, conditions: ["id = ?", data[:id, "state_machine = ?", state_machine.to_s]])
+      else
+        command = state_machine.new(state_machine: state_machine.to_s)
+      end
+
+      [:value, :animation_name, :options, :initial].each do |attr|
+        command.send(attr, data[attr])
+      end
+      command.save
+    end
+
+    def self.valid_or_redirect(params)
       data = string_key_to_sym(params)
       if data.nil? or !data.has_key?(:mode) then
         status 400
         redirect("/")
       else
+        yield if block_given?
+      end
+    end
+
+    post '/tubes/?:id?' do
+      valid_or_redirect(params) do
         case data[:mode].to_sym
           when :countdown
             chrono_format = ChronicDuration.parse(data[:value], format: :chrono)
@@ -121,44 +135,14 @@ module NixonPi
           else
         end
         data[:value] = data[:value].rjust(12, " ") unless data[:value].nil?
-
-
         CommandQueue.enqueue(:tubes, data)
-
-        @lamp = Lamp.find_or_create(:first, :conditions => ["id = ?", params[:id]])
-        @lamp.mode = data[:mode]
-        @lamp.value = data[:value]
-        @lamp.animation_name = data[:animation_name]
-        @lamp.options = params[:options]
-        @lamp.save
+        save_to_database(data, Tube.class)
         status 200
-        redirect '/todo/' + params[:id]
+        redirect '/' + params.to_param
       end
     end
 
-    post '/bars' do
-      data = string_key_to_sym(params)
-      if data.nil? or !data.has_key?(:mode) then
-        status 400
-        redirect ("/")
-      else
-        CommandQueue.enqueue(:bars, data)
-        status 200
-        redirect("/")
-      end
-    end
 
-    post '/lamps' do
-      data = string_key_to_sym(params)
-      if data.nil? or !data.has_key?(:mode) then
-        status 400
-        redirect ("/")
-      else
-        CommandQueue.enqueue(:lamps, data)
-        status 200
-        redirect("/")
-      end
-    end
 
     post '/say' do
       data = string_key_to_sym(params)

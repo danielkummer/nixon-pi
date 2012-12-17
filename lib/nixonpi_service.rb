@@ -16,23 +16,22 @@ require_relative 'nixonpi/web/web_server'
 require_relative 'nixonpi/state_machines/machine_manager'
 
 
-
-
 module NixonPi
   class NixieService
     include Logging
+
+    ActiveRecord::Base.logger = Logger.new(STDERR)
+
 
     def initialize
       log.info "Initializing Nixon-Pi service.."
       log.info "Environment: #{$environment}"
       system "cd #{File.dirname(__FILE__)} && rake db:migrate"
+
+      ##load saved values if any...
+
       NixonPi::MachineManager.add_state_machines(:tubes, :bars, :lamps)
       @server = WebServer
-    end
-
-    def setup_database
-      Rake.application.rake_require '../Rakefile'
-      Rake.application['db:migrate'].invoke
     end
 
     ##

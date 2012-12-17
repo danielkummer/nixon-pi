@@ -17,6 +17,9 @@ module NixonPi
 
     def after_create
       register_driver NixonPi::TubeDriver
+
+      ##todo process options...
+      load_saved_values(:tubes)
     end
 
     state_machine :initial => :startup do
@@ -51,7 +54,11 @@ module NixonPi
           current_state_parameters[:options] = {}
           current_state_parameters[:last_value] = "0000"
           self.fire_state_event(:animation)
-          current_state_parameters[:last_state] = :time #after startup animation, switch to :time state
+          if current_state_parameters[:initial_state].nil?
+            current_state_parameters[:last_state] = :time
+          else
+            current_state_parameters[:last_state] = current_state_parameters[:initial_state]
+          end
         end
       end
 

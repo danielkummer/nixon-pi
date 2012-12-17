@@ -7,6 +7,10 @@ require_relative '../command_queue'
 require_relative '../command_parameters'
 require_relative '../factory'
 
+require_relative '../web/models'
+require 'active_record'
+
+
 module NixonPi
   class HandlerStateMachine
     include Logging
@@ -46,12 +50,32 @@ module NixonPi
       @@state_parameters[registered_as_type] ||= initialize_state_hash
     end
 
+
     protected
+
+    #todo refactor
+    def load_saved_values(state_machine)
+      ActiveRecord::Base.establish_connection("sqlite3:///db/settings.db")
+      options =  Command.find(:first, conditions: ["initial = ? AND state_machine = ?", true, state_machine])
+      ActiveRecord::Base.connection.close
+      if options
+        log.debug "db setting loaded for #{state_machine} => #{options.to_s} "
+        options.each do |option, value|
+          if current_state_parameters.has_key?(option.to_sym) and !value.nil?
+              current_state_parameters[option.to_sym] = value
+          end
+        end
+        log.debug "state set to: #{current_state_parameters.to_s}"
+      else
+        log.debug "no db settings found for :#{state_machine} "
+      end
+    end
+
     ##
     # Lazy initialize state hash if not already existing
     def initialize_state_hash
       @@state_parameters[registered_as_type] = StateHash.new
-      @@state_parameters[registered_as_type][:last_state] = nil
+      @@state_parameters[registered_as_type].merge(command_parameters(registered_as_type))
       @@state_parameters[registered_as_type]
     end
 
@@ -62,13 +86,13 @@ module NixonPi
     end
 
     ##
-    # Handle around transitions, mainly remember the last and the current state
+    # Handle around transitions, remember states
     # @param [Object] object State machine class instance
     # @param [Transition] transition
     # @param [block] block
     def self.handle_around_transition(object, transition, block)
       object.log.debug "transition  #{transition.event} from state: #{object.state}"
-      object.current_state_parameters[:last_state] = object.state unless object.state.nil?
+      object.current_state_parameters[:last_state] = object.state if !object.state.nil?
       #transition.event.to_s.humanize.to_speech #say the current state transition
       block.call
       object.current_state_parameters[:state] = object.state

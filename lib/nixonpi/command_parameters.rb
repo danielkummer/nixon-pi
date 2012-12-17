@@ -14,25 +14,26 @@ module NixonPi
               time_format: nil,
               animation_name: nil,
               options: nil,
-              time: nil
+              time: nil,
+              initial_mode: nil
           }
         when :bars
           {
               mode: nil,
               values: nil,
-              time_format: nil,
               animation_name: nil,
               options: nil,
-              time: nil
+              time: nil,
+              initial_mode: nil
           }
         when :lamps
           {
               mode: nil,
               values: nil,
-              time_format: nil,
               animation_name: nil,
               options: nil,
-              time: nil
+              time: nil,
+              initial_mode: nil
           }
         when :say
           {

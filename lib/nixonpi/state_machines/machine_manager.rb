@@ -18,6 +18,7 @@ module NixonPi
         end
       end
 
+
       ##
       # Start each state machine in a separate thread
       # @param [Float] sleep_for_sec sleep time after each loop

@@ -30,6 +30,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'sinatra-activerecord'
   gem.add_dependency 'sequel'
   gem.add_dependency 'sqlite3'
+  gem.add_dependency 'sinatra-formhelpers'
 
   gem.add_dependency 'json'
   gem.add_dependency 'haml'

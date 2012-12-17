@@ -1,11 +1,14 @@
 .span10
   %h2 Tubes
-  %form{ action: "/tubes#{"/" + @lamp.id if lamps.id}", method: "POST", class: "form"}
+  %form{ action: "/tubes#{"/" + @tube.id if @tube.id}", method: "POST", class: "form-horizontal"}
     .control-group
       .input-append
-        %input{type: "text", name: "value", class: "input-tubes search-query input-block-level", value: "#{@tube_data[:last_value]}"}
+        %input{type: "text", name: "value", class: "input-tubes search-query input-block-level right"}
         %button{type: "submit", value: "Send", class: "btn btn-tubes"}
           GO
+
+    %input{type: "hidden", name: "id", value:"#{@tube.id}"}
+    %span{class: "help-inline"}= @tube.value
     %a{class: "btn", 'data-toggle'=>"collapse",  href:"#more"} more
     #more.collapse
       .control-group
@@ -19,24 +22,25 @@
       .control-group
         %label.control-label Animation Name
         .controls
-          %select{name: "animation_name", class: "input-medium"}
+          %select{name: "animation_name", class: "input-medium", value:"#{@tube.animation_name}"}
             %option{selected: "", value: "switch_numbers"} switch numbers
             %option{value: "single_fly_in"} fly in
       .control-group
         %label.control-label{for: "value"} Options Hash (Animations, Countdown(Time Format (e.g.%H %M %S))
         .controls
-          %input{type: "text", name: "options", class: "input-medium"}
+          %input{type: "text", name: "options", class: "input-medium", value:"#{@tube.options}"}
       .control-group
-        %label.control-label{for: "load_on_startup"}
         .controls
-          %input{type: "checkbox", name: "initial", class: "input-medium"}
+          %label.checkbox{for: "load_on_startup"}
+            %input{type: "checkbox", name: "initial", class: "input-medium"} Load on startup
+
 
 
 
 .span10
   %h2 Lamps (todo doesn't work)
   %form{ action: "/lamps", method: "POST", class: "form-inline"}
-    -@lamps.each_with_index do |lamp, index|
+    -@lamp_count.times.with_index do |index|
       %button{type: "button", class: "btn btn-lamp", "data-toggle" => "button" }
         = "#{index + 1}"
       %input{type: "hidden", name: "values[#{index}]", value: "0"}
@@ -45,27 +49,31 @@
 
 .span10
   .row
-    .span3
+    .span4
       %h2 Say
-      %form{ action: "/say", method: "POST"}
-      .input-append
-        %input{type: "text", name: "value", class: "text"}
-        %input{type: "submit", value: "GO", class: "btn"}
+      %form{ action: "/say", method: "POST", class:"form-horizontal"}
+      .control-group
+        %label.control-label{for: "value"} Speak
+        .controls
+          %input{type: "text", name: "value", class: "text"}
+      .control-group
+        .controls
+          %input{type: "submit", value: "GO", class: "btn"}
     .span6
       %h2 Bars
       %ul.nav.nav-tabs
         %li
-          %a{"data-toggle" => "tab", :href => "#free_value"} Free value
+          %a{"data-toggle" => "tab", href: "#free_value", class: "active"} Free value
         %li
-          %a{"data-toggle" => "tab", :href => "#animation"} Animation
+          %a{"data-toggle" => "tab", href: "#animation"} Animation
         %li
-          %a{"data-toggle" => "tab", :href => "#something_else"} ...
+          %a{"data-toggle" => "tab", href: "#something_else"} ...
 
 
       .tab-content
         #free_value.tab-pane.active
           %form{ action: "/bars", method: "POST", class: "form"}
-            -@bars.each do |bar|
+            -@bar_count.times do
               .control-group
                 .controls.bar-control
                   %input{:type => "range", :name => "values[]", :class => "range", min: "0", max: "255", value: "0"}

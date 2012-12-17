@@ -13,6 +13,7 @@ module NixonPi
 
     def after_create
       register_driver NixonPi::BarGraphDriver
+      load_saved_values(:bars)
     end
 
     state_machine :initial => :startup do
@@ -36,8 +37,17 @@ module NixonPi
           current_state_parameters[:animation_name] = "ramp_up_down"
           current_state_parameters[:options] = ""
           current_state_parameters[:last_value] = "0000"
+
+          #will switch to :last_state after animation
           self.fire_state_event(:animation)
-          current_state_parameters[:last_state] = :free_value #after startup animation, switch to :free_value state
+          #unlucky naming - currently :state is a saved db value - if any; reason: no state transition has happened yet
+          if !current_state_parameters[:initial_state].nil?
+            current_state_parameters[:last_state] = current_state_parameters[:initial_state]
+          else
+            current_state_parameters[:last_state] = :free_value
+          end
+
+
         end
       end
 
