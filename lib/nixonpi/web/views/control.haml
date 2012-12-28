@@ -1,94 +1,108 @@
-.span10
+.span12
   %h2 Tubes
-  %form{ action: "/tubes#{"/" + @tube.id if @tube.id}", method: "POST", class: "form-horizontal"}
-    .control-group
-      .input-append
-        %input{type: "text", name: "value", class: "input-tubes search-query input-block-level right"}
-        %button{type: "submit", value: "Send", class: "btn btn-tubes"}
+  %form{ action: "/tubes#{"/" + @tubes.id.to_s if @tubes.id}", method: "POST", class: "form-horizontal"}
+    .row
+      .span6
+        .control-group
+          %input{type: "text", name: "value", class: "input-tubes search-query input-block-level right"}
+
+        %input{type: "hidden", name: "id", value:"#{@tubes.id}"}
+        %span{class: "help-inline"}= @tubes.value
+        .accordion-group
+          .accordion-heading
+            %a{class: "btn-more", 'data-toggle'=>"collapse",  href:"#more"} advanced
+          #more.collapse.accordion-body
+            .control-group
+              %label.control-label Mode
+              .controls
+                %select{name: "state", class: "input_mode input-medium"}
+                  %option{selected: "", value: "free_value"} Free value
+                  %option{value: "time"} Time format
+                  %option{value: "animation"} Tube animation
+                  %option{value: "countdown"} Countdown
+            .control-group
+              %label.control-label Animation Name
+              .controls
+                %select{name: "animation_name", class: "input-medium", value:"#{@tubes.animation_name}"}
+                  %option{selected: "", value: "switch_numbers"} switch numbers
+                  %option{value: "single_fly_in"} fly in
+            .control-group
+              %label.control-label{for: "value"} Options Hash (Animations, Countdown(Time Format (e.g.%H %M %S))
+              .controls
+                %input{type: "text", name: "options", class: "input-medium", value:"#{@tubes.options}"}
+            .control-group
+              .controls
+                %label.checkbox{for: "load_on_startup"}
+                  %input{type: "checkbox", name: "initial", class: "input-medium"} Load on startup
+      .span6
+        %button{type: "submit", value: "Send", class: "btn btn-green"}
           GO
 
-    %input{type: "hidden", name: "id", value:"#{@tube.id}"}
-    %span{class: "help-inline"}= @tube.value
-    %a{class: "btn", 'data-toggle'=>"collapse",  href:"#more"} more
-    #more.collapse
-      .control-group
-        %label.control-label Mode
-        .controls
-          %select{name: "mode", class: "input_mode input-medium"}
-            %option{selected: "", value: "free_value"} Free value
-            %option{value: "time_format"} Time format
-            %option{value: "tube_animation"} Tube animation
-            %option{value: "countdown"} Countdown
-      .control-group
-        %label.control-label Animation Name
-        .controls
-          %select{name: "animation_name", class: "input-medium", value:"#{@tube.animation_name}"}
-            %option{selected: "", value: "switch_numbers"} switch numbers
-            %option{value: "single_fly_in"} fly in
-      .control-group
-        %label.control-label{for: "value"} Options Hash (Animations, Countdown(Time Format (e.g.%H %M %S))
-        .controls
-          %input{type: "text", name: "options", class: "input-medium", value:"#{@tube.options}"}
-      .control-group
-        .controls
-          %label.checkbox{for: "load_on_startup"}
-            %input{type: "checkbox", name: "initial", class: "input-medium"} Load on startup
+.span12
+  %h2 Lamps
+  %form{ action: "/lamps#{"/" + @lamps.id.to_s if @lamps.id}", method: "POST", class: "form-inline"}
+    .row
+      .span6
+        -@lamp_count.times.with_index do |index|
+          %button{type: "button", class: "btn btn-lamp", "data-toggle" => "button" }
+            = "#{index + 1}"
+            %input{type: "checkbox", name: "values[]", value: "0", style:"display: none;"}
+        %input{type: "hidden", name: "state", value: "free_value"}
+      .span6
+        %button{type: "submit", value: "GO", class: "btn"} GO
+
+.span12
+  %h2 Bars
+  %ul.nav.nav-tabs
+    %li
+      %a{"data-toggle" => "tab", href: "#free_value", class: "active"} Free value
+    %li
+      %a{"data-toggle" => "tab", href: "#animation"} Animation
 
 
-
-
-.span10
-  %h2 Lamps (todo doesn't work)
-  %form{ action: "/lamps", method: "POST", class: "form-inline"}
-    -@lamp_count.times.with_index do |index|
-      %button{type: "button", class: "btn btn-lamp", "data-toggle" => "button" }
-        = "#{index + 1}"
-      %input{type: "hidden", name: "values[#{index}]", value: "0"}
-    %input{type: "hidden", name: "mode", value: "free_value"}
-    %button{type: "submit", value: "GO", class: "btn"} GO
-
-.span10
-  .row
-    .span4
-      %h2 Say
-      %form{ action: "/say", method: "POST", class:"form-horizontal"}
-      .control-group
-        %label.control-label{for: "value"} Speak
-        .controls
-          %input{type: "text", name: "value", class: "text"}
-      .control-group
-        .controls
-          %input{type: "submit", value: "GO", class: "btn"}
-    .span6
-      %h2 Bars
-      %ul.nav.nav-tabs
-        %li
-          %a{"data-toggle" => "tab", href: "#free_value", class: "active"} Free value
-        %li
-          %a{"data-toggle" => "tab", href: "#animation"} Animation
-        %li
-          %a{"data-toggle" => "tab", href: "#something_else"} ...
-
-
-      .tab-content
-        #free_value.tab-pane.active
-          %form{ action: "/bars", method: "POST", class: "form"}
-            -@bar_count.times do
-              .control-group
-                .controls.bar-control
-                  %input{:type => "range", :name => "values[]", :class => "range", min: "0", max: "255", value: "0"}
-            %input{type: "hidden", name: "mode", value: "free_value"}
+  .tab-content
+    #free_value.tab-pane.active
+      %form{ action: "/bars#{"/" + @bars.id.to_s if @bars.id}", method: "POST", class: "form"}
+        .row
+          .span6
+            .bars
+              -@bar_count.times do
+                .control-group
+                  .controls.bar-control
+                    %input{:type => "range", :name => "values[]", :class => "range", min: "0", max: "255", value: "0"}
+              %input{type: "hidden", name: "state", value: "free_value"}
+          .span6
             %input{type: "submit", value: "GO", class: "btn"}
-        #animation.tab-pane
-          %form{ action: "/bars", method: "POST", class: "form-inline"}
-            %select{name: "animation_name", class: "input-medium"}
-              %option{selected: "", value: "ramp_up_down"} ramp up down
+    #animation.tab-pane
+      .row
+        .span6
+          .control-group
+            %label.control-label{for: "animation_name"} Animation
+            .controls
+              %select{name: "animation_name", class: "input-medium"}
+                %option{selected: "", value: "ramp_up_down"} ramp up down
+          .control-group
             %label.control-label{for: "value"} Options (Hash)
-            %input{type: "text", name: "options", class: "input-medium"}
-            %input{type: "hidden", name: "mode", value: "animation"}
-            %input{type: "submit", value: "GO", class: "btn"}
-        #something_else.tab-pane
-
+            .controls
+              %input{type: "text", name: "options", class: "input-medium"}
+          %input{type: "hidden", name: "state", value: "animation"}
+        .span6
+          %input{type: "submit", value: "GO", class: "btn"}
+    #something_else.tab-pane
+.span12
+  %h2 Say
+  %form{ action: "/say", method: "POST", class:""}
+    .row
+      .span6
+        %label.control-label{for: "value"} Speak
+        %input{type: "text", name: "value", class: "input-xlarge"}
+      .span6
+        %input{type: "submit", value: "GO", class: "btn"}
+.span12
+  %h2 Power
+  %form{ action: "/power", method: "POST", class:""}
+  #power-toggle-button
+    %input.checkbox{:checked => "checked", :name => "power", :type => "checkbox", :value => "1"}
 
 :javascript
   $(":range").rangeinput({progress: true});

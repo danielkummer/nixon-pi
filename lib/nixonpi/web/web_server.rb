@@ -65,10 +65,14 @@ module NixonPi
       @bar_count = Settings.in13_pins.size
       @lamp_count = Settings.in1_pins.size
 
+
       [:tubes, :lamps, :bars].each do |param|
         command = Command.find(:first, conditions: ["initial = ? AND state_machine = ?", false, param]) || Command.new(state_machine: param)
-        instance_variable_set(("@" + param).to_sym, command)
+        instance_variable_set("@#{param}", command)
+        intitial = Command.find(:first, conditions: ["initial = ? AND state_machine = ?", true, param]) || Command.new(state_machine: param)
+        instance_variable_set("@#{param}_settings", intitial)
       end
+
 
       haml :control, format: :html5
     end
@@ -76,7 +80,6 @@ module NixonPi
     get '/info/?:state_machine?', :provides => [:html, :json] do
 
       if %w(tubes bars lamps).contains? params[:state_machine]
-
         state_machine = params[:state_machine]
 
         @info = NixonPi::HandlerStateMachine.state_parameters_for(state_machine)
@@ -101,24 +104,30 @@ module NixonPi
     # save to the sqlite3 database
     # @param [Hash] data attributes to save
     # @class_type [Object] Model class to save to; e.g Lamp, Bar, Tube
-    def self.save_to_database(data, state_machine)
+    def save_to_database(data, state_machine)
+      command = nil
+      #todo refactor
       if data[:initial]
-        command = Command.find(:first, conditions: ["initial = ?", data[:initial], "state_machine = ?", state_machine.to_s])
+        command = Command.find(:first, conditions: ["initial = ? AND state_machine = ?", data[:initial], state_machine.to_s])
       elsif data[:id]
-        command = Command.find(:first, conditions: ["id = ?", data[:id, "state_machine = ?", state_machine.to_s]])
+        command = Command.find(:first, conditions: ["id = ? AND state_machine = ?", data[:id], state_machine.to_s])
       else
-        command = state_machine.new(state_machine: state_machine.to_s)
+        command = Command.new(state_machine: state_machine.to_s)
+      end
+      #todo error here! command is nil
+      command = Command.new(state_machine: state_machine.to_s) if command.nil?
+
+      data[:value] = data.delete(:values).join(",") if data[:values]
+
+      unless command.update_attributes(data)
+        log.debug("unable to update attributes: #{data.to_s}")
       end
 
-      [:value, :animation_name, :options, :initial].each do |attr|
-        command.send(attr, data[attr])
-      end
-      command.save
     end
 
-    def self.valid_or_redirect(params)
+    def valid_or_redirect(params)
       data = string_key_to_sym(params)
-      if data.nil? or !data.has_key?(:mode) then
+      if data.nil?
         status 400
         redirect("/")
       else
@@ -127,26 +136,53 @@ module NixonPi
     end
 
     post '/tubes/?:id?' do
-      valid_or_redirect(params) do
-        case data[:mode].to_sym
-          when :countdown
-            chrono_format = ChronicDuration.parse(data[:value], format: :chrono)
-            chrono_format.gsub!(/:/, ' ') #todo maybe not even space
-          else
+      data = string_key_to_sym(@params)
+      valid_or_redirect(@params) do
+        unless data[:state].nil?
+          case data[:state].to_sym
+            when :countdown
+              chrono_format = ChronicDuration.parse(data[:value], format: :chrono)
+              chrono_format.gsub!(/:/, ' ') #todo maybe not even space
+            else
+          end
         end
         data[:value] = data[:value].rjust(12, " ") unless data[:value].nil?
         CommandQueue.enqueue(:tubes, data)
-        save_to_database(data, Tube.class)
+        save_to_database(data, :tubes)
         status 200
-        redirect '/' + params.to_param
+        redirect '/'
       end
     end
 
+    post '/lamps/?:id?' do
+      data = string_key_to_sym(@params)
+      valid_or_redirect(@params) do
+        CommandQueue.enqueue(:lamps, data)
+        save_to_database(data, :lamps)
+        status 200
+        redirect '/'
+      end
+    end
+
+    post '/bars/?:id?' do
+      data = string_key_to_sym(@params)
+      valid_or_redirect(@params) do
+        CommandQueue.enqueue(:bars, data)
+        save_to_database(data, :bars)
+        status 200
+        redirect '/'
+      end
+    end
 
 
     post '/say' do
       data = string_key_to_sym(params)
       CommandQueue.enqueue(:say, data)
+    end
+
+    post 'power' do
+      data = string_key_to_sym(params)
+      CommandQueue.enqueue(:power, data)
     end
 
     def string_key_to_sym(hash)
@@ -156,47 +192,5 @@ module NixonPi
       end
       ret
     end
-=begin
-Examples with activerecord
-get '/todo/create/?' do
-   #This is very important/cool
-   #Create a new object (but not sent to database)
-   #Through the Activerecord (ORM) functions it will be initialised with the database defaults
-
-   #The @new object can be used to determin whether the template is POST (Create) or PUT (Modify)
-   @todo = Todo.new
-   @new = true
-   erb :'todo/todo_edit'
-end
-
-post '/todo/?' do
-   @todo = Todo.create(
-      :done => params['post']['done'],
-      :desc => params['post']['desc']
-   )
-   #Retun to view of newly created item
-   redirect '/todo/' + @todo.id.to_s
-end
-
-get '/todo/:id/edit/?' do
-   @todo = Todo.find(:first, :conditions => ["id = ?", params[:id] ])
-   erb :'todo/todo_edit'
-end
-
-put '/todo/:id/?' do
-   @todo = Todo.find(:first, :conditions => ["id = ?", params[:id] ])
-   @todo.done = params['post']['done']
-   @todo.desc = params['post']['desc']
-   @todo.save
-   redirect '/todo/' + params[:id]
-end
-
-get '/todo/:id/?' do
-   @todo = Todo.find(:first, :conditions => ["id = ?", params[:id] ])
-   erb :'todo/todo_one'
-end
-
-=end
-
   end
 end

@@ -20,6 +20,7 @@ module NixonPi
 
       ##todo process options...
       load_saved_values(:tubes)
+      CommandProcessor.add_receiver(self, :tubes)
     end
 
     state_machine :initial => :startup do

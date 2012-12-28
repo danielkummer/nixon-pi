@@ -9,7 +9,7 @@ module NixonPi
       case state_machine
         when :tubes
           {
-              mode: nil,
+              state: nil,
               value: nil,
               time_format: nil,
               animation_name: nil,
@@ -19,7 +19,7 @@ module NixonPi
           }
         when :bars
           {
-              mode: nil,
+              state: nil,
               values: nil,
               animation_name: nil,
               options: nil,
@@ -28,7 +28,7 @@ module NixonPi
           }
         when :lamps
           {
-              mode: nil,
+              state: nil,
               values: nil,
               animation_name: nil,
               options: nil,
@@ -36,6 +36,10 @@ module NixonPi
               initial_mode: nil
           }
         when :say
+          {
+              value: nil
+          }
+        when :power
           {
               value: nil
           }

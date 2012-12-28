@@ -10,12 +10,13 @@ module NixonPi
     def after_create
       register_driver NixonPi::LampDriver
       load_saved_values(:lamps)
+      CommandProcessor.add_receiver(self, :lamps)
     end
 
     state_machine :initial => :startup do
 
       around_transition do |object, transition, block|
-        handle_around_transition(object, transition, block)
+        HandlerStateMachine.handle_around_transition(object, transition, block)
       end
 
       event :free_value do

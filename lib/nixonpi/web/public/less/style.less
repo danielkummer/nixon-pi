@@ -16,20 +16,29 @@
 // Font Awesome
 //@import "fontawesome";
 
+//font-family: 'Carrois Gothic SC', sans-serif;
+//font-family: 'Share Tech Mono', sans-serif;
+//font-family: 'Montserrat Subrayada', sans-serif;
+//font-family: 'Allerta Stencil', sans-serif;
 
 body {
-  font-family: 'Lobster Two', cursive;
-  background-image: url('/img/bo_play_pattern.png');
+  font-family: 'Share Tech Mono', sans-serif;
+//background-image: url('/img/bo_play_pattern.png');
+  background-color: #eeefe6;
+  color: #656565;
+  font-size: 28px;
 }
 
-.right { text-align: right; }
+.right {
+  text-align: right;
+}
 
-@shadow: #fd9b2e;
-@color: #feef4a;
+@shadow: #39738A;
+@color: #656565;
+@title_color: #f03737;
 
-.text-style() {
-  text-shadow: 1px 1px 8px @shadow;
-    color: @color;
+.text-style() { //text-shadow: 1px 1px 8px @shadow;
+  color: @title_color;
 }
 
 h1, h2, h3, p, label, a {
@@ -42,31 +51,40 @@ h1, h2, h3, p, label, a {
 
   h1 {
     .text-style();
+    font-size: 100px;
+    letter-spacing: 15px;
   }
 }
 
+
+
+//font-family: 'Carrois Gothic SC', sans-serif;
+//font-family: 'Share Tech Mono', sans-serif;
+//font-family: 'Montserrat Subrayada', sans-serif;
+//font-family: 'Allerta Stencil', sans-serif;
+
+
 input.input-tubes {
-  font-family: 'Josefin Sans', sans-serif;
-  font-size: 28px;
   letter-spacing: 0.3em;
   height: 1.3em;
-
+  color: #3584b8;
   padding-left: 0px;
-  border-radius: 1em 0px 0px 1em;
-  .text-style();
-  background-color: #666666;
-  //border: 3px solid #474747;
+  border-radius: 1em 1em 1em 1em;
+  background-color: #eaebdf; //border: 3px solid #474747;
 }
 
-
-.btn-tubes {
+input[type="text"] {
+  font-family: 'Allerta Stencil', sans-serif;
   font-size: 28px;
   height: 1.3em;
-  border-radius: 0em 1em 1em 0em !important;
+  color: #3584b8;
+  background-color: #eaebdf;
 }
 
 .btn {
-  font-family: 'Lobster Two', cursive;
+  font-family: 'Share Tech Mono', sans-serif;
+  font-size: 28px;
+  height: 1.3em;
 }
 
 div.btn-group[data-toggle=buttons-radio] input[type=radio] {
@@ -82,6 +100,12 @@ div.btn-group[data-toggle=buttons-radio] input[type=radio] {
 .btn-lamp {
   border-radius: 30px !important;
   margin-right: 30px;
+
+}
+
+.btn-lamp.active {
+  //background-color: #7f9b47;
+  background-color: #3584b8;
 }
 
 .bar-control {
@@ -90,16 +114,16 @@ div.btn-group[data-toggle=buttons-radio] input[type=radio] {
 
 /* slider root element */
 .slider {
-  -webkit-box-shadow:  0px 0px 5px 2px #fd9b2e;
-  box-shadow:  0px 0px 5px 2px #fd9b2e;
-  background: #FEFD3A;
+  //-webkit-box-shadow: 0px 0px 5px 2px #fd9b2e;
+  //box-shadow: 0px 0px 5px 2px #fd9b2e;
+  background: #f03737;
   height: 9px;
   position: relative;
   cursor: pointer;
   width: 400px;
   float: left;
   clear: right;
-  margin-top: 10px;
+  margin-top: 12px;
   border-radius: 5px;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
@@ -119,10 +143,10 @@ div.btn-group[data-toggle=buttons-radio] input[type=radio] {
 
   background-color: #666666;
   border: 1px solid #272727;
-  background-image: linear-gradient(to bottom, #666666, #474747);
+  background-image: linear-gradient(to bottom, #f03737, #9d2727);
 
   height: 28px;
-  width: 28px;
+  width: 44px;
   top: -12px;
   position: absolute;
   display: block;

@@ -14,6 +14,10 @@ module NixieBerry
 
     register_as :say
 
+    def after_create
+      CommandProcessor.add_receiver(self, :say)
+    end
+
     def write
       log.debug "Say: #{current_state_parameters[:value].to_speech}"
       case true

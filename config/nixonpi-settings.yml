@@ -23,6 +23,7 @@ defaults: &defaults
     - 1
     - 2
     - 3
+  power_pin: 3
 
 
 development:

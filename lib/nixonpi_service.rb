@@ -14,7 +14,11 @@ require_relative 'nixonpi/state_machines/lamp_state_machine'
 require_relative 'nixonpi/animations/animation'
 require_relative 'nixonpi/web/web_server'
 require_relative 'nixonpi/state_machines/machine_manager'
+require_relative 'nixonpi/drivers/power_driver'
+require_relative 'nixonpi/command_processor'
+require 'thread'
 
+Thread.abort_on_exception = true
 
 module NixonPi
   class NixieService
@@ -38,18 +42,28 @@ module NixonPi
     # Run service run
     def run!
       [:INT, :TERM].each do |sig|
-        trap(sig) { quit!() }
+        trap(sig) do
+          #todo finish all threads
+          quit!()
+        end
       end
 
+
       log.info "Start running..."
+      log.info "turn on power"
+      PowerDriver.instance.power_on
       @web_thread = Thread.new { @server.run! }
       NixonPi::MachineManager.start_state_machines
+      NixonPi::CommandProcessor.start
       NixonPi::MachineManager.join_threads
+      NixonPi::CommandProcessor.finish_up
     end
 
     def quit!
       log.info "Nixon Pi is shutting down..."
       Thread.kill(@web_thread)
+      log.info "Turning off power"
+      PowerDriver.instance.power_off
 
       log.info "Bye ;)"
       exit(0)

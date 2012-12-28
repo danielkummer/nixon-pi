@@ -3,9 +3,8 @@ require 'active_support/inflector'
 
 require_relative '../logging/logging'
 require_relative '../configurations/state_hash'
-require_relative '../command_queue'
-require_relative '../command_parameters'
 require_relative '../factory'
+require_relative '../command_parameters'
 
 require_relative '../web/models'
 require 'active_record'
@@ -40,7 +39,6 @@ module NixonPi
     ##
     # Main handle method for all state machines
     def handle
-      handle_command_queue
       write
     end
 
@@ -56,13 +54,13 @@ module NixonPi
     #todo refactor
     def load_saved_values(state_machine)
       ActiveRecord::Base.establish_connection("sqlite3:///db/settings.db")
-      options =  Command.find(:first, conditions: ["initial = ? AND state_machine = ?", true, state_machine])
+      options = Command.find(:first, conditions: ["initial = ? AND state_machine = ?", true, state_machine])
       ActiveRecord::Base.connection.close
       if options
         log.debug "db setting loaded for #{state_machine} => #{options.to_s} "
         options.each do |option, value|
           if current_state_parameters.has_key?(option.to_sym) and !value.nil?
-              current_state_parameters[option.to_sym] = value
+            current_state_parameters[option.to_sym] = value
           end
         end
         log.debug "state set to: #{current_state_parameters.to_s}"
@@ -107,23 +105,9 @@ module NixonPi
     rescue "Driver missing"
     end
 
-    ##
-    # Handle the queue assigned to the registered type, assign state parameters and do the state switch
-    def handle_command_queue
-      queue = CommandQueue.queue(registered_as_type)
-
-      unless queue.empty?
-        command = queue.pop
-
-        log.debug("Got command: #{command}, checking for invalid control parameters...")
-
-        command.delete_if { |k, v| !command_parameters(registered_as_type).keys.include?(k) or v.nil? }
-
-        if command[:time] + 2 > Time.now #do nothing if command is older than 2 seconds
-          current_state_parameters.merge!(command)
-          self.fire_state_event(command[:mode].to_sym) if command[:mode]
-        end
-      end
+    def receive(command)
+      current_state_parameters.merge!(command)
+      self.fire_state_event(command[:state].to_sym) if command[:state]
     end
 
     #todo refactor

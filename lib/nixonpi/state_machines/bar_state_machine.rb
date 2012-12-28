@@ -4,6 +4,7 @@ require_relative '../drivers/bar_graph_driver'
 require_relative 'handler_state_machine'
 require_relative '../animations/animation'
 require_relative '../../nixonpi/animations/bar/ramp_up_down_animation'
+require_relative '../command_processor'
 
 
 module NixonPi
@@ -14,6 +15,7 @@ module NixonPi
     def after_create
       register_driver NixonPi::BarGraphDriver
       load_saved_values(:bars)
+      CommandProcessor.add_receiver(self, :bars)
     end
 
     state_machine :initial => :startup do
