@@ -16,7 +16,8 @@ module NixonPi
 
     def receive(command)
       value = command[:value]
-      if [0, 1].include(value)
+      log.debug "receive command: #{command}"
+      if (0..1).member?(value)
         client.io_write(@power_pin, value)
       end
     end
@@ -33,7 +34,6 @@ module NixonPi
       write = power_on ? 1 : 0
       client.io_write(@power_pin, write)
     end
-
 
   end
 end

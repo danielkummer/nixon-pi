@@ -10,6 +10,15 @@ module NixonPi
     class << self
 
       ##
+      # exit threads
+      def exit
+        @@threads.each do |t|
+          Thread.kill(t)
+        end
+      end
+
+
+      ##
       # Add a number of state machines to the manager
       def add_state_machines(*types)
         log.info "Adding state machines: #{types.to_s}"

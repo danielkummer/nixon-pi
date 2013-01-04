@@ -9,7 +9,7 @@ module NixonPi
 
     def after_create
       register_driver NixonPi::LampDriver
-      load_saved_values(:lamps)
+      reload_from_db(:lamps)
       CommandProcessor.add_receiver(self, :lamps)
     end
 

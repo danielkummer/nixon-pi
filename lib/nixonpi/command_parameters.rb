@@ -37,11 +37,13 @@ module NixonPi
           }
         when :say
           {
-              value: nil
+              value: nil,
+              time: nil
           }
         when :power
           {
-              value: nil
+              value: nil,
+              time: nil
           }
         else
           raise NotImplementedError "Unknown control parameters -- implement if new function"

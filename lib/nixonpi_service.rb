@@ -26,15 +26,12 @@ module NixonPi
 
     ActiveRecord::Base.logger = Logger.new(STDERR)
 
-
     def initialize
       log.info "Initializing Nixon-Pi service.."
       log.info "Environment: #{$environment}"
       system "cd #{File.dirname(__FILE__)} && rake db:migrate"
 
-      ##load saved values if any...
-
-      NixonPi::MachineManager.add_state_machines(:tubes, :bars, :lamps)
+    NixonPi::MachineManager.add_state_machines(:tubes, :bars, :lamps)
       @server = WebServer
     end
 
@@ -56,15 +53,18 @@ module NixonPi
       NixonPi::MachineManager.start_state_machines
       NixonPi::CommandProcessor.start
       NixonPi::MachineManager.join_threads
-      NixonPi::CommandProcessor.finish_up
+      NixonPi::CommandProcessor.join_thread
     end
 
+    ##
+    # quit service power down nicely
     def quit!
       log.info "Nixon Pi is shutting down..."
       Thread.kill(@web_thread)
+      NixonPi::MachineManager.exit
+      NixonPi::CommandProcessor.exit
       log.info "Turning off power"
       PowerDriver.instance.power_off
-
       log.info "Bye ;)"
       exit(0)
     end

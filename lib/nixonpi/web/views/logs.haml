@@ -1,0 +1,5 @@
+.span12
+  .log
+    %ul.unstyled
+      = read_latest_logs.each do |line|
+        %li= line

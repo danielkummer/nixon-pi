@@ -22,8 +22,7 @@
 //font-family: 'Allerta Stencil', sans-serif;
 
 body {
-  font-family: 'Share Tech Mono', sans-serif;
-//background-image: url('/img/bo_play_pattern.png');
+  font-family: 'Share Tech Mono', sans-serif; //background-image: url('/img/bo_play_pattern.png');
   background-color: #eeefe6;
   color: #656565;
   font-size: 28px;
@@ -56,13 +55,10 @@ h1, h2, h3, p, label, a {
   }
 }
 
-
-
 //font-family: 'Carrois Gothic SC', sans-serif;
 //font-family: 'Share Tech Mono', sans-serif;
 //font-family: 'Montserrat Subrayada', sans-serif;
 //font-family: 'Allerta Stencil', sans-serif;
-
 
 input.input-tubes {
   letter-spacing: 0.3em;
@@ -98,14 +94,20 @@ div.btn-group[data-toggle=buttons-radio] input[type=radio] {
 }
 
 .btn-lamp {
-  border-radius: 30px !important;
+  border-radius: 40px !important;
   margin-right: 30px;
-
+  font-size: 40px;
+  height: 1.3em;
 }
 
-.btn-lamp.active {
-  //background-color: #7f9b47;
+.btn-lamp.active { //background-color: #7f9b47;
   background-color: #3584b8;
+}
+
+.divider {
+  border-top: 1px dashed @title_color;
+  padding-top: 15px;
+  padding-bottom: 15px;
 }
 
 .bar-control {
@@ -113,9 +115,8 @@ div.btn-group[data-toggle=buttons-radio] input[type=radio] {
 }
 
 /* slider root element */
-.slider {
-  //-webkit-box-shadow: 0px 0px 5px 2px #fd9b2e;
-  //box-shadow: 0px 0px 5px 2px #fd9b2e;
+.slider { //-webkit-box-shadow: 0px 0px 5px 2px #fd9b2e;
+//box-shadow: 0px 0px 5px 2px #fd9b2e;
   background: #f03737;
   height: 9px;
   position: relative;
@@ -133,17 +134,16 @@ div.btn-group[data-toggle=buttons-radio] input[type=radio] {
 /* progress bar (enabled with progress: true) */
 .progress {
   height: 9px;
-  background-color: #C5FF00;
-  display: none;
-  opacity: 0.6;
+  background-color: #3584b8;
+  //opacity: 0.6;
+  background-image: none;
 }
 
 /* drag handle */
 .handle {
-
   background-color: #666666;
   border: 1px solid #272727;
-  background-image: linear-gradient(to bottom, #f03737, #9d2727);
+  background-image: linear-gradient(to bottom, #3584b8, #1e4765);
 
   height: 28px;
   width: 44px;
@@ -173,6 +173,39 @@ div.btn-group[data-toggle=buttons-radio] input[type=radio] {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
+}
+
+.chzn-container {
+  font-family: 'Allerta Stencil', sans-serif;
+  font-size: 28px;
+  height: 1.3em;
+  color: #3584b8 !important; //background-color: #eaebdf;
+}
+
+.chzn-single {
+  height: 48px !important;
+  line-height: 48px !important;
+}
+
+.chzn-single span {
+  color: #3584b8 !important;
+}
+
+.chzn-search {
+  display: none;
+}
+
+.chzn-drop {
+  top: 45px !important;
+}
+
+.log {
+  height: 500px;
+  font-size: 10px;
+  color: black;
+  overflow: auto;
+  background-color: white;
+  line-height: 12px !important;
 }
 
 

@@ -17,9 +17,8 @@ module NixonPi
 
     def after_create
       register_driver NixonPi::TubeDriver
-
       ##todo process options...
-      load_saved_values(:tubes)
+      reload_from_db(:tubes)
       CommandProcessor.add_receiver(self, :tubes)
     end
 
@@ -99,8 +98,22 @@ module NixonPi
       end
 
       state :countdown do
+        require 'chronic_duration'
         def write
+          last_time = @last_time || 0
+          value = current_state_parameters[:value]
+          output = ChronicDuration.output(value, :format => :chrono).gsub(/:/, ' ')
+          driver.write(output)
 
+          time_diff = Time.now - last_time
+          new_value = value - time_diff
+
+          current_state_parameters[:value] = new_value
+          current_state_parameters[:last_value] = value
+
+          @last_time = Time.now
+
+          self.fire_state_event(current_state_parameters[:last_state]) if new_value < 0
         end
       end
 

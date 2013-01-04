@@ -45,33 +45,33 @@ module NixonPi
     ##
     # Get the current state parameters from the global class state hash, lazy initialized
     def current_state_parameters
-      @@state_parameters[registered_as_type] ||= initialize_state_hash
+      @@state_parameters[registered_as_type] ||= initialize_state
     end
 
 
     protected
-
-    #todo refactor
-    def load_saved_values(state_machine)
+    def reload_from_db(state_machine)
       ActiveRecord::Base.establish_connection("sqlite3:///db/settings.db")
       options = Command.find(:first, conditions: ["initial = ? AND state_machine = ?", true, state_machine])
       ActiveRecord::Base.connection.close
       if options
         log.debug "db setting loaded for #{state_machine} => #{options.to_s} "
-        options.each do |option, value|
-          if current_state_parameters.has_key?(option.to_sym) and !value.nil?
-            current_state_parameters[option.to_sym] = value
-          end
-        end
+        set_params(options)
         log.debug "state set to: #{current_state_parameters.to_s}"
       else
         log.debug "no db settings found for :#{state_machine} "
       end
     end
 
+    def set_params(options)
+      options.each do |option, value|
+        current_state_parameters[option.to_sym] = value if current_state_parameters.has_key?(option.to_sym) and !value.nil?
+      end
+    end
+
     ##
     # Lazy initialize state hash if not already existing
-    def initialize_state_hash
+    def initialize_state
       @@state_parameters[registered_as_type] = StateHash.new
       @@state_parameters[registered_as_type].merge(command_parameters(registered_as_type))
       @@state_parameters[registered_as_type]
@@ -105,11 +105,19 @@ module NixonPi
     rescue "Driver missing"
     end
 
+    ##
+    # Receive command parameters to change the state of the current state machine
+    #todo: this currently doesn't abords running animations
+    # @param [Hash] command command parameters
     def receive(command)
+      log.debug "received command: #{command.to_s} in #{self.class.to_s}"
       current_state_parameters.merge!(command)
       self.fire_state_event(command[:state].to_sym) if command[:state]
     end
 
+    ##
+    # detect if values changed in the bar values array
+    #param [Array] Integer array of bar values
     #todo refactor
     def values_changed?(bar_values)
       if current_state_parameters[:last_values].nil?

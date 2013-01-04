@@ -14,7 +14,7 @@ module NixonPi
 
     def after_create
       register_driver NixonPi::BarGraphDriver
-      load_saved_values(:bars)
+      reload_from_db(:bars)
       CommandProcessor.add_receiver(self, :bars)
     end
 

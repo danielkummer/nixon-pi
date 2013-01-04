@@ -23,6 +23,10 @@ module NixonPi
         end
       end
 
+      def exit
+        Thread.kill @@thread
+      end
+
 
       def add_receiver(receiver, queue)
         if @@listeners[queue.to_sym].nil?
@@ -32,7 +36,7 @@ module NixonPi
         end
       end
 
-      def finish_up
+      def join_thread
         @@thread.join
       end
 
@@ -48,7 +52,7 @@ module NixonPi
           command = queue.pop
           log.debug("Got command: #{command} in queue #{queue_name}, checking for invalid control parameters...")
           command.delete_if { |k, v| !command_parameters(queue_name).keys.include?(k) or v.nil? }
-          if command[:time] + 2 > Time.now #do nothing if command is older than 2 seconds
+          if command[:time] and command[:time] + 2 > Time.now #do nothing if command is older than 2 seconds
             @@listeners[queue_name].each do |listener|
               begin
                 listener.try(:receive, command)
