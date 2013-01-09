@@ -27,7 +27,7 @@ module NixonPi
     # Get the state parameters for the registered state machine
     # @param [Symbol] type
     def self.state_parameters_for(type)
-      @@state_parameters[type]
+      @@state_parameters[type.to_sym]
     end
 
     ##

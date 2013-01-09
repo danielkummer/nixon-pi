@@ -27,6 +27,7 @@
     %script{:src => "/js/bootstrap/bootstrap-transition.js", :type => "text/javascript"}
     %script{:src => "/js/bootstrap/bootstrap-collapse.js", :type => "text/javascript"}
     %script{:src => "/js/bootstrap/bootstrap-button.js", :type => "text/javascript"}
+    %script{:src => "/js/bootstrap/bootstrap-alert.js", :type => "text/javascript"}
     %script{:src => "/js/application.js", :type => "text/javascript"}
     %script{:src => "/js/libs/chosen.jquery.min.js", :type => "text/javascript"}
     /compile:  $ lessc public/less/style.less > public/css/mycss.css
@@ -39,12 +40,15 @@
           .hero-unit
             /%h1 Nixon-&#928;
             %h1 Nixon-&#960;
-        .span6
+        .span2
           %h2 Power
           %form{action: "/power", method: "post", class:""," data-remote" => "true"}
             #power-toggle-button.toggle-button
               %input.checkbox{:checked => "checked", id: "power-value", :name => "value", :type => "checkbox", :value => "1"}
+        .span4
+          %div#alert-container
       .row
+
         = yield
     %footer.footer
       %p

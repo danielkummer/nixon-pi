@@ -16,7 +16,7 @@ module NixonPi
 
     def receive(command)
       value = command[:value]
-      log.debug "receive command: #{command}"
+      log.debug "got power command: #{command}, applying..."
       if (0..1).member?(value)
         client.io_write(@power_pin, value)
       end

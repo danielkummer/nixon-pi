@@ -1,13 +1,13 @@
 require 'sinatra'
 require 'sinatra/base'
 require 'sinatra/contrib'
-require "sinatra/json"
 require 'sinatra/activerecord'
 require 'chronic_duration'
 require 'haml'
 require 'json'
 require 'active_record'
 require 'sinatra/form_helpers'
+require 'sinatra/jsonp'
 
 
 require_relative '../../../lib/nixonpi/command_queue'
@@ -20,16 +20,17 @@ require_relative 'models'
 
 module NixonPi
   class WebServer < Sinatra::Base
-    register Sinatra::RespondWith
+    #register Sinatra::RespondWith
     register Sinatra::ActiveRecordExtension
     helpers Sinatra::FormHelpers
-    helpers Sinatra::JSON
+    #helpers Sinatra::JSON
+    helpers Sinatra::Jsonp
 
     extend Logging
 
     set :database, 'sqlite:///db/settings.db'
     set :run, false
-    set :json_encoder, JSON
+    #set :json_encoder, JSON
     set :root, File.dirname(__FILE__)
     set :public_folder, File.join(File.dirname(__FILE__), 'public')
     set :haml, {:format => :html5}
@@ -40,9 +41,16 @@ module NixonPi
       exit
     end
 
+    #error 400..510 do
+    #  'Boom'
+    #end
+
+    not_found do
+      'This is nowhere to be found.'
+    end
+
     helpers do
       INDENT = '  ' # use 2 spaces for indentation
-
       def hash_to_haml(hash, level=0)
         result = ["#{INDENT * level}%ul"]
         hash.each do |key, value|
@@ -52,7 +60,7 @@ module NixonPi
           else
             result << "#{INDENT * (level + 1)}%li #{key}:#{value}"
           end
-        end
+        end unless hash.nil?
         Haml::Engine.new(result.join("\n")).render
       end
 
@@ -60,6 +68,19 @@ module NixonPi
         path = File.join(Dir.home, 'nixon-pi.log')
         logs = `tail -n 1000 #{path}`.split("\n")
         logs
+      end
+
+      def format_loaded_values(data)
+        result = ["%dl"]
+        [:state_machine, :state, :value, :animation_name, :options].each do |key|
+          value = data.send(key)
+          unless value.nil? and value != ""
+            result << "  %dt #{key.to_s.gsub("_", " ").capitalize}"
+            result << "  %dd #{data[key].to_s}"
+          end
+        end unless data.nil?
+
+        Haml::Engine.new(result.join("\n")).render
       end
     end
 
@@ -85,8 +106,8 @@ module NixonPi
       unless command.update_attributes(data)
         log.debug("unable to update attributes: #{data.to_s}")
       end
-
     end
+
 
     def convert_and_validate(params)
       data = string_key_to_sym(params)
@@ -105,11 +126,21 @@ module NixonPi
       ret
     end
 
+    def custom_respond(format, data, respond_message = "", template = nil)
+      data[:message] = respond_message
+      case format
+        when 'json'
+          halt jsonp(data)
+        when 'html'
+          halt haml(template, :locals => data) unless template.nil?
+      end
+      error 406
+    end
+
 
     get '/' do
       @bar_count = Settings.in13_pins.size
       @lamp_count = Settings.in1_pins.size
-
 
       [:tubes, :lamps, :bars].each do |param|
         command = Command.find(:first, conditions: ["initial = ? AND state_machine = ?", false, param]) || Command.new(state_machine: param)
@@ -121,30 +152,23 @@ module NixonPi
       haml :control, format: :html5
     end
 
-    get '/info/?:state_machine?', :provides => [:html, :json] do
-
-      if %w(tubes bars lamps).contains? params[:state_machine]
+    get '/info/:state_machine.:format' do
+      if %w(tubes bars lamps).include? params[:state_machine]
         state_machine = params[:state_machine]
-
-        @info = NixonPi::HandlerStateMachine.state_parameters_for(state_machine)
-        respond_with :state_info do |f|
-          f.json { @info.to_json }
-        end
+        data = {info: NixonPi::HandlerStateMachine.state_parameters_for(state_machine)}
+        custom_respond(params[:format], data, "#{state_machine} set to", :state_info)
       else
-        status 400
-        render '/' if content_type == :html
+        error 400
       end
 
-
     end
 
-    get '/info', :provides => [:html, :json] do
-      client = AbioCardClient.instance
-      @info = client.info
-      haml :info, locals: {info: @info}
+    get '/info.:format' do
+      data = {info: AbioCardClient.instance.info}
+      custom_respond(params[:format], data, "Hardware information", :info)
     end
 
-    get '/logs', :provides => [:html] do
+    get '/logs' do
       haml :logs
     end
 
@@ -155,14 +179,16 @@ module NixonPi
           case data[:state].to_sym
             when :countdown
               data[:value] = ChronicDuration.parse(data[:value], format: :chrono)
-              #chrono_format.gsub!(/:/, ' ') #todo maybe not even space
+            #chrono_format.gsub!(/:/, ' ') #todo maybe not even space
             else
           end
         end
         data[:value] = data[:value].rjust(12, " ") unless data[:value].nil?
         CommandQueue.enqueue(:tubes, data)
         save_to_database(data, :tubes)
-        json(data, :encoder => :to_json, :content_type => :js)
+
+
+        custom_respond('json', data, "Tubes set to")
       end
     end
 
@@ -170,7 +196,7 @@ module NixonPi
       convert_and_validate(@params) do |data|
         CommandQueue.enqueue(:lamps, data)
         save_to_database(data, :lamps)
-        json(data, :encoder => :to_json, :content_type => :js)
+        custom_respond('json', data, "Lamps set to")
       end
     end
 
@@ -179,7 +205,7 @@ module NixonPi
       convert_and_validate(@params) do |data|
         CommandQueue.enqueue(:bars, data)
         save_to_database(data, :bars)
-        json(data, :encoder => :to_json, :content_type => :js)
+        custom_respond('json', data, "Bars set to")
       end
     end
 
@@ -187,7 +213,7 @@ module NixonPi
     post '/say' do
       convert_and_validate(@params) do |data|
         CommandQueue.enqueue(:say, data)
-        json(data, :encoder => :to_json, :content_type => :js)
+        custom_respond('json', data, "Told ")
       end
 
     end
@@ -196,12 +222,13 @@ module NixonPi
       convert_and_validate(@params) do |data|
         data[:value] = 0 if data.empty?
         CommandQueue.enqueue(:power, data)
-        json(data, :encoder => :to_json, :content_type => :js)
+
+        custom_respond('json', data, "Power set to")
       end
     end
 
     #todo
-    post '/scheduler', :provides =>  [:json] do
+    post '/scheduler', :provides => [:json] do
 
       begin
         Rufus.parse_time_string params[:time] if params[:type] == 'in' or params[:type] == 'every'
@@ -212,6 +239,9 @@ module NixonPi
       #todo param validation and scheduling
       #Scheduler.schedule(type,time,target,command)
     end
+
+    #run directly on app-file exec
+    #run! if app_file == $0
 
   end
 end

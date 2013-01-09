@@ -1,7 +1,7 @@
 .row
   .span2
     %h2 Tubes
-  .span10
+  .span6
     %form{ action: "/tubes#{"/" + @tubes.id.to_s if @tubes.id}", method: "POST", class: "form-horizontal", "data-remote" => true}
       .row
         .span6
@@ -9,7 +9,6 @@
             %input{type: "text", name: "value", class: "input-tubes search-query input-block-level right"}
 
           %input{type: "hidden", name: "id", value:"#{@tubes.id}"}
-          %span{class: "help-inline"}= @tubes.value
           .accordion-group
             .accordion-heading
               %a{class: "btn-more", 'data-toggle'=>"collapse",  href:"#more"} advanced
@@ -41,6 +40,10 @@
         .span6{style:"padding-top:10px;"}
           %button{type: "submit", value: "Send", class: "btn btn-green"}
             GO
+  .span4
+    .well
+      = format_loaded_values(@tubes)
+
 
 .row.divider
   .span2
@@ -54,23 +57,25 @@
               = "#{index + 1}"
               %input{type: "checkbox", name: "values[]", value: "#{index}", style:"display: none;"}
           %input{type: "hidden", name: "state", value: "free_value"}
+  .span4
+    .well
+      = format_loaded_values(@lamps)
 
 .row.divider
   .span2
     %h2 Bars
-  .span10
+  .span6
     %ul.nav.nav-tabs
       %li
         %a{"data-toggle" => "tab", href: "#free_value", class: "active"} Free value
       %li
         %a{"data-toggle" => "tab", href: "#animation"} Animation
 
-
     .tab-content
       #free_value.tab-pane.active
         %form{ action: "/bars#{"/" + @bars.id.to_s if @bars.id}", method: "POST", class: "form", "data-remote" => true}
           .row
-            .span8
+            .span6
               .bars
                 -@bar_count.times do
                   .control-group
@@ -80,7 +85,7 @@
 
       #animation.tab-pane
         .row
-          .span10
+          .span6
             .control-group
               %label.control-label{for: "animation_name"} Animation
               .controls
@@ -94,20 +99,23 @@
 
             %input{type: "submit", value: "GO", class: "btn"}
       #something_else.tab-pane
+  .span4
+    .well
+      = format_loaded_values(@bars)
 
 .row.divider
   .span2
     %h2 Say
-  .span10
+  .span6
     %form{ action: "/say", method: "POST", class:"", "data-remote" => true}
       .row
         .span12
-          %input{type: "text", name: "value", class: "input-xlarge"}
+          %input{type: "text", name: "value", class: "input-xxlarge"}
 
 .row.divider
   .span2
     %h2 Scheduler
-  .span10
+  .span6
     %form{ action: "/scheduler", method: "POST", class: "", "data-remote" => true}
       .control-group
         %select{name: "type", class: "chzn-select", "data-placeholder" => "Select Timing", style:"width:300px;"}
@@ -130,6 +138,8 @@
         %textarea{name: "command", rows: "5"}
       .control-group
         %input{type: "submit", value:"Schedule", class:"btn"}
+  .span4
+    .well
 
 
 

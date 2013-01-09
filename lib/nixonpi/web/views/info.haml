@@ -1,9 +1,15 @@
 %h1 Hardware info
-%p RTC
-= locals[:info].rtc
-%p IO
-= locals[:info].io
-%p ADC
-= locals[:info].adc
-%p PWM
-= locals[:info].pwm
+
+%p Shows what hardware was detected and is functioning properly...
+
+%dl.dl-horizontal
+  %dt RTC
+  %dd= locals[:info].rtc
+  %dt IO
+  %dd= locals[:info].io
+  %dt ADC
+  %dd= locals[:info].adc
+  %dt PWM
+  %dd= locals[:info].pwm
+
+
