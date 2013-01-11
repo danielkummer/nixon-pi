@@ -76,7 +76,7 @@ module NixonPi
           value = data.send(key)
           unless value.nil? and value != ""
             result << "  %dt #{key.to_s.gsub("_", " ").capitalize}"
-            result << "  %dd #{data[key].to_s}"
+            result << "  %dd #{value.to_s}"
           end
         end unless data.nil?
 
@@ -187,7 +187,7 @@ module NixonPi
             else
           end
         end
-        data[:value] = data[:value].rjust(12, " ") unless data[:value].nil?
+        data[:value] = data[:value].to_s.rjust(12, " ") unless data[:value].nil?
         CommandQueue.enqueue(:tubes, data)
         save_to_database(data, :tubes)
 

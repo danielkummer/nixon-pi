@@ -8,6 +8,7 @@ require_relative '../animations/animation'
 require_relative '../animations/tube/switch_numbers_animation'
 require_relative '../animations/tube/single_fly_in_animation'
 require_relative 'handler_state_machine'
+require_relative '../command_queue'
 
 
 module NixonPi
@@ -97,23 +98,50 @@ module NixonPi
         end
       end
 
+      #todo refactor
       state :countdown do
         require 'chronic_duration'
+
         def write
-          last_time = @last_time || 0
-          value = current_state_parameters[:value]
-          output = ChronicDuration.output(value, :format => :chrono).gsub(/:/, ' ')
-          driver.write(output)
+          seconds_to_go = current_state_parameters[:value].to_i
+          current_time = Time.now
 
-          time_diff = Time.now - last_time
-          new_value = value - time_diff
+          if current_state_parameters[:target_time].nil?
+            current_state_parameters[:target_time] = Time.now + seconds_to_go.seconds
+          end
+          target_time = current_state_parameters[:target_time]
 
-          current_state_parameters[:value] = new_value
-          current_state_parameters[:last_value] = value
+          next_value = target_time - current_time
 
-          @last_time = Time.now
+          if seconds_to_go > 0 and seconds_to_go != next_value
 
-          self.fire_state_event(current_state_parameters[:last_state]) if new_value < 0
+            output = ChronicDuration.output(seconds_to_go, :format => :chrono).gsub(/:/, ' ')
+            log.debug "write countdown: #{output}"
+            driver.write(output)
+          end
+
+          current_state_parameters[:value] = next_value
+
+
+          if current_time >= current_state_parameters[:target_time]
+            log.debug "end of countdown"
+            options = current_state_parameters[:options]
+            unless options.nil?
+              if options.is_a? Hash
+                options.keys.each do |k, o|
+                  case k.to_sym
+                    when :say
+                      CommandQueue.enqueue(:say, {value: o})
+                    when :state
+                      self.fire_state_event(current_state_parameters[:o])
+                    else
+                      log.debug "option unknown"
+                  end
+                end
+              end
+            end
+            self.fire_state_event(current_state_parameters[:last_state])
+          end
         end
       end
 
