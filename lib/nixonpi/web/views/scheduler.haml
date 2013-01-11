@@ -1,0 +1,28 @@
+.row.divider
+  .span2
+    %h2 Scheduler
+  .span6
+    %form{ action: "/scheduler", method: "POST", class: "", "data-remote" => true}
+      .control-group
+        %select{name: "type", class: "chzn-select", "data-placeholder" => "Select Timing", style:"width:300px;"}
+          %option
+          %option{value: "in"} in
+          %option{value: "at"} at
+          %option{value: "every"} every
+          %option{value: "cron"} cron
+      .control-group
+        %input{type: "text", name: "time", class: "input-large", placeholder: "Time" }
+      .control-group
+        %select{name: "queue", class: "chzn-select", "data-placeholder" => "Select Target", style:"width:300px;"}
+          %option
+          %option{value: "power"} Power
+          %option{value: "tubes"} Tubes
+          %option{value: "Bars"} Bars
+          %option{value: "Lamps"} Lamps
+          %option{value: "Say"} Say
+      .control-group
+        %textarea{name: "command", rows: "5"}
+      .control-group
+        %input{type: "submit", value:"Schedule", class:"btn"}
+  .span4
+    .well

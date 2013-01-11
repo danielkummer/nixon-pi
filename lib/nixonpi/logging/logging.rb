@@ -2,6 +2,29 @@ require 'logger'
 require_relative '../../nixonpi/configurations/settings'
 require_relative '../delegators/multi_delegator'
 
+class String
+  # colorization
+  def colorize(color_code)
+    "\e[#{color_code}m#{self}\e[0m"
+  end
+
+  def red
+    colorize(31)
+  end
+
+  def green
+    colorize(32)
+  end
+
+  def yellow
+    colorize(33)
+  end
+
+  def pink
+    colorize(35)
+  end
+end
+
 module NixonPi
   module Logging
 
@@ -24,7 +47,14 @@ module NixonPi
         logger.level = eval "Logger::#{Settings.log_level}"
         logger.progname = classname
         logger.formatter = proc do |severity, datetime, progname, msg|
-          "[#{severity}] #{progname} -- #{datetime.strftime("%Y-%m-%d %H:%M:%S")}: #{msg}\n"
+          format = "[#{severity}] #{progname} -- #{datetime.strftime("%Y-%m-%d %H:%M:%S")}: #{msg}\n"
+          case severity
+            when 'INFO'
+              format = format.green
+            when 'ERROR'
+              format = format.red
+          end
+          format
         end
         logger
       end
