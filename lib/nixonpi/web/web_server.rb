@@ -72,7 +72,7 @@ module NixonPi
 
       def format_loaded_values(data)
         result = ["%dl"]
-        [:state_machine, :state, :value, :animation_name, :options].each do |key|
+        [:state, :value, :animation_name, :options].each do |key|
           value = data.send(key)
           unless value.nil? and value != ""
             result << "  %dt #{key.to_s.gsub("_", " ").capitalize}"
