@@ -152,6 +152,10 @@ module NixonPi
       haml :control, format: :html5
     end
 
+    get '/scheduler.:format' do
+      haml :scheduler, format: :html5
+    end
+
     get '/info/:state_machine.:format' do
       if %w(tubes bars lamps).include? params[:state_machine]
         state_machine = params[:state_machine]
