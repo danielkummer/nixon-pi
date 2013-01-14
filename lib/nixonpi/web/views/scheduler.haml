@@ -10,6 +10,8 @@
           %option{value: "at"} at
           %option{value: "every"} every
           %option{value: "cron"} cron
+
+
       .control-group
         %input{type: "text", name: "time", class: "input-large", placeholder: "Time" }
       .control-group
@@ -26,3 +28,22 @@
         %input{type: "submit", value:"Schedule", class:"btn"}
   .span4
     .well
+      %h3 Examples
+      %dl
+        %dt in
+        %dd 20m
+        %dt at
+        %dd Thu Mar 26 07:31:43 +0900 2009
+        %dt every
+        %dd 5m
+        %dt chron
+        %dd 0 22 * * 1-5
+
+.row.divider
+  .span2
+    %h2 Running
+  .span6
+    %form{:action => "/scheduler", :method => "post"}
+      %input{ name:"_method", type:"hidden", value:"delete"}
+      =@running.each do |r|
+        %p= r.to_s

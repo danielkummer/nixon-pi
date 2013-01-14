@@ -15,6 +15,7 @@ module NixonPi
       def @scheduler.handle_exception(job, exception)
         log.error "job #{job.job_id} caught exception '#{exception}'"
       end
+      CommandProcessor.add_receiver(self, :schedule)
     end
 
     ##
@@ -28,21 +29,54 @@ module NixonPi
       @scheduler.running_jobs
     end
 
+
     ##
     # Schedule a command to be executed
     # @param [Symbol] type Type can be in, at, cron, every
     # @param [String] time Timestring, see documentation for possibilities
     # @param [Symbol] queue Name of the queue -> command receiver
     # @param [Hash] command Hash of command parameters
-    def schedule(type, time, queue, command)
+    def schedule(id, type, time, queue, command, lock = false)
       if %w"power tubes bars lamps".include?(type)
         log.debug "schedule command #{command}, in #{time} for #{type}"
-        @scheduler.send(type, "#{time}", :mutex => "#{queue}") do
-          CommandQueue.enqueue(queue, command)
+
+        if lock
+          log.debug "locking state machine..."
+          CommandQueue.lock(queue)
         end
+
+        job = @scheduler.send(type, "#{time}", :mutex => "#{queue}") do
+
+          CommandQueue.enqueue(queue, command)
+          CommandQueue.unlock(queue) if %w"in at".include?(type)
+        end
+
+        @@jobs[id.to_sym] = job
       end
     end
   end
+
+  def unschedule(id)
+    @@jobs[id.to_sym].unschedule unless @@jobs[id.to_sym].nil?
+  end
+
+
+  def receive(command)
+    log.debug "got schedule command: #{command}, applying..."
+    #todo validate
+    #refactor
+
+    id, type, time, queue = command[:id], command[:timing], command[:time], command[:state_machine]
+
+    #todo create a valid command
+    #parse??
+    command = command[:value]
+
+    locked = command[:locked] ? true : false;
+    #todo lock state machine
+    schedule(id, type, time, queue, command, locked)
+  end
+
 end
 
 =begin

@@ -17,6 +17,8 @@ require_relative 'nixonpi/state_machines/machine_manager'
 require_relative 'nixonpi/drivers/power_driver'
 require_relative 'nixonpi/command_processor'
 require 'thread'
+require 'daemons'
+
 
 Thread.abort_on_exception = true
 
@@ -38,13 +40,15 @@ module NixonPi
     ##
     # Run service run
     def run!
+      # Become a daemon
+      Daemons.daemonize if $environment == 'production'
+
       [:INT, :TERM].each do |sig|
         trap(sig) do
           #todo finish all threads
           quit!()
         end
       end
-
 
       log.info "Start running..."
       log.info "turn on power"
