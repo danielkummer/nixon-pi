@@ -35,13 +35,13 @@ module NixonPi
 
       state :free_value do
         def write
-          lamp_values = current_state_parameters[:values]
+          lamp_values = params[:values]
           unless lamp_values.nil?
             if lamp_values.include? nil
               lamp_values.each_with_index { |value, index| driver.write_to_lamp(index, value) unless value.nil? }
             else
               driver.write(lamp_values)
-              current_state_parameters[:last_values] = lamp_values
+              params[:last_values] = lamp_values
             end
           end
         end
@@ -60,10 +60,10 @@ module NixonPi
           #do some startup animation stuff....
 
           #todo refactor
-          if current_state_parameters[:initial_state].nil?
+          if params[:initial_state].nil?
             self.fire_state_event(:free_value)
           else
-            self.fire_state_event(current_state_parameters[:initial_state])
+            self.fire_state_event(params[:initial_state])
           end
         end
       end

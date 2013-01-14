@@ -19,14 +19,14 @@ module NixieBerry
     end
 
     def write
-      log.debug "Say: #{current_state_parameters[:value].to_speech}"
+      log.debug "Say: #{params[:value].to_speech}"
       case true
         when OS.mac?
-          IO.popen("say #{current_state_parameters[:value]}")
+          IO.popen("say #{params[:value]}")
         when OS.windows?
           log.warn "No windows speech support at the moment..."
         else
-          current_state_parameters[:value].to_speech
+          params[:value].to_speech
       end
     end
   end

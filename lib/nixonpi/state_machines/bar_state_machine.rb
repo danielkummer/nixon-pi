@@ -36,17 +36,17 @@ module NixonPi
 
       state :startup do
         def write
-          current_state_parameters[:animation_name] = "ramp_up_down"
-          current_state_parameters[:options] = ""
-          current_state_parameters[:last_value] = "0000"
+          params[:animation_name] = "ramp_up_down"
+          params[:options] = ""
+          params[:last_value] = "0000"
 
           #will switch to :last_state after animation
           self.fire_state_event(:animation)
           #unlucky naming - currently :state is a saved db value - if any; reason: no state transition has happened yet
-          if !current_state_parameters[:initial_state].nil?
-            current_state_parameters[:last_state] = current_state_parameters[:initial_state]
+          if !params[:initial_state].nil?
+            params[:last_state] = params[:initial_state]
           else
-            current_state_parameters[:last_state] = :free_value
+            params[:last_state] = :free_value
           end
 
 
@@ -60,13 +60,13 @@ module NixonPi
 
       state :free_value do
         def write
-          bar_values = current_state_parameters[:values]
+          bar_values = params[:values]
           if !bar_values.nil? and values_changed?(bar_values)
             if bar_values.include? nil
               bar_values.each_with_index { |value, index| driver.write_to_bar(index, value) unless value.nil? }
             else
               driver.write(bar_values)
-              current_state_parameters[:last_values] = bar_values
+              params[:last_values] = bar_values
             end
           end
         end
@@ -74,11 +74,11 @@ module NixonPi
 
       state :animation do
         def write
-          name, options = current_state_parameters[:animation_name], current_state_parameters[:options]
+          name, options = params[:animation_name], params[:options]
           options ||= {}
-          start_value = current_state_parameters[:last_value]
+          start_value = params[:last_value]
           NixonPi::Animations::Animation.create(name.to_sym, options).run(start_value)
-          self.send(current_state_parameters[:last_state]) #go back to old state again and do whatever was done before
+          self.send(params[:last_state]) #go back to old state again and do whatever was done before
         end
       end
 

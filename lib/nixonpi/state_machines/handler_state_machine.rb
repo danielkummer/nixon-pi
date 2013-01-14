@@ -24,27 +24,23 @@ module NixonPi
     end
 
     ##
-    # Get the state parameters for the registered state machine
-    # @param [Symbol] type
-    def self.state_parameters_for(type)
-      @@state_parameters[type.to_sym]
-    end
-
-    ##
-    # Get the current state information hash
-    def state_info_hash
-      current_state_parameters
-    end
-
-    ##
     # Main handle method for all state machines
+    # This method gets called in the main loop
     def handle
       write
     end
 
     ##
+    # Get the state parameters for the registered state machine
+    # @param [Symbol] type State machine
+    def self.get_params_for(type)
+      @@state_parameters[type.to_sym]
+    end
+
+
+    ##
     # Get the current state parameters from the global class state hash, lazy initialized
-    def current_state_parameters
+    def params
       @@state_parameters[registered_as_type] ||= initialize_state
     end
 
@@ -57,7 +53,7 @@ module NixonPi
       if options
         log.debug "db setting loaded for #{state_machine} => #{options.to_s} "
         set_params(options)
-        log.debug "state set to: #{current_state_parameters.to_s}"
+        log.debug "state set to: #{params.to_s}"
       else
         log.debug "no db settings found for :#{state_machine} "
       end
@@ -65,7 +61,7 @@ module NixonPi
 
     def set_params(options)
       options.each do |option, value|
-        current_state_parameters[option.to_sym] = value if current_state_parameters.has_key?(option.to_sym) and !value.nil?
+        params[option.to_sym] = value if params.has_key?(option.to_sym) and !value.nil?
       end
     end
 
@@ -90,19 +86,19 @@ module NixonPi
     # @param [block] block
     def self.handle_around_transition(object, transition, block)
       object.log.debug "transition  #{transition.event} from state: #{object.state}"
-      object.current_state_parameters[:last_state] = object.state if !object.state.nil?
+      object.params[:last_state] = object.state if !object.state.nil?
       #transition.event.to_s.humanize.to_speech #say the current state transition
       block.call
       object.current_state_parameters[:state] = object.state
       object.log.debug "new state: #{object.state}"
     end
 
-
     ##
     # Get an instance of the underlying driver
     def driver
       @driver.instance
-    rescue "Driver missing"
+    rescue
+      log.error "Driver missing"
     end
 
     ##
@@ -111,7 +107,7 @@ module NixonPi
     # @param [Hash] command command parameters
     def receive(command)
       log.debug "received command: #{command.to_s} in #{self.class.to_s}"
-      current_state_parameters.merge!(command)
+      params.merge!(command)
       self.fire_state_event(command[:state].to_sym) if command[:state]
     end
 
@@ -120,12 +116,12 @@ module NixonPi
     #param [Array] Integer array of bar values
     #todo refactor
     def values_changed?(bar_values)
-      if current_state_parameters[:last_values].nil?
+      if params[:last_values].nil?
         true
       else
         bar_values.each_with_index do |value, index|
           unless bar_values[index].nil?
-            if current_state_parameters[:last_values][index] != value
+            if params[:last_values][index] != value
               return true
             end
           end

@@ -159,7 +159,7 @@ module NixonPi
     get '/info/:state_machine.:format' do
       if %w(tubes bars lamps).include? params[:state_machine]
         state_machine = params[:state_machine]
-        data = {info: NixonPi::HandlerStateMachine.state_parameters_for(state_machine)}
+        data = {info: NixonPi::HandlerStateMachine.get_params_for(state_machine)}
         custom_respond(params[:format], data, "#{state_machine} set to", :state_info)
       else
         error 400
