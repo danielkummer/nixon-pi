@@ -10,6 +10,7 @@ require 'sinatra/form_helpers'
 require 'sinatra/jsonp'
 
 require_relative '../../../lib/nixonpi/command_queue'
+require_relative '../command_parameters'
 require_relative '../configurations/state_hash'
 require_relative '../configurations/settings'
 require_relative '../logging/logging'
@@ -21,7 +22,8 @@ module NixonPi
     helpers Sinatra::FormHelpers
     helpers Sinatra::Jsonp
 
-    include  Logging
+    include Logging
+    include CommandParameters
     extend Logging
 
     set :database, 'sqlite:///db/settings.db'
@@ -144,7 +146,7 @@ module NixonPi
     end
 
     def custom_respond(format, data, respond_message = "", template = nil)
-      data[:message] = respond_message
+      data[:message] = respond_message unless respond_message.empty?
       case format
         when 'json'
           halt jsonp(data)
@@ -170,8 +172,29 @@ module NixonPi
     end
 
     get '/scheduler.:format' do
+
       @running = Schedule.find(:all, conditions: ["timing IN (?)", %w"cron every"])
       haml :scheduler, format: :html5
+    end
+
+    #api currently unused
+    get '/commands.:format' do
+      commands = {}
+      %w"tubes bars lamps power say".each do |type|
+        commands[type] = command_parameters(type.to_sym)
+      end
+
+      custom_respond('json', commands, "Available commands")
+    end
+
+    get '/command/:name.:format' do
+      valid_commands = %w"tubes bars lamps power say"
+      commands = {}
+      type = params[:name]
+
+      error 404 and return unless valid_commands.include?(type)
+
+      custom_respond('json', command_parameters(type.to_sym), "Options for command #{type} ")
     end
 
     get '/info/:state_machine.:format' do
@@ -234,6 +257,8 @@ module NixonPi
     post '/schedule/?:id?' do
       convert_and_validate(@params) do |data|
         if valid_schedule?(data)
+          #convert json to hash
+          data[:command] = JSON.parse(data[:command])
           CommandQueue.enqueue(:schedule, data)
           save_command(data, :schedule)
         else

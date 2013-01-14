@@ -70,7 +70,7 @@ module NixonPi
 
     #todo create a valid command
     #parse??
-    command = command[:value]
+    command = command[:command]
 
     locked = command[:locked] ? true : false;
     #todo lock state machine

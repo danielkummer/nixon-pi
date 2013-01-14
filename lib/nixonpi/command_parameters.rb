@@ -45,6 +45,14 @@ module NixonPi
               value: nil,
               time: nil
           }
+        when :schedule
+          {
+              id: nil,
+              timing: nil,
+              time: nil,
+              state_machine: nil,
+              command: nil
+          }
         else
           raise NotImplementedError "Unknown control parameters -- implement if new function"
       end

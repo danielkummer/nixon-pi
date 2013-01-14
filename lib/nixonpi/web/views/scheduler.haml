@@ -2,6 +2,7 @@
   .span2
     %h2 Scheduler
   .span6
+    =@commands.to_json
     %form{ action: "/scheduler", method: "POST", class: "", "data-remote" => true}
       .control-group
         %select{name: "type", class: "chzn-select", "data-placeholder" => "Select Timing", style:"width:300px;"}
@@ -18,7 +19,7 @@
           %input#time{type: "text", name: "time", class: "input-xlarge", placeholder: "Time"}
             .btn-group
               %button.btn.dropdown-toggle{"data-toggle" => "dropdown"}
-                Examples
+                ?
                 %span.caret
               %ul#time-defaults.dropdown-menu
                 %li
@@ -30,7 +31,7 @@
                   %a{:href => "#"} Thu Mar 28 07:31:43 +0100 2013
 
       .control-group
-        %select{name: "queue", class: "chzn-select", "data-placeholder" => "Select Target", style:"width:300px;"}
+        %select#target{name: "queue", class: "chzn-select", "data-placeholder" => "Select Target", style:"width:300px;"}
           %option
           %option{value: "power"} Power
           %option{value: "tubes"} Tubes
@@ -42,17 +43,8 @@
       .control-group
         %input{type: "submit", value:"Schedule", class:"btn"}
   .span4
-    .well
-      %h3 Examples
-      %dl
-        %dt in
-        %dd 20m
-        %dt at
-        %dd Thu Mar 26 07:31:43 +0900 2009
-        %dt every
-        %dd 5m
-        %dt chron
-        %dd 0 22 * * 1-5
+
+
 
 .row.divider
   .span2
