@@ -1,4 +1,4 @@
-.row.divider
+.row.row-divider
   .span2
     %h2 Scheduler
   .span6
@@ -11,7 +11,22 @@
           %option{value: "every"} every
           %option{value: "cron"} cron
       .control-group
-        %input{type: "text", name: "time", class: "input-large", placeholder: "Time" }
+        #cron{style:"display: none;"}
+        .input-append
+          %input#time{type: "text", name: "time", class: "input-xlarge", placeholder: "Time"}
+            .btn-group
+              %button.btn.dropdown-toggle{"data-toggle" => "dropdown"}
+                Examples
+                %span.caret
+              %ul#time-defaults.dropdown-menu
+                %li
+                  %a{:href => "#"} 20m
+                %li
+                  %a{:href => "#"} 1w2d
+                %li.divider
+                %li
+                  %a{:href => "#"} Thu Mar 28 07:31:43 +0100 2013
+
       .control-group
         %select{name: "queue", class: "chzn-select", "data-placeholder" => "Select Target", style:"width:300px;"}
           %option
