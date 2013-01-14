@@ -4,6 +4,7 @@ defaults: &defaults
     host: 10.0.0.101
     port: 5678
   default_time_format: "%H%M%S"
+  default_date_format: "%d  %m  %Y"
   web_server:
     port: 3000
   in12a_tubes:

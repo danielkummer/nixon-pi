@@ -51,14 +51,14 @@ module NixonPi
 
       state :startup do
         def write
-          current_state_parameters[:animation_name] = "single_fly_in"
-          current_state_parameters[:options] = {}
-          current_state_parameters[:last_value] = "0000"
+          params[:animation_name] = "single_fly_in"
+          params[:options] = {}
+          params[:last_value] = "0000"
           self.fire_state_event(:animation)
-          if current_state_parameters[:initial_state].nil?
-            current_state_parameters[:last_state] = :time
+          if params[:initial_state].nil?
+            params[:last_state] = :time
           else
-            current_state_parameters[:last_state] = current_state_parameters[:initial_state]
+            params[:last_state] = params[:initial_state]
           end
         end
       end
@@ -66,35 +66,50 @@ module NixonPi
       state :time do
         def write
           tubes_count = Settings.in12a_tubes.count
-
-          format = current_state_parameters[:time_format]
-
+          format = params[:time_format]
           if format.nil? or format.size > tubes_count
             format = Settings.default_time_format
           end
 
-          time = Time.now.strftime(format).rjust(tubes_count, ' ')
-          driver.write(time) unless time.nil?
-          current_state_parameters[:last_value] = time
+          now = Time.now
+          params[:last_time] = now if params[:last_time].nil?
+
+          formatted_time = now.strftime(format)
+          formatted_date = now.strftime(Settings.default_date_format)
+
+          case
+            when now.min == 0 and now.min != params[:last_time].min then
+              NixonPi::Animations::Animation.create(:single_fly_in).run(formatted_time)
+            when now.hour == 0 and now.hour != params[:last_time].hour then
+              NixonPi::Animations::Animation.create(:single_fly_in).run(formatted_time)
+            when now.min % 15 == 0 and now.sec <= 10 then
+              driver.write(formatted_date.rjust(tubes_count, ' '))
+            else
+              driver.write(formatted_time.rjust(tubes_count, ' '))
+          end
+
+          params[:last_value] = formatted_time
+          params[:last_time] = now
+
         end
       end
 
       state :free_value do
         def write
-          value = current_state_parameters[:value]
+          value = params[:value]
           driver.write(value)
-          current_state_parameters[:last_value] = value
+          params[:last_value] = value
         end
       end
 
       state :animation do
         def write
-          name, options = current_state_parameters[:animation_name], current_state_parameters[:options]
+          name, options = params[:animation_name], params[:options]
           options ||= {}
-          start_value = current_state_parameters[:last_value]
+          start_value = params[:last_value]
           NixonPi::Animations::Animation.create(name.to_sym, options).run(start_value)
-          puts "state #{current_state_parameters}"
-          self.fire_state_event(current_state_parameters[:last_state]) #go back to old state again and do whatever was done before
+          puts "state #{params}"
+          self.fire_state_event(params[:last_state]) #go back to old state again and do whatever was done before
         end
       end
 
@@ -103,13 +118,13 @@ module NixonPi
         require 'chronic_duration'
 
         def write
-          seconds_to_go = current_state_parameters[:value].to_i
+          seconds_to_go = params[:value].to_i
           current_time = Time.now
 
-          if current_state_parameters[:target_time].nil?
-            current_state_parameters[:target_time] = Time.now + seconds_to_go.seconds
+          if params[:target_time].nil?
+            params[:target_time] = Time.now + seconds_to_go.seconds
           end
-          target_time = current_state_parameters[:target_time]
+          target_time = params[:target_time]
 
           next_value = target_time - current_time
 
@@ -120,12 +135,11 @@ module NixonPi
             driver.write(output)
           end
 
-          current_state_parameters[:value] = next_value
+          params[:value] = next_value
 
-
-          if current_time >= current_state_parameters[:target_time]
+          if current_time >= params[:target_time]
             log.debug "end of countdown"
-            options = current_state_parameters[:options]
+            options = params[:options]
             unless options.nil?
               if options.is_a? Hash
                 options.keys.each do |k, o|
@@ -133,21 +147,21 @@ module NixonPi
                     when :say
                       CommandQueue.enqueue(:say, {value: o})
                     when :state
-                      self.fire_state_event(current_state_parameters[:o])
+                      self.fire_state_event(params[:o])
                     else
                       log.debug "option unknown"
                   end
                 end
               end
             end
-            self.fire_state_event(current_state_parameters[:last_state])
+            self.fire_state_event(params[:last_state])
           end
         end
       end
 
       state :run_test do
         def write
-          unless current_state_parameters[:test_done]
+          unless params[:test_done]
             number_of_digits = 12
             test_data = Array.new
             9.times do |time|
@@ -168,7 +182,7 @@ module NixonPi
 
             puts "Benchmark write 2-pair strings from 00 to 99:"
             puts bm
-            self.fire_state_event(current_state_parameters[:last_state])
+            self.fire_state_event(params[:last_state])
           end
         end
       end
