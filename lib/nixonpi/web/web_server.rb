@@ -9,21 +9,16 @@ require 'active_record'
 require 'sinatra/form_helpers'
 require 'sinatra/jsonp'
 
-
 require_relative '../../../lib/nixonpi/command_queue'
 require_relative '../configurations/state_hash'
 require_relative '../configurations/settings'
 require_relative '../logging/logging'
-
 require_relative 'models'
-
 
 module NixonPi
   class WebServer < Sinatra::Base
-    #register Sinatra::RespondWith
     register Sinatra::ActiveRecordExtension
     helpers Sinatra::FormHelpers
-    #helpers Sinatra::JSON
     helpers Sinatra::Jsonp
 
     include  Logging
@@ -31,7 +26,6 @@ module NixonPi
 
     set :database, 'sqlite:///db/settings.db'
     set :run, false
-    #set :json_encoder, JSON
     set :root, File.dirname(__FILE__)
     set :public_folder, File.join(File.dirname(__FILE__), 'public')
     set :haml, {:format => :html5}
@@ -183,7 +177,7 @@ module NixonPi
     get '/info/:state_machine.:format' do
       if %w(tubes bars lamps).include? params[:state_machine]
         state_machine = params[:state_machine]
-        data = {info: NixonPi::HandlerStateMachine.state_parameters_for(state_machine)}
+        data = {info: NixonPi::HandlerStateMachine.get_params_for(state_machine)}
         custom_respond(params[:format], data, "#{state_machine} set to", :state_info)
       else
         error 400

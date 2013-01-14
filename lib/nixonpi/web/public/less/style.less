@@ -31,6 +31,15 @@ h1, h2, h3, p, label, a {
   color: @first_color;
 }
 
+.footer {
+  background-color: #F5F5F5;
+  border-top: 1px solid #E5E5E5;
+  margin-top: 70px;
+  padding: 30px 0;
+  text-align: center;
+  font-size: 0.7em;
+}
+
 .hero-unit {
   background-color: transparent;
   padding: 30px;
@@ -40,6 +49,8 @@ h1, h2, h3, p, label, a {
     letter-spacing: 15px;
   }
 }
+
+
 
 input.input-tubes {
   letter-spacing: 0.3em;
@@ -56,6 +67,20 @@ input[type="text"] {
   height: 1.3em;
   color: @second_color;
   background-color: #eaebdf;
+}
+
+select {
+  font-family: 'Allerta Stencil', sans-serif;
+  font-size: 28px;
+  height: 1.3em;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  color: @second_color;
+  background-color: #eaebdf;
+}
+
+.control-label {
+  font-size: 20px;
 }
 
 .btn {
@@ -85,7 +110,7 @@ div.btn-group[data-toggle=buttons-radio] input[type=radio] {
   background-color: @second_color;
 }
 
-.divider {
+.row-divider {
   border-top: 1px dashed @first_color;
   padding-top: 15px;
   padding-bottom: 15px;
@@ -202,5 +227,14 @@ dt, dd {
   color: @second_color;
   padding-top: 0px;
   padding-bottom: 0px;
+}
+
+#cron {
+  line-height: 30px;
+  padding-bottom: 5px;
+}
+
+.dropdown-toggle {
+  font-size: 35px !important;
 }
 

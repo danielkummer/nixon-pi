@@ -16,7 +16,7 @@
               .control-group
                 %label.control-label Mode
                 .controls
-                  %select{name: "state", class: "input_mode input-medium"}
+                  %select{name: "state", class: "input_mode input-xlarge"}
                     %option{selected: "", value: "free_value"} Free value
                     %option{value: "time"} Time format
                     %option{value: "animation"} Tube animation
@@ -24,19 +24,18 @@
               .control-group
                 %label.control-label Animation Name
                 .controls
-                  %select{name: "animation_name", class: "input-medium", value:"#{@tubes.animation_name}"}
+                  %select{name: "animation_name", class: "input-xlarge", value:"#{@tubes.animation_name}"}
                     %option
                     %option{value: "switch_numbers"} switch numbers
                     %option{value: "single_fly_in"} fly in
-                    %option{value: "single_fly_in"} countdown
               .control-group
                 %label.control-label{for: "value"} Options Hash
                 .controls
-                  %input{type: "text", name: "options", class: "input-medium", value:"#{@tubes.options}"}
+                  %input{type: "text", name: "options", class: "input-xlarge", value:"#{@tubes.options}"}
               .control-group
+                %label.control-label Load on startup
                 .controls
-                  %label.checkbox{for: "load_on_startup"}
-                    %input{type: "checkbox", name: "initial", class: "input-medium"} Load on startup
+                  %input{type: "checkbox", name: "initial", class: "input-medium"}
         .span6{style:"padding-top:10px;"}
           %button{type: "submit", value: "Send", class: "btn btn-green"}
             GO
@@ -45,7 +44,7 @@
       = format_loaded_values(@tubes)
 
 
-.row.divider
+.row.row-divider
   .span2
     %h2 Lamps
   .span6
@@ -61,7 +60,7 @@
     .well
       = format_loaded_values(@lamps)
 
-.row.divider
+.row.row-divider
   .span2
     %h2 Bars
   .span6
@@ -103,7 +102,7 @@
     .well
       = format_loaded_values(@bars)
 
-.row.divider
+.row.row-divider
   .span2
     %h2 Say
   .span6
