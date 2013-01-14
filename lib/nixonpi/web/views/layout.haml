@@ -5,6 +5,7 @@
     %meta{:content => "", :name => "description"}
     %meta{:content => "", :name => "author"}
     %meta{:content => "width=device-width, initial-scale=1, maximum-scale=1", :name => "viewport"}
+
     %link{:href => "/css/chosen.css", :rel => "stylesheet"}
     - if settings.development?
       %link{:href => "/less/style.less", :rel => "stylesheet/less"}
@@ -15,11 +16,12 @@
 
     %link{:href => "/css/bootstrap-toggle-buttons.css", :rel => "stylesheet"}
 
-
+    /fonts
     %link{:href => "http://fonts.googleapis.com/css?family=Josefin+Sans:400,700", :rel => "stylesheet", :type => "text/css"}
     %link{:href => "http://fonts.googleapis.com/css?family=Lobster+Two:400,700", :rel => "stylesheet", :type => "text/css"}
     %link{:href => "http://fonts.googleapis.com/css?family=Carrois+Gothic+SC|Share+Tech+Mono|Montserrat+Subrayada:400,700|Allerta+Stencil", :rel => "stylesheet", :type => "text/css"}
 
+    /javascript
     %script{:src => "/js/libs/jquery-1.8.3.js", :type => "text/javascript"}
     %script{:src => "http://cdn.jquerytools.org/1.2.7/full/jquery.tools.min.js", :type => "text/javascript"}
     %script{:src => "/js/libs/jquery.toggle.buttons.js", :type => "text/javascript"}
@@ -39,20 +41,23 @@
       .row
         .span6
           .hero-unit
-            /%h1 Nixon-&#928;
             %h1 Nixon-&#960;
         .span2
           %h2 Power
           %form{action: "/power", method: "post", class:""," data-remote" => "true"}
             #power-toggle-button.toggle-button
-              %input.checkbox{:checked => "checked", id: "power-value", :name => "value", :type => "checkbox", :value => "1"}
+              -if NixonPi::PowerDriver.instance.on?
+                %input.checkbox{:checked => "checked", id: "power-value", :name => "value", :type => "checkbox", :value => "1"}
+              -else
+                %input.checkbox{id: "power-value", :name => "value", :type => "checkbox", :value => "1"}
         .span4
           #alert-container{"data-spy"=>"affix", "data-offset-top"=>"10"}
-
       .row
-
         = yield
-    %footer.footer
-      %p
-        &copy; Daniel Kummer
+
+  %footer.footer
+    %p
+      &copy; Daniel Kummer, 2013
+      %a{href:"http://danielkummer.github.com/nixon-pi/", target:"_blank", title:"Project Page"} github
+
 

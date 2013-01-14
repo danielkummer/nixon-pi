@@ -77,15 +77,15 @@ module NixonPi
           formatted_time = now.strftime(format)
           formatted_date = now.strftime(Settings.default_date_format)
 
-          case
-            when now.min == 0 and now.min != params[:last_time].min then
-              NixonPi::Animations::Animation.create(:single_fly_in).run(formatted_time)
-            when now.hour == 0 and now.hour != params[:last_time].hour then
-              NixonPi::Animations::Animation.create(:single_fly_in).run(formatted_time)
-            when now.min % 15 == 0 and now.sec <= 10 then
-              driver.write(formatted_date.rjust(tubes_count, ' '))
-            else
-              driver.write(formatted_time.rjust(tubes_count, ' '))
+
+          if now.min == 0 and now.min != params[:last_time].min
+            NixonPi::Animations::Animation.create(:single_fly_in).run(formatted_time)
+          elsif now.hour == 0 and now.hour != params[:last_time].hour
+            NixonPi::Animations::Animation.create(:single_fly_in).run(formatted_time)
+          elsif now.min % 15 == 0 and now.sec <= 10
+            driver.write(formatted_date.rjust(tubes_count, ' '))
+          else
+            driver.write(formatted_time.rjust(tubes_count, ' '))
           end
 
           params[:last_value] = formatted_time

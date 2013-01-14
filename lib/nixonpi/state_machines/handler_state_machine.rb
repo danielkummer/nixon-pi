@@ -89,7 +89,7 @@ module NixonPi
       object.params[:last_state] = object.state if !object.state.nil?
       #transition.event.to_s.humanize.to_speech #say the current state transition
       block.call
-      object.current_state_parameters[:state] = object.state
+      object.params[:state] = object.state
       object.log.debug "new state: #{object.state}"
     end
 

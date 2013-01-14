@@ -10,6 +10,7 @@ module NixonPi
 
     def initialize
       @power_pin = Settings.power_pin
+      @value = 0
       log.info "Initializing power pin: #{@power_pin.to_s}"
       CommandProcessor.add_receiver(self, :power)
     end
@@ -30,9 +31,14 @@ module NixonPi
       client.io_write(@power_pin, 0)
     end
 
+    # Currently unused..
     def write(power_on = false)
       write = power_on ? 1 : 0
       client.io_write(@power_pin, write)
+    end
+
+    def on?
+      @value == 1 ? true : false
     end
 
   end

@@ -9,28 +9,22 @@ require 'active_record'
 require 'sinatra/form_helpers'
 require 'sinatra/jsonp'
 
-
 require_relative '../../../lib/nixonpi/command_queue'
 require_relative '../configurations/state_hash'
 require_relative '../configurations/settings'
 require_relative '../logging/logging'
-
 require_relative 'models'
-
 
 module NixonPi
   class WebServer < Sinatra::Base
-    #register Sinatra::RespondWith
     register Sinatra::ActiveRecordExtension
     helpers Sinatra::FormHelpers
-    #helpers Sinatra::JSON
     helpers Sinatra::Jsonp
 
     extend Logging
 
     set :database, 'sqlite:///db/settings.db'
     set :run, false
-    #set :json_encoder, JSON
     set :root, File.dirname(__FILE__)
     set :public_folder, File.join(File.dirname(__FILE__), 'public')
     set :haml, {:format => :html5}
