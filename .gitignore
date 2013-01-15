@@ -18,3 +18,4 @@ tmp
 *.log
 .idea
 .DS_Store
+db/settings.db

@@ -9,10 +9,12 @@ require_relative '../animations/tube/switch_numbers_animation'
 require_relative '../animations/tube/single_fly_in_animation'
 require_relative 'handler_state_machine'
 require_relative '../command_queue'
+require_relative '../logging/logging'
 
 
 module NixonPi
   class TubeStateMachine < HandlerStateMachine
+    include Logging
 
     register_as :tubes
 
@@ -24,6 +26,7 @@ module NixonPi
     end
 
     state_machine :initial => :startup do
+
 
       around_transition do |object, transition, block|
         HandlerStateMachine.handle_around_transition(object, transition, block)
