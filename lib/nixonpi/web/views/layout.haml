@@ -47,16 +47,28 @@
         .span6
           .hero-unit
             %h1 Nixon-&#960;
-        .span2
-          %h2 Power
-          %form{action: "/power", method: "post", class:""," data-remote" => "true"}
-            #power-toggle-button.toggle-button
-              -if NixonPi::PowerDriver.instance.on?
-                %input.checkbox{:checked => "checked", id: "power-value", :name => "value", :type => "checkbox", :value => "1"}
-              -else
-                %input.checkbox{id: "power-value", :name => "value", :type => "checkbox", :value => "1"}
-        .span4
-          #alert-container{"data-spy"=>"affix", "data-offset-top"=>"10"}
+        .span3
+          .hero-unit
+            %form{action: "/power", method: "post", class:""," data-remote" => "true"}
+              %label{for:"power-value", style: "float:left;padding-left:5px"}
+                %i.icon-bolt.icon-4x.pull-left
+              #power-toggle-button.toggle-button
+                -if NixonPi::PowerDriver.instance.on?
+                  %input.checkbox{:checked => "checked", id: "power-value", :name => "value", :type => "checkbox", :value => "1"}
+                -else
+                  %input.checkbox{id: "power-value", :name => "value", :type => "checkbox", :value => "1"}
+        .span3
+          .hero-unit
+            %ul.nav.nav-list
+              %li{style:"height:30px;"}
+                %a{href: "/"}
+                  %i.icon-cogs.pull-left
+                  Control
+              %li{style:"height:30px;"}
+                %a{href: "/scheduler.html"}
+                  %i.icon-tasks.pull-left
+                  Scheduler
+          #alert-container{"data-spy"=>"affix", "data-offset-top"=>"7"}
       .row
         = yield
 

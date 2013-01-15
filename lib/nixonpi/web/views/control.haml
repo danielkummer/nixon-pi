@@ -53,6 +53,7 @@
         .span12
           -@lamp_count.times.with_index do |index|
             %button{type: "button", class: "btn btn-lamp", "data-toggle" => "button" }
+              %i.icon-circle
               = "#{index + 1}"
               %input{type: "checkbox", name: "values[]", value: "#{index}", style:"display: none;"}
           %input{type: "hidden", name: "state", value: "free_value"}
