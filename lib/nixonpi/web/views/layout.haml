@@ -44,9 +44,6 @@
   .container
     .content
       .row
-        .span6
-          .hero-unit
-            %h1 Nixon-&#960;
         .span3
           .hero-unit
             %form{action: "/power", method: "post", class:""," data-remote" => "true"}
@@ -57,7 +54,11 @@
                   %input.checkbox{:checked => "checked", id: "power-value", :name => "value", :type => "checkbox", :value => "1"}
                 -else
                   %input.checkbox{id: "power-value", :name => "value", :type => "checkbox", :value => "1"}
+        .span6
+          .hero-unit
+            %h1 Nixon-&#960;
         .span3
+          #alert-container{"data-spy"=>"affix", "data-offset-top"=>"-20"}
           .hero-unit
             %ul.nav.nav-list
               %li{style:"height:30px;"}
@@ -68,7 +69,11 @@
                 %a{href: "/scheduler.html"}
                   %i.icon-tasks.pull-left
                   Scheduler
-          #alert-container{"data-spy"=>"affix", "data-offset-top"=>"7"}
+              %li{style:"height:30px;"}
+                %a{href: "#"}
+                  %i.icon-exchange.pull-left
+                  API
+
       .row
         = yield
 

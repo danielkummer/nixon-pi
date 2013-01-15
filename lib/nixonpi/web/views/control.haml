@@ -1,6 +1,9 @@
 .row
   .span2
-    %h2 Tubes
+    %h2
+      %i.icon-lightbulb
+      %i.icon-lightbulb
+      Tubes
   .span6
     %form{ action: "/tubes#{"/" + @tubes.id.to_s if @tubes.id}", method: "POST", class: "form-horizontal", "data-remote" => true}
       .row
@@ -11,7 +14,9 @@
           %input{type: "hidden", name: "id", value:"#{@tubes.id}"}
           .accordion-group
             .accordion-heading
-              %a{class: "btn-more", 'data-toggle'=>"collapse",  href:"#more"} advanced
+              %a{class: "btn-more", 'data-toggle'=>"collapse",  href:"#more"}
+                %i.icon-sitemap
+                advanced
             #more.collapse.accordion-body
               .control-group
                 %label.control-label Mode
@@ -46,15 +51,16 @@
 
 .row.row-divider
   .span2
-    %h2 Lamps
+    %h2
+      %i.icon-lightbulb
+      Lamps
   .span6
     %form{ action: "/lamps#{"/" + @lamps.id.to_s if @lamps.id}", method: "POST", class: "form-inline", "data-remote" => true}
       .row
         .span12
           -@lamp_count.times.with_index do |index|
-            %button{type: "button", class: "btn btn-lamp", "data-toggle" => "button" }
-              %i.icon-circle
-              = "#{index + 1}"
+            %button{type: "button", class: "btn btn-lamp", "data-toggle" => "button", title:"icon-circle-blank" }
+              %i.icon-circle-blank
               %input{type: "checkbox", name: "values[]", value: "#{index}", style:"display: none;"}
           %input{type: "hidden", name: "state", value: "free_value"}
   .span4
@@ -63,7 +69,9 @@
 
 .row.row-divider
   .span2
-    %h2 Bars
+    %h2
+      %i.icon-tasks
+      Bars
   .span6
     %ul.nav.nav-tabs
       %li
@@ -89,12 +97,12 @@
             .control-group
               %label.control-label{for: "animation_name"} Animation
               .controls
-                %select{name: "animation_name", class: "input-medium"}
+                %select{name: "animation_name", class: "input-large"}
                   %option{selected: "", value: "ramp_up_down"} ramp up down
             .control-group
               %label.control-label{for: "value"} Options (Hash)
               .controls
-                %input{type: "text", name: "options", class: "input-medium"}
+                %input{type: "text", name: "options", class: "input-large"}
             %input{type: "hidden", name: "state", value: "animation"}
 
             %input{type: "submit", value: "GO", class: "btn"}
@@ -105,7 +113,9 @@
 
 .row.row-divider
   .span2
-    %h2 Say
+    %h2
+      %i.icon-comment
+      Say
   .span6
     %form{ action: "/say", method: "POST", class:"", "data-remote" => true}
       .row

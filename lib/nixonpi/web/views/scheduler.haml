@@ -2,7 +2,6 @@
   .span2
     %h2 Scheduler
   .span6
-    =@commands.to_json
     %form{ action: "/scheduler", method: "POST", class: "", "data-remote" => true}
       .control-group
         %select{name: "type", class: "chzn-select", "data-placeholder" => "Select Timing", style:"width:300px;"}
@@ -19,7 +18,7 @@
           %input#time{type: "text", name: "time", class: "input-xlarge", placeholder: "Time"}
             .btn-group
               %button.btn.dropdown-toggle{"data-toggle" => "dropdown"}
-                ?
+                %i.icon-lightbulb
                 %span.caret
               %ul#time-defaults.dropdown-menu
                 %li
@@ -28,7 +27,7 @@
                   %a{:href => "#"} 1w2d
                 %li.divider
                 %li
-                  %a{:href => "#"} Thu Mar 28 07:31:43 +0100 2013
+                  %a{:href => "#", id:"utcdate"}
 
       .control-group
         %select#target{name: "queue", class: "chzn-select", "data-placeholder" => "Select Target", style:"width:300px;"}
@@ -41,7 +40,9 @@
       .control-group
         %textarea{name: "command", rows: "5"}
       .control-group
-        %input{type: "submit", value:"Schedule", class:"btn"}
+        %button{type: "submit",class:"btn"}
+          %i.icon-time
+          Schedule
   .span4
 
 
