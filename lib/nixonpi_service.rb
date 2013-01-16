@@ -16,6 +16,7 @@ require_relative 'nixonpi/web/web_server'
 require_relative 'nixonpi/state_machines/machine_manager'
 require_relative 'nixonpi/drivers/power_driver'
 require_relative 'nixonpi/command_processor'
+require_relative 'nixonpi/scheduler'
 require 'thread'
 require 'daemons'
 
@@ -33,7 +34,7 @@ module NixonPi
       log.info "Environment: #{$environment}"
       system "cd #{File.dirname(__FILE__)} && rake db:migrate"
 
-    NixonPi::MachineManager.add_state_machines(:tubes, :bars, :lamps)
+      NixonPi::MachineManager.add_state_machines(:tubes, :bars, :lamps)
       @server = WebServer
     end
 
@@ -54,6 +55,7 @@ module NixonPi
       log.info "turn on power"
       PowerDriver.instance.power_on
       @web_thread = Thread.new { @server.run! }
+      CommandProcessor.add_receiver(NixonPi::Scheduler.instance, :schedule)
       NixonPi::MachineManager.start_state_machines
       NixonPi::CommandProcessor.start
       NixonPi::MachineManager.join_threads
@@ -67,6 +69,7 @@ module NixonPi
       Thread.kill(@web_thread)
       NixonPi::MachineManager.exit
       NixonPi::CommandProcessor.exit
+      NixonPi::Scheduler.exit
       log.info "Turning off power"
       PowerDriver.instance.power_off
       log.info "Bye ;)"

@@ -26,6 +26,8 @@ module NixonPi
     include CommandParameters
     extend Logging
 
+    use Rack::MethodOverride
+
     set :database, 'sqlite:///db/settings.db'
     set :run, false
     set :root, File.dirname(__FILE__)
@@ -85,46 +87,47 @@ module NixonPi
     # save to the sqlite3 database
     # @param [Hash] data attributes to save
     # @class_type [Object] Model class to save to; e.g Lamp, Bar, Tube
-    def save_command(data, queue)
-      command = nil
-      data.delete(:time)
-      #todo refactor
+    def save_data(data, queue)
+      sanitize_data(data)
       if queue == :schedule
-        if data[:id]
-          command = Schedule.find(:first, conditions: ["id = ?", data[:id]])
-        else
-          command = Schedule.new(timing: timing.to_s)
-        end
+        ret = save_schedule(data)
       else
-        if data[:initial]
-          command = Command.find(:first, conditions: ["initial = ? AND state_machine = ?", data[:initial], queue.to_s])
-        elsif data[:id]
-          command = Command.find(:first, conditions: ["id = ? AND state_machine = ?", data[:id], queue.to_s])
-        else
-          command = Command.new(state_machine: queue.to_s)
-        end
+        ret = save_command(data, queue)
       end
+      ret
+    end
 
-
-      #todo error here! command is nil
-      if command.nil?
-        if queue == :schedule
-          command = Schedule.new(data)
-        else
-          command = Schedule.new(state_machine: queue.to_s)
-        end
-
-      end
-
+    def sanitize_data(data)
       data[:value] = data.delete(:values).join(",") if data[:values]
-
-      unless command.update_attributes(data)
-        log.debug("unable to update attributes: #{data.to_s}")
+      data.delete_if do |k, v|
+        %w"time cron-period cron-dom cron-month cron-mins cron-dow cron-time-hour cron-time-min splat captures".include?(k.to_s)
       end
     end
 
-    def save_schedule()
-      #todo implement! -> refactor save_command
+    def save_command(data, queue)
+      #there's ever only one initial state per state machine
+      if data[:initial]
+        command = Command.find(:first, conditions: ["initial = ? AND state_machine = ?", data[:initial], queue.to_s])
+        command = Command.new(state_machine: queue.to_s) if command.nil?
+      elsif data[:id]
+        command = Command.find(:first, conditions: ["id = ? AND state_machine = ?", data[:id], queue.to_s])
+      else
+        command = Command.new(state_machine: queue.to_s)
+      end
+
+      unless command.update_attributes(data)
+        log.error("Unable to update command attributes: #{data.to_s}")
+      end
+
+      command
+    end
+
+    def save_schedule(data)
+      schedule = Schedule.new
+      unless schedule.update_attributes(data)
+        log.error("Unable to update schedule attributes: #{data.to_s}")
+      end
+      schedule
     end
 
 
@@ -133,7 +136,8 @@ module NixonPi
       if data.nil?
         status 400
       else
-        yield data if block_given?
+        #data[:command] = string_key_to_sym(data[:command]) if data.has_key?(:command)
+        yield data if  block_given?
       end
     end
 
@@ -147,15 +151,17 @@ module NixonPi
 
     def custom_respond(format, data, respond_message = "", template = nil)
       data[:message] = respond_message unless respond_message.empty?
+      data[:success] = true unless data.has_key?(:success)
       case format
         when 'json'
+          data.delete(:time)
           halt jsonp(data)
         when 'html'
           halt haml(template, :locals => data) unless template.nil?
       end
       error 406
+      halt jsonp(data)
     end
-
 
     get '/' do
       @bar_count = Settings.in13_pins.size
@@ -172,8 +178,7 @@ module NixonPi
     end
 
     get '/scheduler.:format' do
-
-      @running = Schedule.find(:all, conditions: ["timing IN (?)", %w"cron every"])
+      @schedules = Schedule.find(:all)
       haml :scheduler, format: :html5
     end
 
@@ -189,11 +194,8 @@ module NixonPi
 
     get '/command/:name.:format' do
       valid_commands = %w"tubes bars lamps power say"
-      commands = {}
       type = params[:name]
-
       error 404 and return unless valid_commands.include?(type)
-
       custom_respond('json', command_parameters(type.to_sym), "Options for command #{type} ")
     end
 
@@ -230,7 +232,7 @@ module NixonPi
         end
         data[:value] = data[:value].to_s.rjust(12, " ") unless data[:value].nil?
         CommandQueue.enqueue(:tubes, data)
-        save_command(data, :tubes)
+        save_data(data, :tubes)
 
 
         custom_respond('json', data, "Tubes set to")
@@ -240,7 +242,7 @@ module NixonPi
     post '/lamps/?:id?' do
       convert_and_validate(@params) do |data|
         CommandQueue.enqueue(:lamps, data)
-        save_command(data, :lamps)
+        save_data(data, :lamps)
         custom_respond('json', data, "Lamps set to")
       end
     end
@@ -249,25 +251,42 @@ module NixonPi
 
       convert_and_validate(@params) do |data|
         CommandQueue.enqueue(:bars, data)
-        save_command(data, :bars)
+        save_data(data, :bars)
         custom_respond('json', data, "Bars set to")
       end
     end
 
-    post '/schedule/?:id?' do
+    post '/scheduler' do
       convert_and_validate(@params) do |data|
         if valid_schedule?(data)
           #convert json to hash
           data[:command] = JSON.parse(data[:command])
+          schedule = save_data(data, :schedule) #important! data must be saved before it's scheduled - because the id is used to auto delete records in the db
+          data[:id] = schedule.id
           CommandQueue.enqueue(:schedule, data)
-          save_command(data, :schedule)
         else
-          #todo return the errors
+          log.error "Schedule invalid: #{data}"
         end
 
         custom_respond('json', data, "Bars set to")
       end
     end
+
+    delete '/schedule/:id' do |id|
+      schedule = Schedule.find_by_id(id)
+
+      data = Hash.new
+
+      if !schedule
+        data[:success] = false
+      else
+        schedule.destroy
+        data[:success] = true
+      end
+
+      custom_respond('json', data, "Schedule deleted")
+    end
+
 
     def valid_schedule?(data)
       valid = true
@@ -301,19 +320,6 @@ module NixonPi
 
         custom_respond('json', data, "Power set to")
       end
-    end
-
-    #todo
-    post '/scheduler', :provides => [:json] do
-
-      begin
-        Rufus.parse_time_string params[:time] if params[:type] == 'in' or params[:type] == 'every'
-      rescue ArgumentError => e
-        log.error "time parsing error: #{e}"
-      end
-
-      #todo param validation and scheduling
-      #Scheduler.schedule(type,time,target,command)
     end
 
     #run directly on app-file exec

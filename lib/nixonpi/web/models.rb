@@ -12,12 +12,12 @@ class Command < ActiveRecord::Base
 end
 
 class Schedule < ActiveRecord::Base
-  attr_accessible :timing,
-                  :time,
-                  :state_machine,
-                  :state,
-                  :value,
+  attr_accessible :id,
+                  :method,
+                  :timing,
+                  :queue,
+                  :command,
                   :lock
 
-  validates_presence_of :state_machine, :state
+  validates_presence_of :queue, :method, :timing, :command
 end

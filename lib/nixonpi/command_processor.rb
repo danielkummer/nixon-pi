@@ -51,13 +51,15 @@ module NixonPi
         unless queue.empty?
           command = queue.pop
           log.debug("Got command: #{command} in queue #{queue_name}, checking for invalid control parameters...")
-          command.delete_if { |k, v| !command_parameters(queue_name).keys.include?(k) or v.nil? }
+          deleted  = command.delete_if { |k, v| !command_parameters(queue_name).keys.include?(k) or v.nil? }
+          log.error("Deleted invalid commands: #{deleted} in queue #{queue_name}, check your commands!")
           if command[:time] and command[:time] + 2 > Time.now #do nothing if command is older than 2 seconds
             @@listeners[queue_name].each do |listener|
-              begin
+              if listener.respond_to?(:receive)
                 listener.try(:receive, command)
-              rescue Exception => e
-                log.debug("Listener #{listener} doesn't have the receive method!")
+                #todo add rescue (maybe)
+              else
+                log.error "Listener for #{queue_name} doesn't have the receive method!"
               end
             end
           end

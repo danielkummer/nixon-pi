@@ -18,12 +18,14 @@ module NixonPi
       # @param [Symbol] worker
       # @param [Hash] params
       def enqueue(worker, params)
+        worker = worker.to_sym
         if can_enqueue?(worker, params)
           command = command_parameters(worker).merge(params)
           command[:time] = Time.now
+          log.info "Enqueueing #{command.to_s} for #{worker}"
           queue(worker) << command
         else
-          log.error "Queue currently locked"
+          log.error "Queue currently locked, cannot enqueue #{params.to_s} for #{worker}"
         end
       end
 
@@ -50,8 +52,10 @@ module NixonPi
       def can_enqueue?(worker, params)
         if locked?(worker) and params[:priority] == true
           true
-        else
+        elsif locked?(worker)
           false
+        else
+          true
         end
       end
     end
