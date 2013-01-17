@@ -5,13 +5,12 @@
       %i.icon-lightbulb
       Tubes
   .span6
-    %form{ action: "/tubes#{"/" + @tubes.id.to_s if @tubes.id}", method: "POST", class: "form-horizontal", "data-remote" => true}
+    %form{ action: "/tubes", method: "POST", class: "form-horizontal", "data-remote" => true}
       .row
         .span6
           .control-group
             %input{type: "text", name: "value", class: "input-tubes search-query input-block-level right"}
 
-          %input{type: "hidden", name: "id", value:"#{@tubes.id}"}
           .accordion-group
             .accordion-heading
               %a{class: "btn-more", 'data-toggle'=>"collapse",  href:"#more"}
@@ -29,14 +28,14 @@
               .control-group
                 %label.control-label Animation Name
                 .controls
-                  %select{name: "animation_name", class: "input-xlarge", value:"#{@tubes.animation_name}"}
+                  %select{name: "animation_name", class: "input-xlarge"}
                     %option
                     %option{value: "switch_numbers"} switch numbers
                     %option{value: "single_fly_in"} fly in
               .control-group
                 %label.control-label{for: "value"} Options Hash
                 .controls
-                  %input{type: "text", name: "options", class: "input-xlarge", value:"#{@tubes.options}"}
+                  %input{type: "text", name: "options", class: "input-xlarge"}
               .control-group
                 %label.control-label Load on startup
                 .controls
@@ -46,7 +45,7 @@
             GO
   .span4
     .well
-      = format_loaded_values(@tubes)
+      = format_command_values(@tubes)
 
 
 .row.row-divider
@@ -65,7 +64,7 @@
           %input{type: "hidden", name: "state", value: "free_value"}
   .span4
     .well
-      = format_loaded_values(@lamps)
+      = format_command_values(@lamps)
 
 .row.row-divider
   .span2
@@ -109,7 +108,7 @@
       #something_else.tab-pane
   .span4
     .well
-      = format_loaded_values(@bars)
+      = format_command_values(@bars)
 
 .row.row-divider
   .span2

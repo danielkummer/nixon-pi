@@ -69,7 +69,7 @@ module NixonPi
       Thread.kill(@web_thread)
       NixonPi::MachineManager.exit
       NixonPi::CommandProcessor.exit
-      NixonPi::Scheduler.exit
+      NixonPi::Scheduler.exit_scheduler
       log.info "Turning off power"
       PowerDriver.instance.power_off
       log.info "Bye ;)"

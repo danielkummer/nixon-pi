@@ -58,7 +58,7 @@ module NixonPi
       schedule(id, method, timing, queue, command, locked)
     end
 
-    def exit
+    def exit_scheduler
       #unschedule_all #quit cron jobs too...
     end
 

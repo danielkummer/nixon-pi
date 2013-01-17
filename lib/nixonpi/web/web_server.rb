@@ -63,13 +63,8 @@ module NixonPi
         Haml::Engine.new(result.join("\n")).render
       end
 
-      def read_latest_logs
-        path = File.join(Dir.home, 'nixon-pi.log')
-        logs = `tail -n 1000 #{path}`.split("\n")
-        logs
-      end
 
-      def format_loaded_values(data)
+      def format_command_values(data)
         result = ["%dl"]
         [:state, :value, :animation_name, :options].each do |key|
           value = data.send(key)
@@ -78,100 +73,22 @@ module NixonPi
             result << "  %dd #{value.to_s}"
           end
         end unless data.nil?
-
         Haml::Engine.new(result.join("\n")).render
       end
     end
 
-    ##
-    # save to the sqlite3 database
-    # @param [Hash] data attributes to save
-    # @class_type [Object] Model class to save to; e.g Lamp, Bar, Tube
-    def save_data(data, queue)
-      sanitize_data(data)
-      if queue == :schedule
-        ret = save_schedule(data)
-      else
-        ret = save_command(data, queue)
-      end
-      ret
-    end
+    ###
+    # GET REQUESTS
+    ###
 
-    def sanitize_data(data)
-      data[:value] = data.delete(:values).join(",") if data[:values]
-      data.delete_if do |k, v|
-        %w"time cron-period cron-dom cron-month cron-mins cron-dow cron-time-hour cron-time-min splat captures".include?(k.to_s)
-      end
-    end
-
-    def save_command(data, queue)
-      #there's ever only one initial state per state machine
-      if data[:initial]
-        command = Command.find(:first, conditions: ["initial = ? AND state_machine = ?", data[:initial], queue.to_s])
-        command = Command.new(state_machine: queue.to_s) if command.nil?
-      elsif data[:id]
-        command = Command.find(:first, conditions: ["id = ? AND state_machine = ?", data[:id], queue.to_s])
-      else
-        command = Command.new(state_machine: queue.to_s)
-      end
-
-      unless command.update_attributes(data)
-        log.error("Unable to update command attributes: #{data.to_s}")
-      end
-
-      command
-    end
-
-    def save_schedule(data)
-      schedule = Schedule.new
-      unless schedule.update_attributes(data)
-        log.error("Unable to update schedule attributes: #{data.to_s}")
-      end
-      schedule
-    end
-
-
-    def convert_and_validate(params)
-      data = string_key_to_sym(params)
-      if data.nil?
-        status 400
-      else
-        #data[:command] = string_key_to_sym(data[:command]) if data.has_key?(:command)
-        yield data if  block_given?
-      end
-    end
-
-    def string_key_to_sym(hash)
-      ret = {}
-      hash.each do |k, v|
-        ret[k.to_sym] = v
-      end
-      ret
-    end
-
-    def custom_respond(format, data, respond_message = "", template = nil)
-      data[:message] = respond_message unless respond_message.empty?
-      data[:success] = true unless data.has_key?(:success)
-      case format
-        when 'json'
-          data.delete(:time)
-          halt jsonp(data)
-        when 'html'
-          halt haml(template, :locals => data) unless template.nil?
-      end
-      error 406
-      halt jsonp(data)
-    end
-
+    ## Render the main control screen
     get '/' do
       @bar_count = Settings.in13_pins.size
       @lamp_count = Settings.in1_pins.size
 
-      [:tubes, :lamps, :bars].each do |param|
-        command = Command.find(:first, conditions: ["initial = ? AND state_machine = ?", false, param]) || Command.new(state_machine: param)
-        instance_variable_set("@#{param}", command)
-        intitial = Command.find(:first, conditions: ["initial = ? AND state_machine = ?", true, param]) || Command.new(state_machine: param)
-        instance_variable_set("@#{param}_settings", intitial)
+      %w"tubes lamps bars".each do |state_machine|
+        initial = Command.find(:first, conditions: ["initial = ? AND state_machine = ?", true, state_machine]) || Command.new(state_machine: state_machine)
+        instance_variable_set("@#{state_machine}", initial)
       end
 
       haml :control, format: :html5
@@ -188,40 +105,41 @@ module NixonPi
       %w"tubes bars lamps power say".each do |type|
         commands[type] = command_parameters(type.to_sym)
       end
-
-      custom_respond('json', commands, "Available commands")
+      formatted_response('json', commands, "Available commands")
     end
 
-    get '/command/:name.:format' do
-      valid_commands = %w"tubes bars lamps power say"
-      type = params[:name]
-      error 404 and return unless valid_commands.include?(type)
-      custom_respond('json', command_parameters(type.to_sym), "Options for command #{type} ")
+    get '/command/:target.:format' do
+      cmd = params[:target]
+      error 404 and return unless  %w"tubes bars lamps power say".include?(cmd)
+
+      formatted_response('json', command_parameters(cmd.to_sym), "Options for command #{cmd}")
     end
 
     get '/info/:state_machine.:format' do
-      if %w(tubes bars lamps).include? params[:state_machine]
-        state_machine = params[:state_machine]
-        data = {info: NixonPi::HandlerStateMachine.get_params_for(state_machine)}
-        custom_respond(params[:format], data, "#{state_machine} set to", :state_info)
-      else
-        error 400
-      end
+      state_machine = params[:state_machine]
 
+      error 400 and return unless %w"tubes bars lamps".include?(state_machine)
+      data = {info: NixonPi::HandlerStateMachine.get_params_for(state_machine)}
+      formatted_response(params[:format], data, "#{state_machine} set to")
     end
 
     get '/info.:format' do
       data = {info: AbioCardClient.instance.info}
-      custom_respond(params[:format], data, "Hardware information", :info)
+      formatted_response(params[:format], data, "Hardware information")
     end
 
     get '/logs' do
+      path = File.join(Dir.home, 'nixon-pi.log')
+      @logs = `tail -n 1000 #{path}`.split("\n")
       haml :logs
     end
 
+    ###
+    # POST REQUESTS
+    ###
 
-    post '/tubes/?:id?' do
-      convert_and_validate(@params) do |data|
+    post '/tubes' do
+      preprocess_post_params(@params) do |data|
         unless data[:state].nil?
           case data[:state].to_sym
             when :countdown
@@ -235,29 +153,28 @@ module NixonPi
         save_data(data, :tubes)
 
 
-        custom_respond('json', data, "Tubes set to")
+        formatted_response('json', data, "Tubes set to")
       end
     end
 
-    post '/lamps/?:id?' do
-      convert_and_validate(@params) do |data|
+    post '/lamps' do
+      preprocess_post_params(@params) do |data|
         CommandQueue.enqueue(:lamps, data)
         save_data(data, :lamps)
-        custom_respond('json', data, "Lamps set to")
+        formatted_response('json', data, "Lamps set to")
       end
     end
 
-    post '/bars/?:id?' do
-
-      convert_and_validate(@params) do |data|
+    post '/bars' do
+      preprocess_post_params(@params) do |data|
         CommandQueue.enqueue(:bars, data)
         save_data(data, :bars)
-        custom_respond('json', data, "Bars set to")
+        formatted_response('json', data, "Bars set to")
       end
     end
 
     post '/scheduler' do
-      convert_and_validate(@params) do |data|
+      preprocess_post_params(@params) do |data|
         if valid_schedule?(data)
           #convert json to hash
           data[:command] = JSON.parse(data[:command])
@@ -268,13 +185,33 @@ module NixonPi
           log.error "Schedule invalid: #{data}"
         end
 
-        custom_respond('json', data, "Bars set to")
+        formatted_response('json', data, "Bars set to")
       end
     end
 
+    post '/say' do
+      preprocess_post_params(@params) do |data|
+        CommandQueue.enqueue(:say, data)
+        formatted_response('json', data, "Speak ")
+      end
+
+    end
+
+    post '/power', :provides => [:json] do
+      preprocess_post_params(@params) do |data|
+        data[:value] = 0 if data.empty?
+        CommandQueue.enqueue(:power, data)
+
+        formatted_response('json', data, "Power set to")
+      end
+    end
+
+    ###
+    # DELETE REQUESTS
+    ###
+
     delete '/schedule/:id' do |id|
       schedule = Schedule.find_by_id(id)
-
       data = Hash.new
 
       if !schedule
@@ -284,43 +221,107 @@ module NixonPi
         data[:success] = true
       end
 
-      custom_respond('json', data, "Schedule deleted")
+      formatted_response('json', data, "Schedule deleted")
     end
 
+    private
+    ##
+    # save to the sqlite3 database
+    # @param [Hash] data attributes to save
+    # @class_type [Object] Model class to save to; e.g Lamp, Bar, Tube
+    def save_data(data, queue)
+      prepare_db_data(data)
+      ret = case queue
+              when :schedule
+                save_schedule(data)
+              else
+                save_command(data, queue) if data[:initial] == true
+            end
+      ret
+    end
+
+    def prepare_db_data(data)
+      data[:value] = data.delete(:values).join(",") if data[:values] #re-arrange values array to value string
+      data.delete_if do |k, v| #delete explicitly unwanted entries
+        %w"time cron-period cron-dom cron-month cron-mins cron-dow cron-time-hour cron-time-min splat captures".include?(k.to_s)
+      end
+    end
+
+    def save_command(data, queue)
+      if data[:initial] #there's ever only one initial state per state machine - replace existing record
+        command = Command.find(:first, conditions: ["initial = ? AND state_machine = ?", data[:initial], queue.to_s])
+      end
+      command ||= Command.new(state_machine: queue.to_s)
+      log.error("Unable to update command attributes: #{data.to_s}") unless command.update_attributes(data)
+      command
+    end
+
+    def save_schedule(data)
+      schedule = Schedule.new
+      log.error("Unable to update schedule attributes: #{data.to_s}") unless schedule.update_attributes(data)
+      end
+      schedule
+    end
+
+    def preprocess_post_params(params)
+      data = string_key_to_sym(params)
+      if data.nil? #todo better validation
+        status 400
+      else
+        yield data if block_given?
+      end
+    end
+
+    def string_key_to_sym(hash)
+      result = Hash.new
+      hash.each { |k, v| result[k.to_sym] = v }
+      result
+    end
+
+    def formatted_response(format, data, respond_message = "")
+      data[:success] = true unless data.has_key?(:success)
+      data[:message] = respond_message unless respond_message.empty?
+
+      case format.to_sym
+        when :json
+          data.delete(:time)
+          halt jsonp(data)
+        when :html
+          halt haml(:formatted_response, :locals => data)
+      end
+      error 406
+      data[:success] = false
+      data[:message] = "Unknown format"
+      halt jsonp(data)
+    end
 
     def valid_schedule?(data)
-      valid = true
       require 'rufus-scheduler'
+      timing, time, valid = data[:timing], data[:time], true
 
-      if %w"in at".include?(data[:timing])
-        begin
-          time = Rufus.parse_time_string data[:time]
-        rescue ArgumentError => e
-          log.error("Schedule invalid: #{e.message}")
-          valid = false
+      case timing.to_sym
+        when :in, :every
+          begin
+            Rufus.parse_time_string(time)
+          rescue ArgumentError => e
+            log.error("Schedule invalid for timing #{timing} with time #{time}: #{e.message}")
+            valid = false
+          end
+        when :at
+          begin
+            Time.parse(time)
+          rescue ArgumentError => e
+            log.error("Schedule invalid for timing #{timing} with time #{time}: #{e.message}")
+            valid = false
+          end
+        when :cron
+          #todo validate cron string
+        else
+          log.error "Timing #{timing} not supported!"
         end
-      end
-
       valid
     end
 
-
-    post '/say' do
-      convert_and_validate(@params) do |data|
-        CommandQueue.enqueue(:say, data)
-        custom_respond('json', data, "Told ")
-      end
-
-    end
-
-    post '/power', :provides => [:json] do
-      convert_and_validate(@params) do |data|
-        data[:value] = 0 if data.empty?
-        CommandQueue.enqueue(:power, data)
-
-        custom_respond('json', data, "Power set to")
-      end
-    end
 
     #run directly on app-file exec
     #run! if app_file == $0
