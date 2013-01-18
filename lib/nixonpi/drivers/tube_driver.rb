@@ -17,7 +17,7 @@ module NixonPi
     end
 
     def write_string_with_blanks(output)
-      log.info "write number with blanks '#{output}'"
+      #log.debug "write number with blanks '#{output}'"
       client.io_write(@latch_pin, 0)
 
       output.split('').reverse.each do |digit|
@@ -31,11 +31,19 @@ module NixonPi
     # Write number
     # @param [String] output
     def write(output)
+
       if Settings.in12a_tubes['write_blanks']
         write_string_with_blanks(output)
       else
         write_number_string_with_zeros(output)
       end
+    end
+
+    #todo refactor into helper
+    def has_canged?(value)
+      result = (value == @old_value ? false : true)
+      @old_value = value
+      result
     end
 
     def write_number_string_with_zeros(output)

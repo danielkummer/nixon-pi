@@ -9,7 +9,7 @@ require_relative '../logging/logging'
 require_relative '../configurations/settings'
 require_relative 'direct_io'
 
-if $environment == 'test'
+if $environment == 'test' or $force_mock_client
   require_relative '../../../spec/support/mock_telnet'
 end
 
@@ -227,6 +227,11 @@ module NixonPi
     # and in test a mock object for verbose output
     # @param [String]
     def connection_for(environment)
+      if $force_mock_client
+        log.info "Force usage of mock client"
+        return MockTelnet.new
+      end
+
       case environment.to_sym
         when :production
           NixonPi::DirectIO.new

@@ -1,0 +1,92 @@
+.row.row-divider
+  .span2
+    %h2 Scheduler
+  .span6
+    %form{ action: "/scheduler", method: "POST", class: "form-horizontal", "data-remote" => true}
+      .control-group
+        %label.control-label
+          %i.icon-repeat.icon-large
+        .controls
+          %select#method{name: "method", class: "chzn-select", "data-placeholder" => "Select Timing", style:"width:300px;"}
+            %option
+            %option{value: "in"} in
+            %option{value: "at"} at
+            %option{value: "every"} every
+            %option{value: "cron"} cron
+      .control-group
+        %label.control-label
+          %i.icon-time.icon-large
+        .controls
+          %input#time{type: "text", name: "timing", class: "input-xlarge", }
+
+      .control-group
+        %label.control-label
+          %i.icon-screenshot.icon-large
+        .controls
+          %select#target{name: "queue", class: "chzn-select", "data-placeholder" => "Select Target", style:"width:300px;"}
+            %option
+            %option{value: "power"} Power
+            %option{value: "tubes"} Tubes
+            %option{value: "Bars"} Bars
+            %option{value: "Lamps"} Lamps
+            %option{value: "Say"} Say
+      .control-group
+        %label.control-label
+          %i.icon-edit.icon-large
+        .controls
+          %textarea#command{name: "command", rows: "10", class:"input-xlarge"}
+      .control-group
+        %label.control-label
+          %i.icon-lock.icon-large
+        .controls
+          %label.checkbox
+            %input{type: "checkbox", name: "lock", class: "input-medium"}
+            Lock target
+      .control-group
+        .controls
+          %button{type: "submit",class:"btn btn-success"}
+            Schedule
+  .span4
+    #cron{style:"display: none;"}
+
+
+
+.row.divider
+  .span2
+    %h2 Running
+  .span6
+    -if @schedules.empty?
+      %p No jobs
+    -else
+      %table
+        %thead
+          %tr
+            %td
+              %i.icon-repeat.icon-large
+            %td
+              %i.icon-time.icon-large
+            %td
+              %i.icon-screenshot.icon-large
+            %td
+              %i.icon-edit.icon-large
+            %td
+              %i.icon-lock.icon-large
+            %td
+        %tbody
+        -@schedules.each do |s|
+          %tr
+            %td=s.method
+            %td=s.timing
+            %td=s.queue
+            %td=s.command
+            %td=s.lock
+            %td
+              %a{class:"delete-schedule", href:"#", "data-id" => "#{s.id}"}
+                %i.icon-remove-sign
+              /%form{:action => "/scheduler/#{s.id}", :method => "post"}
+              /  %input{ name:"_method", type:"hidden", value:"delete"}
+              /  %button{type: "submit", value: "x"} x
+
+
+
+

@@ -8,77 +8,163 @@ require_relative '../animations/animation'
 require_relative '../animations/tube/switch_numbers_animation'
 require_relative '../animations/tube/single_fly_in_animation'
 require_relative 'handler_state_machine'
+require_relative '../command_queue'
+require_relative '../logging/logging'
 
 
 module NixonPi
   class TubeStateMachine < HandlerStateMachine
+    include Logging
 
     register_as :tubes
 
     def after_create
       register_driver NixonPi::TubeDriver
+      ##todo process options...
+      reload_from_db(:tubes)
+      CommandProcessor.add_receiver(self, :tubes)
     end
 
-    state_machine :initial => :display_time do
+    state_machine :initial => :startup do
+
 
       around_transition do |object, transition, block|
         HandlerStateMachine.handle_around_transition(object, transition, block)
       end
 
-      event :display_free_value do
-        transition all => :display_free_value
+      event :free_value do
+        transition all => :free_value
       end
 
-      event :display_time do
-        transition all => :display_time
+      event :time do
+        transition all => :time
       end
 
-      event :display_tube_animation do
-        transition all => :display_animation
+      event :animation do
+        transition all => :animation
       end
 
-      event :display_test do
-        transition all => :display_test
+      event :countdown do
+        transition all => :countdown
       end
 
-      state :display_time do
+      event :run_test do
+        transition all => :run_test
+      end
+
+      state :startup do
+        def write
+          params[:animation_name] = "single_fly_in"
+          params[:options] = {}
+          params[:last_value] = "0000"
+          self.fire_state_event(:animation)
+          if params[:initial_state].nil?
+            params[:last_state] = :time
+          else
+            params[:last_state] = params[:initial_state]
+          end
+        end
+      end
+
+      state :time do
         def write
           tubes_count = Settings.in12a_tubes.count
-          puts "params #{current_state_parameters}"
-          format = current_state_parameters[:time_format]
-
+          format = params[:time_format]
           if format.nil? or format.size > tubes_count
             format = Settings.default_time_format
           end
 
-          time = Time.now.strftime(format).rjust(tubes_count, ' ')
-          driver.write(time) unless time.nil?
-          current_state_parameters[:last_value] = time
+          now = Time.now
+          params[:last_time] = now if params[:last_time].nil?
+
+          formatted_time = now.strftime(format)
+          formatted_date = now.strftime(Settings.default_date_format)
+
+
+          if now.min == 0 and now.min != params[:last_time].min
+            NixonPi::Animations::Animation.create(:single_fly_in).run(formatted_time)
+          elsif now.hour == 0 and now.hour != params[:last_time].hour
+            NixonPi::Animations::Animation.create(:single_fly_in).run(formatted_time)
+          elsif now.min % 15 == 0 and now.sec <= 10
+            driver.write(formatted_date.rjust(tubes_count, ' '))
+          else
+            driver.write(formatted_time.rjust(tubes_count, ' '))
+          end
+
+          params[:last_value] = formatted_time
+          params[:last_time] = now
+
         end
       end
 
-      state :display_free_value do
+      state :free_value do
         def write
-          value = current_state_parameters[:value]
+          value = params[:value]
           driver.write(value)
-          current_state_parameters[:last_value] = value
+          params[:last_value] = value
         end
       end
 
-      state :display_animation do
+      state :animation do
         def write
-          animation_name = current_state_parameters[:animation_name]
-          animation_options = current_state_parameters[:animation_options]
-          animation_options ||= {}
-          start_value = current_state_parameters[:last_value]
-          NixonPi::Animations::Animation.create(animation_name.to_sym, animation_options).run(start_value)
-          self.send(current_state_parameters[:last_state]) #go back to old state again and do whatever was done before
+          name, options = params[:animation_name], params[:options]
+          options ||= {}
+          start_value = params[:last_value]
+          NixonPi::Animations::Animation.create(name.to_sym, options).run(start_value)
+          puts "state #{params}"
+          self.fire_state_event(params[:last_state]) #go back to old state again and do whatever was done before
         end
       end
 
-      state :display_test do
+      #todo refactor
+      state :countdown do
+        require 'chronic_duration'
+
         def write
-          unless current_state_parameters[:test_done]
+          seconds_to_go = params[:value].to_i
+          current_time = Time.now
+
+          if params[:target_time].nil?
+            params[:target_time] = Time.now + seconds_to_go.seconds
+          end
+          target_time = params[:target_time]
+
+          next_value = target_time - current_time
+
+          if seconds_to_go > 0 and seconds_to_go != next_value
+
+            output = ChronicDuration.output(seconds_to_go, :format => :chrono).gsub(/:/, ' ')
+            log.debug "write countdown: #{output}"
+            driver.write(output)
+          end
+
+          params[:value] = next_value
+
+          if current_time >= params[:target_time]
+            log.debug "end of countdown"
+            options = params[:options]
+            unless options.nil?
+              if options.is_a? Hash
+                options.keys.each do |k, o|
+                  case k.to_sym
+                    when :say
+                      CommandQueue.enqueue(:say, {value: o})
+                    when :state
+                      self.fire_state_event(params[:o])
+                    else
+                      log.debug "option unknown"
+                  end
+                end
+              end
+            end
+            self.fire_state_event(params[:last_state])
+          end
+        end
+      end
+
+      state :run_test do
+        def write
+          unless params[:test_done]
             number_of_digits = 12
             test_data = Array.new
             9.times do |time|
@@ -99,7 +185,7 @@ module NixonPi
 
             puts "Benchmark write 2-pair strings from 00 to 99:"
             puts bm
-            self.fire_state_event(current_state_parameters[:last_state])
+            self.fire_state_event(params[:last_state])
           end
         end
       end

@@ -30,7 +30,7 @@ module NixonPi
         gem_path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "config", "nixonpi-settings.yml"))
         home_path = File.join(Dir.home, "nixonpi-settings.yml")
 
-        if FileUtils.uptodate?(gem_path, %w(home_path)) or $environment == 'development'
+        if $environment == 'development' or FileUtils.uptodate?(gem_path, %w(home_path))
           FileUtils.cp(gem_path, home_path) unless File.exists?(home_path)
         end
 
