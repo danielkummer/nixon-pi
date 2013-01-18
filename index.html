@@ -3,114 +3,181 @@
   <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
     <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
     <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
-
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
     <title>Nixon-Pi by danielkummer</title>
   </head>
 
   <body>
-    <header>
+    <div id="container">
       <div class="inner">
-        <h1>Nixon-Pi</h1>
-        <h2>Raspberry Pi + Nixie Tubes </h2>
-        <a href="https://github.com/danielkummer/nixon-pi" class="button"><small>View project on</small>GitHub</a>
-      </div>
-    </header>
 
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-          <h1>Nixon-\Pi - The Raspberry Pi based Nixie Display</h1>
+        <header>
+          <h1>Nixon-Pi</h1>
+          <h2>Raspberry Pi + Nixie Tubes </h2>
+        </header>
 
-<p><a href="https://codeclimate.com/github/danielkummer/nixon-pi"><img src="https://codeclimate.com/badge.png" alt="Code Climate"></a></p>
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/danielkummer/nixon-pi/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/danielkummer/nixon-pi/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/danielkummer/nixon-pi" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
 
-<h2>The components</h2>
+        <hr>
 
-<p>The Nixon-&amp;PI; Display consists of Nixie Tubes provided by <a href="http://www.ogilumen.com/">Ogilumen</a>, driven by a Raspberry Pi Model B with an <a href="http://www.axiris.be/">Axiris</a> I/O expansion card.</p>
+        <section id="main_content">
+          <h1>NIXON-Π :: The Raspberry Pi based Nixie Display</h1>
+
+<p>The Nixon-π Display consists of <strong>Nixie Tubes</strong> provided by <a href="http://www.ogilumen.com/">Ogilumen</a>, driven by a <strong>Raspberry Pi Model B</strong> with an <strong>I/O expansion card</strong> from <a href="http://www.axiris.be/">Axiris</a>.
+It's driven by a multi-threaded ruby application consisting of I/O drivers, state machines, a sinatra based web app and json api connected by message queues.</p>
+
+<p>What started out as a private idea found it's way into a mini-project on a <strong>LABS</strong> team event from <a href="http://www.namics.com">Namics</a>.</p>
+
+<p>Many thanks to all who contributed and hopefully will contribute to this project!</p>
+
+<p><strong>Jump to</strong></p>
+
+<ul>
+<li><a href="#components">Components</a></li>
+<li><a href="#case">Case</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#service">Service</a></li>
+<li><a href="#api">API</a></li>
+</ul><h2>
+<a name="components"></a>Components</h2>
+
+<p>The following main components were used for assembly, not mentioning wiring and tools.</p>
 
 <h3>1x Raspberry Pi Model B</h3>
 
-<h2><img src="http://www.raspberrypi.org/wp-content/uploads/2012/04/Raspi_Iso_Blue.png" width="200" height="150"></h2>
+<h2><img src="http://www.raspberrypi.org/wp-content/uploads/2012/04/Raspi_Iso_Blue.png" width="400"></h2>
 
-<p>The <a href="http://www.raspberrypi.org/">Raspberry Pi</a> is ideal for the project as it's a fully flegded mini computer which is capable of running all the things we need (Ruby, a web server, ...).</p>
+<p>The <a href="http://www.raspberrypi.org/">Raspberry Pi</a> is ideal for the project as it's a fully flegded mini computer which is capable of running all the things we need.</p>
+
+<p>A standard installation with Debian Wheezy is recommended.
+Install Ruby using the tutorial on <a href="http://elinux.org/RPi_Ruby_on_Rails">elinux</a></p>
+
+<p>Here's a condensed list of the commands:</p>
+
+<pre><code>sudo apt-get install -y git curl zlib1g-dev subversion
+sudo apt-get install -y openssl libreadline6-dev git-core zlib1g libssl-dev
+sudo apt-get install -y libyaml-dev libsqlite3-dev sqlite3
+sudo apt-get install -y libxml2-dev libxslt-dev
+sudo apt-get install -y autoconf automake libtool bison
+curl -L get.rvm.io | bash -s stable
+</code></pre>
 
 <h3>1x <a href="http://www.axiris.be/">Axiris</a> I/O Card for Raspberry Pi</h3>
 
-<h2><img src="http://www.axiris.be/en/images/stories/bcm2835/bcm2835_013_500.jpg" width="200" height="150"></h2>
+<h2><img src="http://www.axiris.be/en/images/stories/bcm2835/bcm2835_013_500.jpg" width="400"></h2>
 
-<p>Because the Raspberry Pi only has limited IO capabilites the <a href="http://www.axiris.be/en/index.php?option=com_content&amp;view=article&amp;id=51:i2c-io-card-for-use-with-raspberry-pi-computer&amp;catid=14:io-cards&amp;Itemid=34">Axisis I/O card</a> is the perfect addition to fully satisfy our needs. It adds:</p>
+<p>Because the Raspberry Pi only has <a href="http://elinux.org/RPi_Low-level_peripherals">limited IO capabilites</a> the <a href="http://www.axiris.be/en/index.php?option=com_content&amp;view=article&amp;id=51:i2c-io-card-for-use-with-raspberry-pi-computer&amp;catid=14:io-cards&amp;Itemid=34">Axisis I/O card</a> is the perfect addition to fully satisfy our needs. It adds:</p>
 
 <ul>
-<li>Very high accuracy real-time clock based on the PCF2129A with CR2032 backup battery.</li>
+<li>a very high accuracy real-time clock based on the PCF2129A with CR2032 backup battery.</li>
 <li>8 quasi bidirectional I/O lines (PCF8574), 5V levels.</li>
 <li>8 12-bit ADC inputs (MAX11614EEE+), 0 - 4.096V range.</li>
-<li>Model B only - 16 output channels providing 12-bit pulse-width modulation (PWM) output channels at about 40 to 1000 Hz with LED drive capability, 10 mA source, 25 mA sink, 5 V levels.</li>
-</ul><h3>6x Nixie Duo Kits</h3>
+<li>16 output channels providing 12-bit pulse-width modulation (PWM) output channels at about 40 to 1000 Hz with LED drive capability, 10 mA source, 25 mA sink, 5 V levels.</li>
+</ul><p>The repository contains a modified driver to allow direct console output - without the need to start a telnet server in order to control the expansion card.
+However, you're still able to use the telnet server while developing - with it you can remotely execute the code with a live connection.</p>
 
-<h2><img src="http://www.ogilumen.com/images/product_pics/n2xdp1.jpg" width="200" height="150"></h2>
+<h3>6x Nixie Duo Kits</h3>
 
-<p><a href="http://www.ogilumen.com/">Ogilumen</a> sells beautiful, compact and easy to assemble nixie tube kits containing two IN-12A tubes each.</p>
+<h2><img src="http://www.ogilumen.com/images/product_pics/n2xdp1.jpg" width="400"></h2>
+
+<p><a href="http://www.ogilumen.com/">Ogilumen</a> sells beautiful, compact and easy to assemble nixie tube kits containing two IN-12A tubes each.
+Some electronics are needed so we're able to drive them using the 12-bit PWM channels.</p>
+
+<p><strong>Electric diagram</strong></p>
+
+<p><img src="https://dl.dropbox.com/u/23566127/nixon-pi_images/nixie_duo_diagram.png" width="400"></p>
 
 <h3>4x IN-13 Bar Graphs</h3>
 
-<h2><img src="http://www.ogilumen.com/images/product_pics/IN-13a.jpg" width="200" height="150"></h2>
+<h2><img src="http://www.ogilumen.com/images/product_pics/IN-13a.jpg" width="400"></h2>
 
 <p>The IN-13 Neon Bar Graphs sold by Ogilumen are a beautiful way to display a variable length glowing bar.</p>
 
+<p><strong>Electric diagram</strong></p>
+
+<p><img src="https://dl.dropbox.com/u/23566127/nixon-pi_images/bargraph_diagram.png" width="400"></p>
+
 <h3>5x IN-1 Neon</h3>
 
-<h2><img src="http://www.ogilumen.com/images/product_pics/n1a.jpg" width="200" height="150"></h2>
+<h2><img src="http://www.ogilumen.com/images/product_pics/n1a.jpg" width="400"></h2>
 
 <p>The IN-1 Neon Lamps are simply a nice LED-alternative and they have a nice warm orange glow...</p>
 
+<p><strong>Electric diagram</strong></p>
+
+<p><img src="https://dl.dropbox.com/u/23566127/nixon-pi_images/lamp_diagram.png" width="400"></p>
+
 <h2>1x 50 mA Nixie Tube Power Supply</h2>
 
-<h2><img src="http://www.ogilumen.com/images/product_pics/smps1.jpg" width="200" height="150"></h2>
+<h2><img src="http://www.ogilumen.com/images/product_pics/smps1.jpg" width="400"></h2>
 
-<p>Lastly we need a power supply to drive all our high-voltage Nixie goodness. Luckly ogilumen provides us with a readily assembled power supply capable of providing all the power we need...</p>
+<p>In the end we need a power supply to drive all our high-voltage Nixie goodness. Luckly ogilumen provides us with a readily assembled power supply capable of providing all the power we need...
+If you want to power everything with a 12V power supply, use a voltage divider and a modified micro-usb jack to power the raspberry pi.</p>
 
-<h2>Circuit Diagrams</h2>
+<p><strong>Voltage divider electric diagram</strong></p>
 
-<p>TODO</p>
+<p><img src="https://dl.dropbox.com/u/23566127/nixon-pi_images/voltage_divider_diagram.png" width="400"></p>
 
-<h2>Case Designs</h2>
+<h2>
+<a name="case"></a> Case</h2>
 
-<p>TODO</p>
+<p>The casing gives the nixon-pi a retro look - it should remind one of a sixties radio. A swiss carpentry manufactured the wooden casing - the rest was assembled by hand.</p>
 
-<h2>The Service</h2>
+<p><img src="https://dl.dropbox.com/u/23566127/nixon-pi_images/front_plate.png" width="800"></p>
+
+<h2>
+<a name="installation"></a>Installation</h2>
+
+<p>Although nixon-pi can be packed as a gem it's currently suggested to install it by cloning the repository.
+The master branch contains the newest production release.</p>
+
+<h2>
+<a name="service"></a> The Service</h2>
 
 <p>A telnet based client to drive nixie tubes via rest interface</p>
 
+<h2>Comand line options</h2>
+
+<pre><code>bin/nixon-pi -h
+Usage: nixon-pi [options]
+    -e env                           set the environment (default is development, others are test and production)
+    -m                               force the usage of the telnet mock interface
+    -p port                          set the webserver port (default is 8080)
+    -h, --help                       Display help
+</code></pre>
+
+<p>The application drops a .yml configuration file in the users home directory. Review and adjust if neccessary...    </p>
+
 <h3>Manage the daemon process</h3>
 
-<p>Manage the daemon with</p>
-
-<pre><code>ruby app/nixieserver_control.rb start
-ruby app/nixieserver_control.rb restart
-ruby app/nixieserver_control.rb stop
+<pre><code>ruby bin/nixonpi.rb start
+ruby bin/nixonpi.rb restart
+ruby bin/nixonpi.rb stop
 </code></pre>
 
 <h3>Controlling</h3>
 
-<p>The daemon is controlled via sinatra web application (REST-full), see the example page at [YOUR-IP]:9999</p>
+<p>The daemon is controlled via sinatra web application, see the example page at [server ip]:[port]</p>
 
 <h2>The Gem</h2>
 
-<p>The Nixon-&amp;PI; Service is packed as a standalone gem which can be run as a daemon.</p>
+<p>The Nixon-π Service is packed as a standalone gem which can be run as a daemon.</p>
 
 <h3>Build</h3>
 
 <p>Build with</p>
 
-<pre><code>gem build Nixon-&amp;PI;-service.gemspec
+<pre><code>gem build nixon-pi.gemspec
 </code></pre>
 
 <h3>Install</h3>
@@ -118,35 +185,450 @@ ruby app/nixieserver_control.rb stop
 <pre><code>$ gem install nixie-berry-service
 </code></pre>
 
-<h3>State machine</h3>
+<h3>State machines</h3>
 
 <p>The service uses a state machine to handle local executions.
 Generate state machine diagrams with the following command:</p>
 
-<pre><code>rake state_machine:draw FILE=./lib/nixon-pi/state_machines/tube_state_machine.rb CLASS=NixonPi;::TubeHandlerStateMachine
+<pre><code>rake state_machine:draw FILE=./lib/nixonpi/state_machines/tube_state_machine.rb CLASS=NixonPi::TubeStateMachine
+rake state_machine:draw FILE=./lib/nixonpi/state_machines/bar_state_machine.rb CLASS=NixonPi::BarStateMachine
+rake state_machine:draw FILE=./lib/nixonpi/state_machines/lamp_state_machine.rb CLASS=NixonPi::LampStateMachine
 </code></pre>
 
-<h1>Copyright</h1>
+<p><strong>Tube State Machine</strong></p>
+
+<p><img src="https://dl.dropbox.com/u/23566127/nixon-pi_images/TubeStateMachine_state.png" width="400"></p>
+
+<p><strong>Bar State Machine</strong></p>
+
+<p><img src="https://dl.dropbox.com/u/23566127/nixon-pi_images/BarStateMachine_state.png" width="400"></p>
+
+<p><strong>Lamp State Machine</strong></p>
+
+<p><img src="https://dl.dropbox.com/u/23566127/nixon-pi_images/LampStateMachine_state.png" width="400"></p>
+
+<h1>
+<a name="api"></a> API</h1>
+
+<p>All api requests can be made as either .html or .json.
+<strong>JSONP</strong> is returned to support 3rd party apps.</p>
+
+<h2>Port</h2>
+
+<p>The web server port can be configured in the nixonpi-settings.yml file inside your home directory.</p>
+
+<pre><code>prodiction:
+  web_server:
+    port: 3000
+</code></pre>
+
+<h2>POST Requests</h2>
+
+<p>Post requests to control the nixon-pi.</p>
+
+<h3>POST /tubes</h3>
+
+<p>Control the IN-12A digit tubes.
+The Tubes allow values from 0 to 9 including _ (Space) for no value.</p>
+
+<table>
+<tr>
+<th>Parameters</th>
+<th>Values</th>
+<th>Data Type</th>
+<th>Description</th>
+<th>Required</th>
+</tr>
+<tr>
+<td>state</td>
+<td>time, free_value, animation, countdown, run_test</td>
+<td>String</td>
+<td>State of the state machine</td>
+<td>*</td>
+</tr>
+<tr>
+<td>value</td>
+<td>0-9 or _ (Space)</td>
+<td>String</td>
+<td>Max. length 12</td>
+<td>*</td>
+</tr>
+<tr>
+<td>time_format</td>
+<td>ex: "%H%M%S"</td>
+<td>String</td>
+<td>only in state "time"</td>
+<td></td>
+</tr>
+<tr>
+<td>animation_name</td>
+<td>single_fly_in, count_from_to, switch_numbers</td>
+<td>String</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>options</td>
+<td></td>
+<td>JSON</td>
+<td>Advanced options hash</td>
+<td></td>
+</tr>
+<tr>
+<td>initial_mode</td>
+<td>true, false</td>
+<td>Boolean</td>
+<td>Load on startup</td>
+<td></td>
+</tr>
+</table><h3>POST /lamps</h3>
+
+<p>Control the IN-1 neon tubes.
+The neon tubes can either be turned on or off - they're like orange LEDs.</p>
+
+<table>
+<tr>
+<th>Parameters</th>
+<th>Values</th>
+<th>Data Type</th>
+<th>Description</th>
+<th>Required</th>
+</tr>
+<tr>
+<td>state</td>
+<td>free_value, animation, run_test</td>
+<td>String</td>
+<td>State of the state machine</td>
+<td>*</td>
+</tr>
+<tr>
+<td>values</td>
+<td>Array of 0 or 1</td>
+<td>Array of Integer</td>
+<td>Max. length 5</td>
+<td>*</td>
+</tr>
+<tr>
+<td>animation_name</td>
+<td>single_fly_in, count_from_to, switch_numbers</td>
+<td>String</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>options</td>
+<td></td>
+<td>JSON</td>
+<td>Advanced options hash</td>
+<td></td>
+</tr>
+<tr>
+<td>initial_mode</td>
+<td>true, false</td>
+<td>Boolean</td>
+<td>Load on startup</td>
+<td></td>
+</tr>
+</table><h3>POST /bars</h3>
+
+<p>Control the IN-13 bargraph tubes.
+The bargraphs are a linear display to visualize a value between 0 (off) and 255 (full width).</p>
+
+<table>
+<tr>
+<th>Parameters</th>
+<th>Values</th>
+<th>Data Type</th>
+<th>Description</th>
+<th>Required</th>
+</tr>
+<tr>
+<td>state</td>
+<td>free_value, animation</td>
+<td>String</td>
+<td>State of the state machine</td>
+<td>*</td>
+</tr>
+<tr>
+<td>values</td>
+<td>Array of 0 to 255</td>
+<td>Array of Integer</td>
+<td>Max. length 4</td>
+<td>*</td>
+</tr>
+<tr>
+<td>animation_name</td>
+<td>ramp_up_down</td>
+<td>String</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>options</td>
+<td></td>
+<td>JSON</td>
+<td>Advanced options hash</td>
+<td></td>
+</tr>
+<tr>
+<td>initial_mode</td>
+<td>true, false</td>
+<td>Boolean</td>
+<td>Load on startup</td>
+<td></td>
+</tr>
+</table><h3>POST /say</h3>
+
+<p>Synthesize text to speech.</p>
+
+<table>
+<tr>
+<th>Parameters</th>
+<th>Values</th>
+<th>Data Type</th>
+<th>Description</th>
+<th>Required</th>
+</tr>
+<tr>
+<td>value</td>
+<td>Hello World</td>
+<td>String</td>
+<td>TTS String</td>
+<td>*</td>
+</tr>
+</table><h3>POST /power</h3>
+
+<p>Control the high-voltage power supply.</p>
+
+<table>
+<tr>
+<th>Parameters</th>
+<th>Values</th>
+<th>Data Type</th>
+<th>Description</th>
+<th>Required</th>
+</tr>
+<tr>
+<td>value</td>
+<td>0 or 1</td>
+<td>String</td>
+<td>Turn on or off the high voltage power supply</td>
+<td>*</td>
+</tr>
+</table><h3>POST /scheduler</h3>
+
+<h2>GET Requests</h2>
+
+<p>Get requests to get information about the nixon-pi.</p>
+
+<h3>GET /info/:target.:format</h3>
+
+<p>Get information about the current state of a specified state machine.</p>
+
+<table>
+<tr>
+<th>Parameters</th>
+<th>Values</th>
+</tr>
+<tr>
+<td>:target</td>
+<td>tubes, bars, lamps, power</td>
+</tr>
+<tr>
+<td>:format</td>
+<td>html, json</td>
+</tr>
+</table><p><strong>Example:</strong></p>
+
+<pre><code>wget http://localhost:3000/info/tubes.json
+</code></pre>
+
+<p>Returns:</p>
+
+<pre><code>{
+    "info": {
+        "animation_name": "single_fly_in",
+        "options": {},
+        "last_value": "214740",
+        "last_state": "animation",
+        "state": "time",
+        "last_time": "2013-01-16T21:47:40+01:00"
+    },
+    "message": "tubes set to",
+    "success": true
+}
+</code></pre>
+
+<h3>GET /info.:format</h3>
+
+<p>Get hardware information about the Raspberry-Pi I/O expansion card.
+Information include:</p>
+
+<ul>
+<li>RTC - Real time clock</li>
+<li>IO  - GPIO driver</li>
+<li>ADC - Analog digital converter driver</li>
+<li>PWM - Pulse width modulation driver</li>
+</ul><table>
+<tr>
+<th>Parameters</th>
+<th>Values</th>
+</tr>
+<tr>
+<td>:format</td>
+<td>html, json</td>
+</tr>
+</table><p><strong>Example:</strong></p>
+
+<pre><code>wget http://localhost:3000/info.json
+</code></pre>
+
+<p>Returns:</p>
+
+<pre><code>{
+    "info": {
+        "rtc": "1",
+        "io": "1",
+        "adc": "1",
+        "pwm": "1"
+    },
+    "message": "Hardware information",
+    "success": true
+}
+</code></pre>
+
+<h3>GET /command/:target.:format</h3>
+
+<p>Get a json containing all available commands for a specified target.</p>
+
+<table>
+<tr>
+<th>Parameters</th>
+<th>Values</th>
+</tr>
+<tr>
+<td>:target</td>
+<td>tubes, bars, lamps, power, say</td>
+</tr>
+<tr>
+<td>:format</td>
+<td>html, json</td>
+</tr>
+</table><p><strong>Example:</strong></p>
+
+<pre><code>curl http://localhost:3000/command/tubes.json
+</code></pre>
+
+<p>Returns:</p>
+
+<pre><code>{
+    "state": null,
+    "value": null,
+    "time_format": null,
+    "animation_name": null,
+    "options": null,
+    "initial_mode": null
+}
+</code></pre>
+
+<h3>GET /commands.:format</h3>
+
+<p>Get a json of all available commands.</p>
+
+<table>
+<tr>
+<th>Parameters</th>
+<th>Values</th>
+</tr>
+<tr>
+<td>:format</td>
+<td>html, json</td>
+</tr>
+</table><p>Return a json of available commands and parameters.</p>
+
+<p><strong>Example:</strong></p>
+
+<pre><code>curl http://localhost:3000/commands.json
+</code></pre>
+
+<p>Returns:</p>
+
+<pre><code>{
+    "tubes": {
+        "state": null,
+        "value": null,
+        "time_format": null,
+        "animation_name": null,
+        "options": null,
+        "time": null,
+        "initial_mode": null
+    },
+    "bars": {
+        "state": null,
+        "values": null,
+        "animation_name": null,
+        "options": null,
+        "time": null,
+        "initial_mode": null
+    },
+    "lamps": {
+        "state": null,
+        "values": null,
+        "animation_name": null,
+        "options": null,
+        "time": null,
+        "initial_mode": null
+    },
+    "power": {
+        "value": null,
+        "time": null
+    },
+    "say": {
+        "value": null,
+        "time": null
+    },
+    "message": "Available commands",
+    "success": true
+}
+</code></pre>
+
+<h2>DELETE Requests</h2>
+
+<p>Delete saved values.</p>
+
+<h3>DELETE /schedule/:id</h3>
+
+<p>Delete a saved schedule.</p>
+
+<table>
+<tr>
+<th>Parameters</th>
+<th>Values</th>
+</tr>
+<tr>
+<td>:id</td>
+<td>id of an existing schedule</td>
+</tr>
+</table><p><strong>Example</strong></p>
+
+<pre><code>curl -X DELETE http://localhost/schedule/1
+</code></pre>
+
+<p>Returns:</p>
+
+<pre><code>{
+    "success":true,
+    "message":"Schedule deleted"
+}
+</code></pre>
         </section>
 
-        <aside id="sidebar">
-          <a href="https://github.com/danielkummer/nixon-pi/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/danielkummer/nixon-pi/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
+        <footer>
+          Nixon-Pi is maintained by <a href="https://github.com/danielkummer">danielkummer</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
 
-          <p class="repo-owner"><a href="https://github.com/danielkummer/nixon-pi"></a> is maintained by <a href="https://github.com/danielkummer">danielkummer</a>.</p>
-
-          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
-      </div>
-    </div>
-
-            <script type="text/javascript">
+                  <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
             document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
           </script>
@@ -157,5 +639,7 @@ Generate state machine diagrams with the following command:</p>
             } catch(err) {}
           </script>
 
+      </div>
+    </div>
   </body>
 </html>
