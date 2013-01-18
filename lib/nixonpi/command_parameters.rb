@@ -35,7 +35,7 @@ module NixonPi
               time: nil,
               initial_mode: nil
           }
-        when :say
+        when :speech
           {
               value: nil,
               time: nil

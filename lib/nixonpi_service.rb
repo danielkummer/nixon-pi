@@ -16,6 +16,7 @@ require_relative 'nixonpi/web/web_server'
 require_relative 'nixonpi/state_machines/machine_manager'
 require_relative 'nixonpi/drivers/power_driver'
 require_relative 'nixonpi/command_processor'
+require_relative 'nixonpi/drivers/speech_driver'
 require_relative 'nixonpi/scheduler'
 require 'thread'
 require 'daemons'
@@ -54,8 +55,10 @@ module NixonPi
       log.info "Start running..."
       log.info "turn on power"
       PowerDriver.instance.power_on
+
       @web_thread = Thread.new { @server.run! }
       CommandProcessor.add_receiver(NixonPi::Scheduler.instance, :schedule)
+      CommandProcessor.add_receiver(NixonPi::SpeechDriver.instance, :speech)
       NixonPi::MachineManager.start_state_machines
       NixonPi::CommandProcessor.start
       NixonPi::MachineManager.join_threads

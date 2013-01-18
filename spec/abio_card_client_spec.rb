@@ -1,5 +1,5 @@
 require_relative 'spec_helper'
-require_relative '../lib/nixieberry/client/abio_card_client'
+require_relative '../lib/nixonpi/client/abio_card_client'
 
 describe NixonPi::AbioCardClient do
 

@@ -133,10 +133,19 @@ module NixonPi
       formatted_response(params[:format], data, "Hardware information")
     end
 
-    get '/logs' do
+    get '/logs.:format' do
       path = File.join(Dir.home, 'nixon-pi.log')
       @logs = `tail -n 1000 #{path}`.split("\n")
-      haml :logs
+
+      format = params[:format]
+
+      case format
+        when'json'
+          halt jsonp(@logs)
+        when 'html'
+          haml :logs
+      end
+
     end
 
     ###
@@ -204,7 +213,7 @@ module NixonPi
 
     post '/say' do
       preprocess_post_params(@params) do |data|
-        CommandQueue.enqueue(:say, data)
+        CommandQueue.enqueue(:speech, data)
         formatted_response('json', data, "Speak ")
       end
 

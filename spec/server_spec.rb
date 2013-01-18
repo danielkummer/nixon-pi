@@ -1,5 +1,5 @@
 require_relative 'spec_helper'
-require_relative '../lib/nixieberry/web/web_server'
+require_relative '../lib/nixonpi/web/web_server'
 
 
 describe NixonPi::WebServer, exclude: true do
