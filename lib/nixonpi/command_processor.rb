@@ -51,8 +51,7 @@ module NixonPi
         unless queue.empty?
           command = queue.pop
           log.debug("Got command: #{command} in queue #{queue_name}, checking for invalid control parameters...")
-          deleted  = command.delete_if { |k, v| !command_parameters(queue_name).keys.include?(k) or v.nil? }
-          log.error("Deleted invalid commands: #{deleted} in queue #{queue_name}, check your commands!")
+          command.delete_if { |k, v| !command_parameters(queue_name).keys.include?(k) or v.nil? }
           if command[:time] and command[:time] + 2 > Time.now #do nothing if command is older than 2 seconds
             @@listeners[queue_name].each do |listener|
               if listener.respond_to?(:receive)

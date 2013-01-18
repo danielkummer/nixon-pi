@@ -115,12 +115,17 @@ module NixonPi
       formatted_response('json', command_parameters(cmd.to_sym), "Options for command #{cmd}")
     end
 
-    get '/info/:state_machine.:format' do
-      state_machine = params[:state_machine]
+    get '/info/:target.:format' do
+      target = params[:target]
 
-      error 400 and return unless %w"tubes bars lamps".include?(state_machine)
-      data = {info: NixonPi::HandlerStateMachine.get_params_for(state_machine)}
-      formatted_response(params[:format], data, "#{state_machine} set to")
+      error 400 and return unless %w"tubes bars lamps power".include?(target)
+
+      if target == "power"
+        data = NixonPi::PowerDriver.instance.get_params
+      else
+        data = NixonPi::HandlerStateMachine.get_params_for(target)
+      end
+      formatted_response(params[:format], data, "#{target} set to")
     end
 
     get '/info.:format' do
@@ -159,6 +164,14 @@ module NixonPi
 
     post '/lamps' do
       preprocess_post_params(@params) do |data|
+        result = Array.new(5) { 0 }
+
+        data[:values].each do |v|
+          result[v.to_i] = 1
+        end unless data[:values].nil?
+
+        data[:values] = result
+
         CommandQueue.enqueue(:lamps, data)
         save_data(data, :lamps)
         formatted_response('json', data, "Lamps set to")
@@ -241,13 +254,15 @@ module NixonPi
     end
 
     def prepare_db_data(data)
-      data[:value] = data.delete(:values).join(",") if data[:values] #re-arrange values array to value string
       data.delete_if do |k, v| #delete explicitly unwanted entries
         %w"time cron-period cron-dom cron-month cron-mins cron-dow cron-time-hour cron-time-min splat captures".include?(k.to_s)
       end
     end
 
-    def save_command(data, queue)
+    def save_command(cmd, queue)
+      data = cmd.clone
+
+      data[:value] = data.delete(:values).join(",") if data[:values] #re-arrange values array to value string
       if data[:initial] #there's ever only one initial state per state machine - replace existing record
         command = Command.find(:first, conditions: ["initial = ? AND state_machine = ?", data[:initial], queue.to_s])
       end
@@ -256,12 +271,12 @@ module NixonPi
       command
     end
 
-    def save_schedule(data)
+    def save_schedule(cmd)
       schedule = Schedule.new
       log.error("Unable to update schedule attributes: #{data.to_s}") unless schedule.update_attributes(data)
-      end
       schedule
     end
+
 
     def preprocess_post_params(params)
       data = string_key_to_sym(params)
@@ -318,7 +333,7 @@ module NixonPi
           #todo validate cron string
         else
           log.error "Timing #{timing} not supported!"
-        end
+      end
       valid
     end
 

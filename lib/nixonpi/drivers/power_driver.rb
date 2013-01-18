@@ -20,14 +20,17 @@ module NixonPi
       log.debug "got power command: #{command}, applying..."
       if (0..1).member?(value)
         client.io_write(@power_pin, value)
+        @value = value
       end
     end
 
     def power_on
+      @value = 1
       client.io_write(@power_pin, 1)
     end
 
     def power_off
+      @value = 0
       client.io_write(@power_pin, 0)
     end
 
@@ -35,10 +38,15 @@ module NixonPi
     def write(power_on = false)
       write = power_on ? 1 : 0
       client.io_write(@power_pin, write)
+      @value = write
     end
 
     def on?
       @value == 1 ? true : false
+    end
+
+    def get_params
+      {value: @value}
     end
 
   end

@@ -9,8 +9,7 @@
       .row
         .span6
           .control-group
-            %input{type: "text", name: "value", class: "input-tubes search-query input-block-level right"}
-
+            %input{type: "text", name: "value", maxlength: "12", class: "input-tubes search-query input-block-level right"}
           .accordion-group
             .accordion-heading
               %a{class: "btn-more", 'data-toggle'=>"collapse",  href:"#more"}
@@ -58,13 +57,12 @@
       .row
         .span12
           -@lamp_count.times.with_index do |index|
-            %button{type: "button", class: "btn btn-lamp", "data-toggle" => "button", title:"icon-circle-blank" }
+            %button{type: "button", class: "btn btn-lamp", "data-toggle" => "button", title:"icon-circle-blank", id:"lamp_#{index}" }
               %i.icon-circle-blank
               %input{type: "checkbox", name: "values[]", value: "#{index}", style:"display: none;"}
           %input{type: "hidden", name: "state", value: "free_value"}
   .span4
     .well
-      = format_command_values(@lamps)
 
 .row.row-divider
   .span2
@@ -103,6 +101,10 @@
               .controls
                 %input{type: "text", name: "options", class: "input-large"}
             %input{type: "hidden", name: "state", value: "animation"}
+            .control-group
+              %label.checkbox
+                %input{type: "checkbox", name: "initial", class: "input-medium"}
+                Load on startup
 
             %input{type: "submit", value: "GO", class: "btn"}
       #something_else.tab-pane
