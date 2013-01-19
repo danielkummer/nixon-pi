@@ -65,6 +65,7 @@ module NixonPi
 
 
       def format_command_values(data)
+        #todo add .well div do list when rendering
         result = %w(%dl)
         [:state, :value, :animation_name, :options].each do |key|
           value = data.send(key)
@@ -140,7 +141,7 @@ module NixonPi
       format = params[:format]
 
       case format
-        when'json'
+        when 'json'
           halt jsonp(@logs)
         else
           haml :logs
@@ -154,14 +155,7 @@ module NixonPi
 
     post '/tubes' do
       preprocess_post_params(@params) do |data|
-        unless data[:state].nil?
-          case data[:state].to_sym
-            when :countdown
-              data[:value] = ChronicDuration.parse(data[:value], format: :chrono)
-            #chrono_format.gsub!(/:/, ' ') #todo maybe not even space
-            else
-          end
-        end
+        validate_data_for(:tubes, data)
         data[:value] = data[:value].to_s.rjust(12, " ") unless data[:value].nil?
         CommandQueue.enqueue(:tubes, data)
         save_data(data, :tubes)
@@ -169,6 +163,57 @@ module NixonPi
 
         formatted_response('json', data, "Tubes set to")
       end
+    end
+
+    def validate_data_for(target, data)
+      message = "invalid data for #{target} "
+      valid = false
+      case target.to_sym
+        when :tubes
+          valid = validate_tubes_data(data)
+        when :lamps
+          valid = validate_bar_data(data)
+        when :bars
+          valid = validate_bars_data(data)
+        when :scheduler
+          valid = valid_schedule?(data)
+          data[:message] = message
+        else
+          log.error "validation for #{target} not supported!"
+          valid = false
+      end
+      data[:success] = valid
+    end
+
+    def validate_bars_data(data)
+      #todo
+      true
+    end
+
+    def validate_bar_data(data)
+      #todo
+      true
+    end
+
+    #todo refactor and complete
+    def validate_tubes_data(data)
+      valid = true
+      if data[:state].nil?
+        valid = false
+      else
+        case data[:state].to_sym
+          when :countdown
+            parsed_countdown = ChronicDuration.parse(data[:value], format: :chrono)
+            if parsed_countdown.nil?
+              valid = false
+            else
+              data[:value] = parsed_countdown
+            end
+          else
+            #do nothing
+        end
+      end
+      valid
     end
 
     post '/lamps' do
@@ -197,7 +242,7 @@ module NixonPi
 
     post '/scheduler' do
       preprocess_post_params(@params) do |data|
-        if valid_schedule?(data)
+        if validate_data_for(:schedule, data)
           #convert json to hash
           data[:command] = JSON.parse(data[:command])
           schedule = save_data(data, :schedule) #important! data must be saved before it's scheduled - because the id is used to auto delete records in the db

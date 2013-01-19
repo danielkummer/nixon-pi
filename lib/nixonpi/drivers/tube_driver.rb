@@ -115,7 +115,7 @@ module NixonPi
     def init_pins
       #noinspection RubyResolve,RubyResolve,RubyResolve
       @data_pin, @clock_pin, @latch_pin = Settings.in12a_tubes.data_pin, Settings.in12a_tubes.clock_pin, Settings.in12a_tubes.latch_pin
-      log.info "initialize nixie with pins - data: #@data_pin, clock: #@clock_pin, latch: #{@latch_pin}"
+      log.debug "initialize tubes with pins - data: #@data_pin, clock: #@clock_pin, latch: #{@latch_pin}"
       client.io_write(@data_pin, 0)
       client.io_write(@clock_pin, 0)
       client.io_write(@latch_pin, 0)

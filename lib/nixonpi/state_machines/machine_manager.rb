@@ -21,7 +21,7 @@ module NixonPi
       ##
       # Add a number of state machines to the manager
       def add_state_machines(*types)
-        log.info "Adding state machines: #{types.to_s}"
+        log.debug "Adding state machines: #{types.to_s}"
         types.each do |type|
           @@state_machines << NixonPi::HandlerStateMachine.create(type)
         end

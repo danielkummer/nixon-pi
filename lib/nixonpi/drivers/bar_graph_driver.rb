@@ -11,7 +11,7 @@ module NixonPi
       @bar_values = {}
       #noinspection RubyResolve
       @pin_array = Settings.in13_pins
-      log.info "initialize nixie pwm bars #{@pin_array.to_s}"
+      log.debug "initialize nixie pwm bars #{@pin_array.to_s}"
     end
 
     def bar_values
