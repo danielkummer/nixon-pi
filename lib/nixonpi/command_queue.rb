@@ -38,7 +38,7 @@ module NixonPi
       end
 
       def locked?(worker)
-        @@locked[worker] == true ? true : false
+        @@locked[worker] ? true : false
       end
 
       ##

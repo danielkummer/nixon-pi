@@ -9,6 +9,7 @@ module NixonPi
       client.pwm_reset
       dim_all(100)
       @bar_values = {}
+      #noinspection RubyResolve
       @pin_array = Settings.in13_pins
       log.info "initialize nixie pwm bars #{@pin_array.to_s}"
     end
@@ -30,7 +31,7 @@ module NixonPi
     # Write a percent value to a IN-13 bargraph
     #
     # @param [Integer] bar
-    # @param [Integer] percent
+    # @param [Integer] value
     def write_to_bar(bar, value)
       @bar_values[bar.to_i] = value
       log.debug "write bar #{bar}, #{percent}% value #{value}"

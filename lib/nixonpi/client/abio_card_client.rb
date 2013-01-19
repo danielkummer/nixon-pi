@@ -242,6 +242,8 @@ module NixonPi
           end
         when :test
           MockTelnet.new
+        else
+          log.error "Unknown environment: #{environment}"
       end
     end
 

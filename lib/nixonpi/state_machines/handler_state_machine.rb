@@ -11,6 +11,7 @@ require 'active_record'
 
 
 module NixonPi
+  #noinspection ALL
   class HandlerStateMachine
     include Logging
     include Factory
@@ -105,6 +106,7 @@ module NixonPi
     # Receive command parameters to change the state of the current state machine
     #todo: this currently doesn't abords running animations
     # @param [Hash] command command parameters
+    #noinspection RubyResolve
     def receive(command)
       log.debug "received command: #{command.to_s} in #{self.class.to_s}"
       params.merge!(command)

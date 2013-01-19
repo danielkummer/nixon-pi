@@ -8,6 +8,7 @@ require_relative '../command_processor'
 
 
 module NixonPi
+  #noinspection ALL
   class BarStateMachine < HandlerStateMachine
 
     register_as :bars
@@ -35,6 +36,7 @@ module NixonPi
       end
 
       state :startup do
+        #noinspection RubyResolve,RubyResolve
         def write
           params[:animation_name] = "ramp_up_down"
           params[:options] = ""
@@ -83,6 +85,7 @@ module NixonPi
       end
 
       state :run_test do
+        #noinspection RubyResolve
         def write
           #careful, endless loop!!
           #NixieBerry::Animations::Animation.create(:ramp_up_down).run

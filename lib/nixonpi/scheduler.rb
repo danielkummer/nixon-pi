@@ -54,7 +54,7 @@ module NixonPi
 
       command[:command] = new_commands
 
-      locked = command[:lock] ? true : false;
+      locked = command[:lock] ? true : false
       schedule(id, method, timing, queue, command, locked)
     end
 
@@ -98,6 +98,8 @@ module NixonPi
                   @@scheduler.every "#{timing}", CommandJob.new(id, queue, command, lock), :mutex => "#{queue}"
                 when :cron
                   @@scheduler.cron "#{timing}", CommandJob.new(id, queue, command, lock), :mutex => "#{queue}"
+                else
+                  false
               end
 
 

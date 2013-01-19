@@ -55,6 +55,8 @@ module NixonPi
               format = format.red
             when 'DEBUG'
               format = format.yellow
+            else
+              format
           end
           format
         end

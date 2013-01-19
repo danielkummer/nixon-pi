@@ -7,7 +7,7 @@ Gem::Specification.new do |gem|
   gem.name          = "nixon-pi"
   gem.version       = NixonPi::VERSION
   gem.authors       = ["Daniel Kummer"]
-  gem.email         = ["daniel.kummer@gmail.com"]
+  gem.email         = %w(daniel.kummer@gmail.com)
   gem.description   = %q{Drive nixie tubes over a raspberry pi abiocard shield}
   gem.summary       = %q{This service allows the control of ogilumen nixie tubes, nixie bar graphs and leds over encapsulating the telnet service}
   gem.homepage      = ""
@@ -18,7 +18,7 @@ Gem::Specification.new do |gem|
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.default_executable = 'nixonpi-daemon'
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
-  gem.require_paths = ["lib", "config"]
+  gem.require_paths = %w(lib config)
 
   gem.add_dependency 'activesupport', '>= 3.2.8'
   gem.add_dependency 'settingslogic'

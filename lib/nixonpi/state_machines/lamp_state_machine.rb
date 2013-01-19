@@ -56,6 +56,7 @@ module NixonPi
       state :startup do
 
 
+        #noinspection RubyResolve,RubyResolve
         def write
           #do some startup animation stuff....
 

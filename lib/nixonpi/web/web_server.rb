@@ -65,7 +65,7 @@ module NixonPi
 
 
       def format_command_values(data)
-        result = ["%dl"]
+        result = %w(%dl)
         [:state, :value, :animation_name, :options].each do |key|
           value = data.send(key)
           unless value.nil? and value != ""
@@ -142,7 +142,7 @@ module NixonPi
       case format
         when'json'
           halt jsonp(@logs)
-        when 'html'
+        else
           haml :logs
       end
 
@@ -257,9 +257,8 @@ module NixonPi
               when :schedule
                 save_schedule(data)
               else
-                save_command(data, queue) if data[:initial] == true
+                save_command(data, queue) if data[:initial]
             end
-      ret
     end
 
     def prepare_db_data(data)
@@ -312,6 +311,8 @@ module NixonPi
           halt jsonp(data)
         when :html
           halt haml(:formatted_response, :locals => data)
+        else
+
       end
       error 406
       data[:success] = false
