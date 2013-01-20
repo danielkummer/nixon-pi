@@ -154,70 +154,18 @@ module NixonPi
     ###
 
     post '/tubes' do
-      preprocess_post_params(@params) do |data|
-        validate_data_for(:tubes, data)
+      preprocess_post_params(:tubes, @params) do |data|
+
         data[:value] = data[:value].to_s.rjust(12, " ") unless data[:value].nil?
         CommandQueue.enqueue(:tubes, data)
         save_data(data, :tubes)
-
-
         formatted_response('json', data, "Tubes set to")
       end
     end
 
-    def validate_data_for(target, data)
-      message = "invalid data for #{target} "
-      valid = false
-      case target.to_sym
-        when :tubes
-          valid = validate_tubes_data(data)
-        when :lamps
-          valid = validate_bar_data(data)
-        when :bars
-          valid = validate_bars_data(data)
-        when :scheduler
-          valid = valid_schedule?(data)
-          data[:message] = message
-        else
-          log.error "validation for #{target} not supported!"
-          valid = false
-      end
-      data[:success] = valid
-    end
-
-    def validate_bars_data(data)
-      #todo
-      true
-    end
-
-    def validate_bar_data(data)
-      #todo
-      true
-    end
-
-    #todo refactor and complete
-    def validate_tubes_data(data)
-      valid = true
-      if data[:state].nil?
-        valid = false
-      else
-        case data[:state].to_sym
-          when :countdown
-            parsed_countdown = ChronicDuration.parse(data[:value], format: :chrono)
-            if parsed_countdown.nil?
-              valid = false
-            else
-              data[:value] = parsed_countdown
-            end
-          else
-            #do nothing
-        end
-      end
-      valid
-    end
 
     post '/lamps' do
-      preprocess_post_params(@params) do |data|
+      preprocess_post_params(:lamps, @params) do |data|
         result = Array.new(5) { 0 }
 
         data[:values].each do |v|
@@ -233,7 +181,7 @@ module NixonPi
     end
 
     post '/bars' do
-      preprocess_post_params(@params) do |data|
+      preprocess_post_params(:bars, @params) do |data|
         CommandQueue.enqueue(:bars, data)
         save_data(data, :bars)
         formatted_response('json', data, "Bars set to")
@@ -241,23 +189,19 @@ module NixonPi
     end
 
     post '/scheduler' do
-      preprocess_post_params(@params) do |data|
-        if validate_data_for(:schedule, data)
-          #convert json to hash
-          data[:command] = JSON.parse(data[:command])
-          schedule = save_data(data, :schedule) #important! data must be saved before it's scheduled - because the id is used to auto delete records in the db
-          data[:id] = schedule.id
-          CommandQueue.enqueue(:schedule, data)
-        else
-          log.error "Schedule invalid: #{data}"
-        end
+      preprocess_post_params(:scheduler, @params) do |data|
+        #convert json to hash
+        data[:command] = JSON.parse(data[:command])
+        schedule = save_data(data, :schedule) #important! data must be saved before it's scheduled - because the id is used to auto delete records in the db
+        data[:id] = schedule.id
+        CommandQueue.enqueue(:schedule, data)
 
         formatted_response('json', data, "Bars set to")
       end
     end
 
     post '/say' do
-      preprocess_post_params(@params) do |data|
+      preprocess_post_params(:say, @params) do |data|
         CommandQueue.enqueue(:speech, data)
         formatted_response('json', data, "Speak ")
       end
@@ -265,7 +209,7 @@ module NixonPi
     end
 
     post '/power', :provides => [:json] do
-      preprocess_post_params(@params) do |data|
+      preprocess_post_params(:power, @params) do |data|
         data[:value] = 0 if data.empty?
         CommandQueue.enqueue(:power, data)
 
@@ -324,20 +268,42 @@ module NixonPi
       command
     end
 
-    def save_schedule(cmd)
+    def save_schedule(data)
       schedule = Schedule.new
       log.error("Unable to update schedule attributes: #{data.to_s}") unless schedule.update_attributes(data)
       schedule
     end
 
-
-    def preprocess_post_params(params)
+    def preprocess_post_params(target, params)
       data = string_key_to_sym(params)
-      if data.nil? #todo better validation
-        status 400
+      data[:state_machine] = target.to_sym
+
+
+      if target.to_sym == :schedule
+        command = Schedule.new(data)
       else
-        yield data if block_given?
+        #this is hacky... refactor
+        if data[:state].to_sym == :time
+          data[:value] = data[:time_format]
+        end
+        data.delete(:time_format)
+        command = Command.new(data)
       end
+
+      command.valid?
+
+      if command.errors.empty?
+        yield data if block_given?
+      else
+        data[:success] = false
+        data[:message] = ["ERROR for #{target.to_s.upcase}"]
+        command.errors.each do |error, message|
+          data[:message] << "#{error}: #{message}"
+        end
+        status 400
+        formatted_response('json', data)
+      end
+
     end
 
     def string_key_to_sym(hash)
@@ -347,8 +313,9 @@ module NixonPi
     end
 
     def formatted_response(format, data, respond_message = "")
+      data[:message] ||= []
       data[:success] = true unless data.has_key?(:success)
-      data[:message] = respond_message unless respond_message.empty?
+      data[:message] << respond_message unless respond_message.empty?
 
       case format.to_sym
         when :json
@@ -361,40 +328,9 @@ module NixonPi
       end
       error 406
       data[:success] = false
-      data[:message] = "Unknown format"
+      data[:message] << "Unknown format"
       halt jsonp(data)
     end
-
-    def valid_schedule?(data)
-      require 'rufus-scheduler'
-      timing, time, valid = data[:timing], data[:time], true
-
-      case timing.to_sym
-        when :in, :every
-          begin
-            Rufus.parse_time_string(time)
-          rescue ArgumentError => e
-            log.error("Schedule invalid for timing #{timing} with time #{time}: #{e.message}")
-            valid = false
-          end
-        when :at
-          begin
-            Time.parse(time)
-          rescue ArgumentError => e
-            log.error("Schedule invalid for timing #{timing} with time #{time}: #{e.message}")
-            valid = false
-          end
-        when :cron
-          #todo validate cron string
-        else
-          log.error "Timing #{timing} not supported!"
-      end
-      valid
-    end
-
-
-    #run directly on app-file exec
-    #run! if app_file == $0
 
   end
 end

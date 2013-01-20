@@ -20,7 +20,10 @@ module NixonPi
       def enqueue(worker, params)
         worker = worker.to_sym
         if can_enqueue?(worker, params)
-          command = command_parameters(worker).merge(params)
+          #command = command_parameters(worker).merge(params)
+          command_params = command_parameters(worker)
+          #only merge params which exist in the command params hash
+          command = command_params.merge params.select { |k| command_params.keys.include? k }
           command[:time] = Time.now
           log.info "Enqueueing #{command.to_s} for #{worker}"
           queue(worker) << command
