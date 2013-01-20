@@ -14,10 +14,13 @@ class Command < ActiveRecord::Base
 
   validates_presence_of :state_machine
 
-  validate :valid_tubes? #, :valid_bars?, :valid_lamps?, :valid_say?
+  validate :valid_tubes?, :if => "state_machine == :tubes"
+  validate :valid_bars?, :if => "state_machine == :bars"
+  validate :valid_lamps?, :if => "state_machine == :lamps"
+  validate :valid_say?, :if => "state_machine == :say"
+  validate :valid_power?, :if => "state_machine == :power"
 
   def valid_tubes?
-    return unless self.state_machine == :tubes
     case self.state.to_sym
       when :free_value
         unless value =~ /\A(\s*\d*)+\s*\Z/
@@ -42,7 +45,43 @@ class Command < ActiveRecord::Base
     end
   end
 
+  def valid_bars?
+    case self.state.to_sym
+      when :free_value
+        bar_count = NixonPi::Settings.in13_pins.size
+        errors.add(:value, "number of bar parameters invalid, must be #{bar_count}") unless value.size == bar_count
 
+        value.each_with_index do |val, i|
+          errors.add(:value, "bar no. #{i} has invalid value: #{val}") unless (0..255).include?(val.to_i)
+        end
+      #todo duplicate code - remove
+      when :animation
+        errors.add(:animation_name, "animation name can't be blank!") if animation_name.blank?
+        begin
+          JSON.parse(options)
+        rescue JSON::ParserError => e
+          errors.add(:options, "options invalid json string: #{e.message}")
+        end unless options.blank?
+    end
+  end
+
+  def valid_lamps?
+    lamp_count = NixonPi::Settings.in1_pins.size
+    errors.add(:value, "number of bar parameters invalid, must be #{lamp_count}") unless value.size == lamp_count
+
+    value.each do |val|
+      errors.add(:value, "bars invalid") unless (0..1).include?(val.to_i)
+    end
+  end
+
+  def valid_say?
+    errors.add(:value, "Nothing to say") if value.blank?
+  end
+
+end
+
+def valid_power?
+  errors.add(:value, "Invalid power value") unless (0..1).include?(value.to_i)
 end
 
 class Schedule < ActiveRecord::Base
@@ -75,7 +114,7 @@ class Schedule < ActiveRecord::Base
       when :cron
         #todo validate cron string
       else
-        errors.add(:timing,"Timing #{timing} not supported!")
+        errors.add(:timing, "Timing #{timing} not supported!")
     end
   end
 end

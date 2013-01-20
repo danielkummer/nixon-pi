@@ -155,27 +155,25 @@ module NixonPi
 
     post '/tubes' do
       preprocess_post_params(:tubes, @params) do |data|
-
-        data[:value] = data[:value].to_s.rjust(12, " ") unless data[:value].nil?
         CommandQueue.enqueue(:tubes, data)
-        save_data(data, :tubes)
         formatted_response('json', data, "Tubes set to")
       end
     end
 
 
     post '/lamps' do
+
+      #todo refactor
+      result = Array.new(5) { 0 }
+
+      data[:values].each do |v|
+        result[v.to_i] = 1
+      end unless data[:values].nil?
+
+      data[:values] = result
+
       preprocess_post_params(:lamps, @params) do |data|
-        result = Array.new(5) { 0 }
-
-        data[:values].each do |v|
-          result[v.to_i] = 1
-        end unless data[:values].nil?
-
-        data[:values] = result
-
         CommandQueue.enqueue(:lamps, data)
-        save_data(data, :lamps)
         formatted_response('json', data, "Lamps set to")
       end
     end
@@ -183,7 +181,6 @@ module NixonPi
     post '/bars' do
       preprocess_post_params(:bars, @params) do |data|
         CommandQueue.enqueue(:bars, data)
-        save_data(data, :bars)
         formatted_response('json', data, "Bars set to")
       end
     end
@@ -192,7 +189,6 @@ module NixonPi
       preprocess_post_params(:scheduler, @params) do |data|
         #convert json to hash
         data[:command] = JSON.parse(data[:command])
-        schedule = save_data(data, :schedule) #important! data must be saved before it's scheduled - because the id is used to auto delete records in the db
         data[:id] = schedule.id
         CommandQueue.enqueue(:schedule, data)
 
@@ -201,7 +197,7 @@ module NixonPi
     end
 
     post '/say' do
-      preprocess_post_params(:say, @params) do |data|
+      preprocess_post_params(:speech, @params) do |data|
         CommandQueue.enqueue(:speech, data)
         formatted_response('json', data, "Speak ")
       end
@@ -209,10 +205,10 @@ module NixonPi
     end
 
     post '/power', :provides => [:json] do
-      preprocess_post_params(:power, @params) do |data|
-        data[:value] = 0 if data.empty?
-        CommandQueue.enqueue(:power, data)
+      @params[:value] = 0 if @params.empty?
 
+      preprocess_post_params(:power, @params) do |data|
+        CommandQueue.enqueue(:power, data)
         formatted_response('json', data, "Power set to")
       end
     end
@@ -227,72 +223,53 @@ module NixonPi
 
       if !schedule
         data[:success] = false
+        data[:message] = ["Schedule not found"]
       else
         schedule.destroy
         data[:success] = true
+        data[:message] = ["Schedule deleted"]
       end
 
-      formatted_response('json', data, "Schedule deleted")
+      formatted_response('json', data)
     end
 
     private
-    ##
-    # save to the sqlite3 database
-    # @param [Hash] data attributes to save
-    # @class_type [Object] Model class to save to; e.g Lamp, Bar, Tube
-    def save_data(data, queue)
-      prepare_db_data(data)
-      ret = case queue
-              when :schedule
-                save_schedule(data)
-              else
-                save_command(data, queue) if data[:initial]
-            end
-    end
 
-    def prepare_db_data(data)
-      data.delete_if do |k, v| #delete explicitly unwanted entries
-        %w"time cron-period cron-dom cron-month cron-mins cron-dow cron-time-hour cron-time-min splat captures".include?(k.to_s)
-      end
-    end
-
-    def save_command(cmd, queue)
-      data = cmd.clone
-
-      data[:value] = data.delete(:values).join(",") if data[:values] #re-arrange values array to value string
-      if data[:initial] #there's ever only one initial state per state machine - replace existing record
-        command = Command.find(:first, conditions: ["initial = ? AND state_machine = ?", data[:initial], queue.to_s])
-      end
-      command ||= Command.new(state_machine: queue.to_s)
-      log.error("Unable to update command attributes: #{data.to_s}") unless command.update_attributes(data)
-      command
-    end
-
-    def save_schedule(data)
-      schedule = Schedule.new
-      log.error("Unable to update schedule attributes: #{data.to_s}") unless schedule.update_attributes(data)
-      schedule
-    end
-
+    #todo this badly needs refactoring
     def preprocess_post_params(target, params)
       data = string_key_to_sym(params)
       data[:state_machine] = target.to_sym
 
-
-      if target.to_sym == :schedule
-        command = Schedule.new(data)
-      else
-        #this is hacky... refactor
-        if data[:state].to_sym == :time
-          data[:value] = data[:time_format]
-        end
-        data.delete(:time_format)
-        command = Command.new(data)
+      #this is hacky... refactor
+      case target.to_sym
+        when :schedule
+          command = Schedule.new(data)
+        when :tubes
+          data[:value] = data[:value].to_s.rjust(12, " ") unless data[:value].nil?
+          if data[:state].to_sym == :time
+            data[:value] = data[:time_format]
+          end
+          data.delete(:time_format)
+        else
+          unless data[:values].blank?
+            data[:value] = data[:values]
+            data.delete(:values)
+          end
       end
+      command ||= Command.new(data)
 
       command.valid?
 
       if command.errors.empty?
+        #save if necessary, todo refactor
+        if target == :schedule
+          command.save
+        elsif params[:initial]
+          initial = Command.find(:first, conditions: ["initial = ? AND state_machine = ?", true, target.to_s])
+          initial ||= command
+          log.error("Unable to update command attributes: #{data.to_s}") unless initial.update_attributes(data)
+        end
+
         yield data if block_given?
       else
         data[:success] = false
