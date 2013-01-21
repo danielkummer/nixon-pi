@@ -25,9 +25,11 @@ module NixonPi
       ##
       # Register the object for calling it later with create
       # @param [Symbol] name
-      def register_as(name)
-        raise "Subclass key already taken - please use another one because all subclass keys are shared" if @@subclasses.has_key?(name)
-        @@subclasses[name] = self
+      def register_as(*names)
+        names.each do |n|
+          raise "Subclass key already taken - please use another one because all subclass keys are shared" if @@subclasses.has_key?(n)
+          @@subclasses[n] = self
+        end
       end
     end
 

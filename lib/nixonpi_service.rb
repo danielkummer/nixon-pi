@@ -35,7 +35,7 @@ module NixonPi
       log.info "Environment: #{$environment}"
       system "cd #{File.dirname(__FILE__)} && rake db:migrate"
 
-      NixonPi::MachineManager.add_state_machines(:tubes, :bars, :lamps)
+      NixonPi::MachineManager.add_state_machines(:tubes, :bar0, :bar1, :bar2, :bar3, :lamp0, :lamp1, :lamp2, :lamp3, :lamp4)
       @server = WebServer
     end
 

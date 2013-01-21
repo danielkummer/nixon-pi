@@ -15,6 +15,7 @@ require_relative '../configurations/state_hash'
 require_relative '../configurations/settings'
 require_relative '../logging/logging'
 require_relative 'models'
+require_relative '../../blank_monkeypatch'
 
 module NixonPi
   class WebServer < Sinatra::Base
@@ -88,7 +89,7 @@ module NixonPi
       @lamp_count = Settings.in1_pins.size
 
       %w"tubes lamps bars".each do |state_machine|
-        initial = Command.find(:first, conditions: ["initial = ? AND state_machine = ?", true, state_machine]) || Command.new(state_machine: state_machine)
+        initial = Command.find(:first, conditions: ["state_machine = ?", state_machine]) || Command.new(state_machine: state_machine)
         instance_variable_set("@#{state_machine}", initial)
       end
 
@@ -116,18 +117,45 @@ module NixonPi
       formatted_response('json', command_parameters(cmd.to_sym), "Options for command #{cmd}")
     end
 
-    get '/info/:target.:format' do
+
+    #todo refactor
+    get '/info/:target?/:id?.:format' do
       target = params[:target]
+      id = params[:id]
 
-      error 400 and return unless %w"tubes bars lamps power".include?(target)
+      data = Hash.new
 
-      if target == "power"
-        data = NixonPi::PowerDriver.instance.get_params
-      else
-        data = NixonPi::HandlerStateMachine.get_params_for(target)
+      unless %w"tubes bars lamps power".include?(target)
+        unless id
+          error 400 and return
+        end
       end
+
+
+      case target.to_sym
+        when :power
+          data = NixonPi::PowerDriver.instance.get_params
+        when :bars
+          data[:bars] = Array.new
+          %w(bar0 bar1 bar2 bar3).each do |bar|
+            data[:bars] << NixonPi::HandlerStateMachine.get_params_for(bar)
+          end
+        when :lamps
+          data[:lamps] = Array.new
+          %w(lamp0 lamp1 lamp2 lamp3 lamp4).each do |lamp|
+            data[:lamps] << NixonPi::HandlerStateMachine.get_params_for(lamp)
+          end
+        else
+          unless id.blank?
+            target = "#{target}#{id}"
+          end
+
+          data = NixonPi::HandlerStateMachine.get_params_for(target)
+      end
+
       formatted_response(params[:format], data, "#{target} set to")
     end
+
 
     get '/info.:format' do
       data = {info: AbioCardClient.instance.info}
@@ -161,27 +189,20 @@ module NixonPi
     end
 
 
-    post '/lamps' do
-
-      #todo refactor
-      result = Array.new(5) { 0 }
-
-      data[:values].each do |v|
-        result[v.to_i] = 1
-      end unless data[:values].nil?
-
-      data[:values] = result
-
-      preprocess_post_params(:lamps, @params) do |data|
-        CommandQueue.enqueue(:lamps, data)
+    post '/lamp' do
+      id = params[:id]
+      preprocess_post_params(:lamp, @params) do |data|
+        CommandQueue.enqueue("lamp#{id}".to_sym, data)
         formatted_response('json', data, "Lamps set to")
       end
     end
 
-    post '/bars' do
+    post '/bar' do
+      #todo error when no id
+      id = params[:id]
       preprocess_post_params(:bars, @params) do |data|
-        CommandQueue.enqueue(:bars, data)
-        formatted_response('json', data, "Bars set to")
+        CommandQueue.enqueue("bar#{id}".to_sym, data)
+        formatted_response('json', data, "Bar #{id} set to")
       end
     end
 
@@ -251,10 +272,8 @@ module NixonPi
           end
           data.delete(:time_format)
         else
-          unless data[:values].blank?
-            data[:value] = data[:values]
-            data.delete(:values)
-          end
+          data.delete(:id) #not intended for ar - use
+
       end
       command ||= Command.new(data)
 
@@ -265,7 +284,7 @@ module NixonPi
         if target == :schedule
           command.save
         elsif params[:initial]
-          initial = Command.find(:first, conditions: ["initial = ? AND state_machine = ?", true, target.to_s])
+          initial = Command.find(:first, conditions: ["state_machine = ?", true, target.to_s])
           initial ||= command
           log.error("Unable to update command attributes: #{data.to_s}") unless initial.update_attributes(data)
         end

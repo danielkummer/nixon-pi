@@ -5,12 +5,12 @@ require_relative 'handler_state_machine'
 module NixonPi
   class LampStateMachine < HandlerStateMachine
 
-    register_as :lamps
+    register_as :lamp0, :lamp1, :lamp2, :lamp3, :lamp4
 
     def after_create
       register_driver NixonPi::LampDriver
-      reload_from_db(:lamps)
-      CommandProcessor.add_receiver(self, :lamps)
+      #reload_from_db(:lamps)
+      CommandProcessor.add_receiver(self, registered_as_type)
     end
 
     state_machine :initial => :startup do
@@ -35,17 +35,15 @@ module NixonPi
 
       state :free_value do
         def write
-          lamp_values = params[:values]
-          unless lamp_values.nil?
-            if lamp_values.include? nil
-              lamp_values.each_with_index { |value, index| driver.write_to_lamp(index, value) unless value.nil? }
-            else
-              driver.write(lamp_values)
-              params[:last_values] = lamp_values
-            end
+          value = params[:value]
+          if !value.nil? and value != params[:last_value]
+            driver.write_to_lamp(lamp_index, value)
+            params[:last_value] = value
           end
+
         end
       end
+
 
       state :animation do
         def write
@@ -54,13 +52,11 @@ module NixonPi
       end
 
       state :startup do
-
-
-        #noinspection RubyResolve,RubyResolve
         def write
           #do some startup animation stuff....
-
           #todo refactor
+          params[:value] = 0
+
           if params[:initial_state].nil?
             self.fire_state_event(:free_value)
           else
@@ -74,6 +70,11 @@ module NixonPi
           raise NotImplementedError
         end
       end
+    end
+
+    def lamp_index
+      registered_as_type.to_s.match(/lamp(\d+)/)[1]
+      $1.to_i
     end
   end
 end

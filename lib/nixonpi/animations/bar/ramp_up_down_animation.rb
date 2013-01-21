@@ -23,9 +23,8 @@ module NixonPi
       end
 
       def run(start)
-        number_of_tubes = Settings.in13_pins.size
+        bar = @options[:bar]
         sleep_step = @options[:sleep]
-        animation_values = Array.new(number_of_tubes, 0)
         start = Time.now
         total_time = @options[:total] * 1000.0
         index = 0
@@ -33,12 +32,9 @@ module NixonPi
         while elapsed < total_time do
           elapsed = time_diff_milli(start, Time.now)
           value = ease_in_out_quad(elapsed, 0, 255, total_time)
-
-          animation_values = [value] * number_of_tubes
-          animation_values.map! { |value| value = value.ceil}
-
-          log.debug "write value: #{animation_values}"
-          write(animation_values, index)
+          animation_value = value.ceil
+          log.debug "write value: #{animation_value} for bar #{bar}"
+          write({bar: bar, value: animation_value}, index)
           index += 1
           sleep sleep_step
         end

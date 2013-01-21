@@ -11,12 +11,12 @@ module NixonPi
   #noinspection ALL
   class BarStateMachine < HandlerStateMachine
 
-    register_as :bars
+    register_as :bar0, :bar1, :bar2, :bar3
 
     def after_create
       register_driver NixonPi::BarGraphDriver
-      reload_from_db(:bars)
-      CommandProcessor.add_receiver(self, :bars)
+      #reload_from_db(:bars) #todo refactor
+      CommandProcessor.add_receiver(self, registered_as_type)
     end
 
     state_machine :initial => :startup do
@@ -31,7 +31,6 @@ module NixonPi
 
 
       event :animation do
-        puts "in animation"
         transition all => :animation
       end
 
@@ -39,8 +38,8 @@ module NixonPi
         #noinspection RubyResolve,RubyResolve
         def write
           params[:animation_name] = "ramp_up_down"
-          params[:options] = ""
-          params[:last_value] = "0000"
+          params[:options] = {bar: bar_index}
+          params[:last_value] = "0"
 
           #will switch to :last_state after animation
           self.fire_state_event(:animation)
@@ -62,15 +61,12 @@ module NixonPi
 
       state :free_value do
         def write
-          bar_values = params[:values]
-          if !bar_values.nil? and values_changed?(bar_values)
-            if bar_values.include? nil
-              bar_values.each_with_index { |value, index| driver.write_to_bar(index, value) unless value.nil? }
-            else
-              driver.write(bar_values)
-              params[:last_values] = bar_values
-            end
+          value = params[:value]
+          if !value.nil? and value != params[:last_value]
+            driver.write_to_bar(bar_index, value)
+            params[:last_value] = value
           end
+
         end
       end
 
@@ -92,6 +88,11 @@ module NixonPi
           self.fire_state_event(:free_value)
         end
       end
+    end
+
+    def bar_index
+      registered_as_type.to_s.match(/bar(\d+)/)[1]
+      $1.to_i
     end
 
   end

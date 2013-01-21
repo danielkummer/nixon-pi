@@ -48,12 +48,7 @@ class Command < ActiveRecord::Base
   def valid_bars?
     case self.state.to_sym
       when :free_value
-        bar_count = NixonPi::Settings.in13_pins.size
-        errors.add(:value, "number of bar parameters invalid, must be #{bar_count}") unless value.size == bar_count
-
-        value.each_with_index do |val, i|
-          errors.add(:value, "bar no. #{i} has invalid value: #{val}") unless (0..255).include?(val.to_i)
-        end
+        errors.add(:value, "bar no. #{i} has invalid value: #{val}") unless (0..255).include?(value.to_i)
       #todo duplicate code - remove
       when :animation
         errors.add(:animation_name, "animation name can't be blank!") if animation_name.blank?

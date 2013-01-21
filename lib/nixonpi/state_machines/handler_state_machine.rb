@@ -47,9 +47,10 @@ module NixonPi
 
 
     protected
+    #todo refactor!!!
     def reload_from_db(state_machine)
       ActiveRecord::Base.establish_connection("sqlite3:///db/settings.db")
-      options = Command.find(:first, conditions: ["initial = ? AND state_machine = ?", true, state_machine])
+      options = Command.find(:first, conditions: ["state_machine = ?", true, state_machine])
       ActiveRecord::Base.connection.close
       if options
         log.debug "db setting loaded for #{state_machine} => #{options.to_s} "
@@ -113,22 +114,6 @@ module NixonPi
       self.fire_state_event(command[:state].to_sym) if command[:state]
     end
 
-    ##
-    # detect if values changed in the bar values array
-    #param [Array] Integer array of bar values
-    #todo refactor
-    def values_changed?(bar_values)
-      if params[:last_values].nil?
-        true
-      else
-        bar_values.each_with_index do |value, index|
-          unless bar_values[index].nil?
-            if params[:last_values][index] != value
-              return true
-            end
-          end
-        end
-      end
-    end
+
   end
 end

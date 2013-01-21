@@ -17,19 +17,19 @@ module NixonPi
               time: nil,
               initial_mode: nil
           }
-        when :bars
+        when :bar0, :bar1, :bar2, :bar3
           {
               state: nil,
-              values: nil,
+              value: nil,
               animation_name: nil,
               options: nil,
               time: nil,
               initial_mode: nil
           }
-        when :lamps
+        when :lamp0, :lamp1, :lamp2, :lamp3, :lamp4
           {
               state: nil,
-              values: nil,
+              value: nil,
               animation_name: nil,
               options: nil,
               time: nil,

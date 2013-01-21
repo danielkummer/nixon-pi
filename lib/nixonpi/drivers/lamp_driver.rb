@@ -19,7 +19,7 @@ module NixonPi
     # @param [Integer] number
     # @param [Integer] value 0 or > 1
     def write_to_lamp(number, value)
-      value = value >= 1 ? 124 : 0
+      value = value.to_i >= 1 ? 124 : 0
       client.pwm_write(@pin_array[number], value)
     end
 
