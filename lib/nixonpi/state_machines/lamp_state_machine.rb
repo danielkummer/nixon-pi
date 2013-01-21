@@ -1,16 +1,16 @@
 require 'state_machine'
 require_relative '../../../lib/nixonpi/drivers/lamp_driver'
 require_relative 'handler_state_machine'
+require_relative '../configurations/settings'
 
 module NixonPi
   class LampStateMachine < HandlerStateMachine
 
-    register_as :lamp0, :lamp1, :lamp2, :lamp3, :lamp4
+    register_as :lamp
 
-    def after_create
+    def initialize()
+      super()
       register_driver NixonPi::LampDriver
-      #reload_from_db(:lamps)
-      CommandProcessor.add_receiver(self, registered_as_type)
     end
 
     state_machine :initial => :startup do

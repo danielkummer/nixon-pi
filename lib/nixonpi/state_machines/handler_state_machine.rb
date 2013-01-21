@@ -18,12 +18,13 @@ module NixonPi
     extend CommandParameters
     include CommandParameters
 
+    attr_accessor :registered_as_type
+
     @@state_parameters = {}
 
-    def initialize
-      super # NOTE: This *must* be called, otherwise states won't get initialized
+    def initialize()
+      super() # NOTE: This *must* be called, otherwise states won't get initialized
     end
-
     ##
     # Main handle method for all state machines
     # This method gets called in the main loop

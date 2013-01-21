@@ -125,10 +125,11 @@ module NixonPi
 
       data = Hash.new
 
-      unless %w"tubes bars lamps power".include?(target)
-        unless id
+      if id.nil?
+        unless %w"tubes bars lamps power".include?(target)
           error 400 and return
         end
+
       end
 
 

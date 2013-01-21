@@ -18,11 +18,9 @@ module NixonPi
 
     register_as :tubes
 
-    def after_create
+    def initialize()
+      super()
       register_driver NixonPi::TubeDriver
-      ##todo process options...
-      reload_from_db(:tubes)
-      CommandProcessor.add_receiver(self, :tubes)
     end
 
     state_machine :initial => :startup do

@@ -20,11 +20,16 @@ module NixonPi
 
       ##
       # Add a number of state machines to the manager
-      def add_state_machines(*types)
-        log.debug "Adding state machines: #{types.to_s}"
-        types.each do |type|
-          @@state_machines << NixonPi::HandlerStateMachine.create(type)
+      # @param [Integer] instances_count number of instances to create, this adds a numeric suffix to the instances queue listeners (ex: lamp0, lamp1, lamp2,...)
+      # @param [Symbol] name add a state machines to the manager, the machines added must have a corresponding type in the factory module (a machine registers itself using the register_as class method.)
+      def add_state_machine(name, instances_count = 1)
+        instances_count.times.with_index do |i|
+          suffix = instances_count == 1 ? "" : i.to_s
+          key = "#{name}#{suffix}".to_sym
+          log.debug "adding state machine instance for #{name} under #{key}"
+          @@state_machines << NixonPi::HandlerStateMachine.create(key)
         end
+
       end
 
 
@@ -33,6 +38,9 @@ module NixonPi
       # @param [Float] sleep_for_sec sleep time after each loop
       def start_state_machines(sleep_for_sec = 0.3)
         @@state_machines.each do |state_machine|
+          type = state_machine.registered_as_type
+          log.info "Ading state machine #{state_machine.class} to the command processor as type #{type}"
+          CommandProcessor.add_receiver(state_machine, type)
           log.info "Starting state machine: #{state_machine.class}"
           @@threads << Thread.new do
             loop do

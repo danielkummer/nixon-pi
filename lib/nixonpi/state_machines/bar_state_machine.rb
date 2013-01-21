@@ -5,18 +5,18 @@ require_relative 'handler_state_machine'
 require_relative '../animations/animation'
 require_relative '../../nixonpi/animations/bar/ramp_up_down_animation'
 require_relative '../command_processor'
+require_relative '../configurations/settings'
 
 
 module NixonPi
   #noinspection ALL
   class BarStateMachine < HandlerStateMachine
 
-    register_as :bar0, :bar1, :bar2, :bar3
+    register_as :bar
 
-    def after_create
+    def initialize()
+      super()
       register_driver NixonPi::BarGraphDriver
-      #reload_from_db(:bars) #todo refactor
-      CommandProcessor.add_receiver(self, registered_as_type)
     end
 
     state_machine :initial => :startup do
