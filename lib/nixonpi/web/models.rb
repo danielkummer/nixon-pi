@@ -9,8 +9,7 @@ class Command < ActiveRecord::Base
                   :state,
                   :value,
                   :animation_name,
-                  :options,
-                  :initial
+                  :options
 
   validates_presence_of :state_machine
 

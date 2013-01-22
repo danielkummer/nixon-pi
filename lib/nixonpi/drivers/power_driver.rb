@@ -1,12 +1,16 @@
 require 'singleton'
 require_relative 'driver'
 require_relative '../configurations/settings'
+require_relative '../command_receiver'
 
 module NixonPi
   class PowerDriver
     include Logging
     include Singleton
     include Driver
+    include CommandReceiver
+
+    accepted_commands :value
 
     def initialize
       @power_pin = Settings.power_pin

@@ -19,7 +19,7 @@ require_relative 'nixonpi/command_processor'
 require_relative 'nixonpi/drivers/speech_driver'
 require_relative 'nixonpi/scheduler'
 require 'thread'
-require 'daemons'
+#require 'daemons'
 
 
 Thread.abort_on_exception = true
@@ -35,6 +35,14 @@ module NixonPi
       log.info "Environment: #{$environment}"
       system "cd #{File.dirname(__FILE__)} && rake db:migrate"
 
+      %w(INT TERM).each do |sig|
+        Signal.trap(sig) do
+          Process.kill 9, Process.pid
+          #todo finish all threads
+          #quit!()
+        end
+      end
+
       NixonPi::MachineManager.add_state_machine(:tubes)
       NixonPi::MachineManager.add_state_machine(:bar, Settings.in13_pins.size)
       NixonPi::MachineManager.add_state_machine(:lamp, Settings.in1_pins.size)
@@ -45,14 +53,8 @@ module NixonPi
     # Run service run
     def run!
       # Become a daemon
-      Daemons.daemonize if $environment == 'production'
+      #Daemons.daemonize if $environment == 'production'
 
-      [:INT, :TERM].each do |sig|
-        trap(sig) do
-          #todo finish all threads
-          quit!()
-        end
-      end
 
       log.info "Start running..."
       log.info "turn on power"
@@ -78,7 +80,8 @@ module NixonPi
       log.info "Turning off power"
       PowerDriver.instance.power_off
       log.info "Bye ;)"
-      exit(0)
+      #exit(0)
+      exit!
     end
   end
 end

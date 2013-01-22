@@ -1,11 +1,9 @@
 require 'thread'
-require_relative 'command_parameters'
 require_relative 'logging/logging'
 
 
 module NixonPi
   class CommandQueue
-    extend CommandParameters
     extend Logging
 
     @@queues = {}
@@ -19,11 +17,8 @@ module NixonPi
       # @param [Hash] params
       def enqueue(worker, params)
         worker = worker.to_sym
-        if can_enqueue?(worker, params)
-          #command = command_parameters(worker).merge(params)
-          command_params = command_parameters(worker)
-          #only merge params which exist in the command params hash
-          command = command_params.merge params.select { |k| command_params.keys.include? k }
+        command = params.clone
+        if can_enqueue?(worker, command)
           command[:time] = Time.now
           log.info "Enqueueing #{command.to_s} for #{worker}"
           queue(worker) << command
