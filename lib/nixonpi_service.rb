@@ -20,7 +20,7 @@ require_relative 'nixonpi/drivers/speech_driver'
 require_relative 'nixonpi/scheduler'
 require_relative 'os'
 require 'thread'
-require 'daemons'
+#require 'daemons'
 
 require 'ruby-prof' if $environment == "development"
 
@@ -41,6 +41,14 @@ module NixonPi
       log.info "Environment: #{$environment}"
       system "cd #{File.dirname(__FILE__)} && rake db:migrate"
 
+      %w(INT TERM).each do |sig|
+        Signal.trap(sig) do
+          Process.kill 9, Process.pid
+          #todo finish all threads
+          #quit!()
+        end
+      end
+
       NixonPi::MachineManager.add_state_machine(:tubes)
       NixonPi::MachineManager.add_state_machine(:bar, Settings.in13_pins.size)
       NixonPi::MachineManager.add_state_machine(:lamp, Settings.in1_pins.size)
@@ -55,21 +63,8 @@ module NixonPi
 
       [:INT, :TERM].each do |sig|
         trap(sig) do
-          if $environment == "development"
-            result = RubyProf.stop
-            # Print a flat profile to text
-            printer = RubyProf::FlatPrinter.new(result)
-            printer.print(STDOUT, :min_percent => 1)
-            #printer = RubyProf::MultiPrinter.new(result)
-            #printer.print(:path => ".", :profile => "profile")
-          end
-          @sinatra_server.exit
-
-          if OS.mac?
-            log.warn "Crashing hard now - it's not a joke, it's the only way to stop the webrick server..."
-            exec "kill #{$$}"
-          end
-          exit!
+          #todo finish all threads
+          quit!()
         end
       end
 
@@ -101,7 +96,8 @@ module NixonPi
       log.info "Turning off power"
       PowerDriver.instance.power_off
       log.info "Bye ;)"
-      exit(0)
+      #exit(0)
+      exit!
     end
   end
 end

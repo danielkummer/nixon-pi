@@ -1,16 +1,20 @@
 require 'singleton'
 require_relative '../logging/logging'
 require_relative '../../os'
+require_relative '../command_receiver'
 
 module NixonPi
   class SpeechDriver
     include Logging
     include OS
     include Singleton
+    include CommandReceiver
+
+    accepted_commands :value
 
     def receive(command)
       value = command[:value]
-      log.debug "got speech command: say #{command}"
+      log.info "got speech command: say #{command}"
       case true
         when OS.mac?
           IO.popen("say #{value}")

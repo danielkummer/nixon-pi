@@ -61,7 +61,7 @@ However, you're still able to use the telnet server while developing - with it y
 
 1 lowel left, 2 upper left
 
-1. IO Ports 
+1. IO Ports
 	1. I/O channel 0
 	2. I/O channel 1
 	3. I/O channel 2
@@ -177,7 +177,7 @@ The master branch contains the newest production release.
 A telnet based client to drive nixie tubes via rest interface
 
 ## Comand line options
-	
+
 	bin/nixon-pi -h
 	Usage: nixon-pi [options]
 	    -e env                           set the environment (default is development, others are test and production)
@@ -185,7 +185,7 @@ A telnet based client to drive nixie tubes via rest interface
 	    -p port                          set the webserver port (default is 8080)
 	    -h, --help                       Display help
 
-The application drops a .yml configuration file in the users home directory. Review and adjust if neccessary...    
+The application drops a .yml configuration file in the users home directory. Review and adjust if neccessary...
 
 
 **NOTE** Most probably the ctrl+c combination will not suffice to stop the webrick server started by sinatra. In this case use ctrl+z to stop
@@ -231,9 +231,9 @@ Generate state machine diagrams with the following command:
 **Lamp State Machine**
 
 <img src="https://dl.dropbox.com/u/23566127/nixon-pi_images/LampStateMachine_state.png" width="400">
-	
---------------------------	
-	
+
+--------------------------
+
 #<a id="api" name="api"></a> API
 
 All api requests can be made as either .html or .json.
@@ -345,7 +345,36 @@ Returns:
 	    "success": true
 	}
 
-### GET /info.:format
+
+### GET /info/:target/:id.:format
+
+Get information about the current state of a specified state machine.
+
+| Parameters | Values |
+| ---------- | ------ |
+| :target | state machine |
+| :id | numeric identifier |
+| :format | html, json |
+
+**Example:**
+
+	wget http://localhost:3000/info/lamp/0.json
+
+Returns:
+
+	{
+	    "value": 0,
+	    "last_state": "startup",
+	    "state": "free_value",
+	    "last_value": 0,
+	    "message": [
+	        "lamp0 set to"
+	    ],
+	    "success": true
+	}
+
+
+### GET /info/hw.:format
 
 Get hardware information about the Raspberry-Pi I/O expansion card.
 Information include:
@@ -481,6 +510,6 @@ Returns:
 		"success":true,
 		"message":"Schedule deleted"
 	}
-	
+
 
 

@@ -17,6 +17,9 @@ module NixonPi
     include Logging
 
     register_as :tubes
+    accepted_commands :state, :value, :time_format, :animation_name, :options, :initial_mode
+
+
 
     def initialize()
       super()
@@ -51,7 +54,6 @@ module NixonPi
       end
 
       state :startup do
-        #noinspection RubyResolve
         def write
           params[:animation_name] = "single_fly_in"
           params[:options] = {}
@@ -66,7 +68,6 @@ module NixonPi
       end
 
       state :time do
-        #noinspection RubyResolve,RubyResolve,RubyResolve
         def write
           tubes_count = Settings.in12a_tubes.count
           format = params[:time_format]
@@ -106,13 +107,11 @@ module NixonPi
       end
 
       state :animation do
-        #noinspection RubyResolve
         def write
           name, options = params[:animation_name], params[:options]
           options ||= {}
           start_value = params[:last_value]
           NixonPi::Animations::Animation.create(name.to_sym, options).run(start_value)
-          puts "state #{params}"
           self.fire_state_event(params[:last_state]) #go back to old state again and do whatever was done before
         end
       end
@@ -121,7 +120,6 @@ module NixonPi
       state :countdown do
         require 'chronic_duration'
 
-        #noinspection RubyResolve,RubyResolve
         def write
           seconds_to_go = params[:value].to_i
           current_time = Time.now
@@ -165,7 +163,6 @@ module NixonPi
       end
 
       state :run_test do
-        #noinspection RubyResolve
         def write
           unless params[:test_done]
             number_of_digits = 12

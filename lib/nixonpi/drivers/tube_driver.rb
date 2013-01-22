@@ -31,9 +31,7 @@ module NixonPi
     # Write number
     # @param [String] output
     def write(output)
-
-      if #noinspection RubyResolve
-      Settings.in12a_tubes['write_blanks']
+      if Settings.in12a_tubes['write_blanks']
         write_string_with_blanks(output)
       else
         write_number_string_with_zeros(output)
@@ -113,7 +111,6 @@ module NixonPi
     ##
     # Initialize the shift register control pins
     def init_pins
-      #noinspection RubyResolve,RubyResolve,RubyResolve
       @data_pin, @clock_pin, @latch_pin = Settings.in12a_tubes.data_pin, Settings.in12a_tubes.clock_pin, Settings.in12a_tubes.latch_pin
       log.debug "initialize tubes with pins - data: #@data_pin, clock: #@clock_pin, latch: #{@latch_pin}"
       client.io_write(@data_pin, 0)

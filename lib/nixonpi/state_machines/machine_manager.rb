@@ -5,7 +5,8 @@ module NixonPi
   class MachineManager
     extend Logging
 
-    @@state_machines, @@threads = [], []
+    @@state_machines = {}
+    @@threads = []
 
     class << self
 
@@ -27,7 +28,7 @@ module NixonPi
           suffix = instances_count == 1 ? "" : i.to_s
           key = "#{name}#{suffix}".to_sym
           log.debug "adding state machine instance for #{name} under #{key}"
-          @@state_machines << NixonPi::HandlerStateMachine.create(key)
+          @@state_machines[key] = NixonPi::HandlerStateMachine.create(key)
         end
 
       end
@@ -37,10 +38,11 @@ module NixonPi
       # Start each state machine in a separate thread
       # @param [Float] sleep_for_sec sleep time after each loop
       def start_state_machines(sleep_for_sec = 0.3)
-        @@state_machines.each do |state_machine|
-          type = state_machine.registered_as_type
+        @@state_machines.each do |type, state_machine|
           log.info "Ading state machine #{state_machine.class} to the command processor as type #{type}"
+
           CommandProcessor.add_receiver(state_machine, type)
+
           log.info "Starting state machine: #{state_machine.class}"
           @@threads << Thread.new do
             loop do
@@ -49,6 +51,11 @@ module NixonPi
             end
           end
         end
+      end
+
+      def get_params_for(type)
+        instance = @@state_machines[type.to_sym]
+        instance.get_params.clone unless instance.nil?
       end
 
       ##

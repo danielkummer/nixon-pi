@@ -73,7 +73,7 @@
   .span6
     .row
       .span12
-        -@lamp_count.times.with_index do |index|
+        -@no_of_lamps.times.with_index do |index|
           %form{ action: "/lamp", method: "POST", class: "form-inline", "data-remote" => true, style:"display:inline;"}
             %button{type: "button", class: "btn btn-lamp", "data-toggle" => "button", title:"icon-circle-blank", id:"lamp_#{index}" }
               %i.icon-circle-blank
@@ -100,7 +100,7 @@
         .row
           .span6
             .bars
-              -@bar_count.times.with_index do |i|
+              -@no_of_bars.times.with_index do |i|
                 %form{ action: "/bar", method: "POST", class: "form", "data-remote" => true}
                   .control-group
                     .controls.bar-control
@@ -121,7 +121,7 @@
                 %label.control-label{for: "animation_name"} Bar
                 .controls
                   %select{name: "id", class: "input-xlarge chzn-select"}
-                    -@bar_count.times.with_index do |i|
+                    -@no_of_bars.times.with_index do |i|
                       %option{selected: "", value: "#{i}"}= "Bar #{i}"
               .control-group
                 %label.control-label{for: "animation_name"} Animation

@@ -10,7 +10,6 @@ module NixonPi
       # @param [Symbol] type, if type contains a suffix integer, return the base type class instance
       # @param [Hash] options optional hash to be passed to the class instance
       def create(type, options = {})
-
         if type.match(/([a-zA-Z]+)\d+/)
           #remove the int suffix to locate the subclass
           klass = @@subclasses[$1.to_sym]

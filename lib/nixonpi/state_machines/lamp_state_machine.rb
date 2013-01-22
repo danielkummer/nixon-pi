@@ -7,6 +7,7 @@ module NixonPi
   class LampStateMachine < HandlerStateMachine
 
     register_as :lamp
+    accepted_commands :state, :value, :animation_name, :options
 
     def initialize()
       super()

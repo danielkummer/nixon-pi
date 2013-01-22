@@ -1,17 +1,13 @@
 require_relative 'command_queue'
-require_relative 'command_parameters'
 require_relative 'logging/logging'
 
 
 module NixonPi
   class CommandProcessor
-    extend CommandParameters
-    include CommandParameters
     extend Logging
 
     @@listeners = {}
     @@thread = nil
-
 
     class << self
       def start
@@ -27,8 +23,9 @@ module NixonPi
         Thread.kill @@thread
       end
 
-
       def add_receiver(receiver, queue)
+        raise "Receiver must include the receiver module" unless receiver.is_a?(CommandReceiver)
+
         if @@listeners[queue.to_sym].nil?
           @@listeners[queue.to_sym] = [receiver]
         else
@@ -36,10 +33,15 @@ module NixonPi
         end
       end
 
+      def get_receiver_for(queue)
+        @@listeners[queue.to_sym]
+      end
+
       def join_thread
         @@thread.join
       end
 
+      private
       def process_queues
         @@listeners.keys.each do |queue_name|
           process_queue(queue_name)
@@ -50,10 +52,14 @@ module NixonPi
         queue = CommandQueue.queue(queue_name)
         unless queue.empty?
           command = queue.pop
-          log.debug("Got command: #{command} in queue #{queue_name}, checking for invalid control parameters...")
-          command.delete_if { |k, v| !command_parameters(queue_name).keys.include?(k) or v.nil? }
+
           if command[:time] and command[:time] + 2 > Time.now #do nothing if command is older than 2 seconds
+            log.debug "processing command: #{command} in queue #{queue_name}, checking for invalid control parameters..."
             @@listeners[queue_name].each do |listener|
+
+              #todo there might be a better place to handle invalid commands, maybe when enqueuing them?
+              command.delete_if { |k, v| !listener.class.available_commands.include?(k) or v.nil? }
+
               if listener.respond_to?(:receive)
                 listener.try(:receive, command)
                 #todo add rescue (maybe)

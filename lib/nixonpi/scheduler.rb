@@ -2,6 +2,7 @@ require 'rufus/scheduler'
 require 'singleton'
 require_relative 'command_processor'
 require_relative 'logging/logging'
+require_relative 'command_receiver'
 
 module NixonPi
 
@@ -24,6 +25,11 @@ module NixonPi
   class Scheduler
     include Logging
     include Singleton
+    include CommandReceiver
+
+
+    accepted_commands :method, :timing, :queue, :command, :time, :id
+
 
     def initialize
       #https://github.com/jmettraux/rufus-scheduler
@@ -39,12 +45,12 @@ module NixonPi
 
     def reload_from_db
       #delete all ambiguous records
-      Schedule.find(:all, conditions: ["method IN (?)", %w"in every"])
+      Schedule.find(:all, conditions: ["method IN (?)", %w(in every)])
     end
 
 
     def receive(command)
-      log.debug "got schedule command: #{command}, applying..."
+      log.info "got schedule command: #{command}, applying..."
       id, method, timing, queue = command[:id], command[:method], command[:timing], command[:queue]
 
       new_commands = Hash.new
@@ -58,7 +64,7 @@ module NixonPi
       schedule(id, method, timing, queue, command, locked)
     end
 
-    def exit_scheduler
+    def self.exit_scheduler
       #unschedule_all #quit cron jobs too...
     end
 
@@ -80,7 +86,7 @@ module NixonPi
     # @param [Symbol] queue Name of the queue -> command receiver
     # @param [Hash] command Hash of command parameters
     def schedule(id, method, timing, queue, command, lock = false)
-      if %w"power tubes bars lamps".include?(queue)
+      if %w(power tubes bars lamps).include?(queue)
         log.debug "schedule command #{command}, #{method} #{timing} for #{queue}"
         #if %w"in at".include?(method) or lock
         if lock
