@@ -187,15 +187,12 @@ A telnet based client to drive nixie tubes via rest interface
 
 The application drops a .yml configuration file in the users home directory. Review and adjust if neccessary...    
 
-### Manage the daemon process
 
-    ruby bin/nixonpi.rb start
-    ruby bin/nixonpi.rb restart
-    ruby bin/nixonpi.rb stop
+**NOTE** Most probably the ctrl+c combination will not suffice to stop the webrick server started by sinatra. In this case use ctrl+z to stop
 
 ### Controlling
 
-The daemon is controlled via sinatra web application, see the example page at [server ip]:[port]
+The whole device is controlled via sinatra web application, see the example page at [server ip]:[port]
 
 ## The Gem
 

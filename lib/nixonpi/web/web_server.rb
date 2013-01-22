@@ -31,6 +31,7 @@ module NixonPi
 
     set :database, 'sqlite:///db/settings.db'
     set :run, false
+    #set :lock, false #enable on threading errors
     set :root, File.dirname(__FILE__)
     set :public_folder, File.join(File.dirname(__FILE__), 'public')
     set :haml, {:format => :html5}

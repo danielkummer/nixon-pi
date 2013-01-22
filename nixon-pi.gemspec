@@ -50,6 +50,7 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency 'capistrano'
   gem.add_development_dependency 'railsless-deploy'
+  gem.add_development_dependency 'ruby-prof'
 
 
 end

@@ -18,8 +18,11 @@ require_relative 'nixonpi/drivers/power_driver'
 require_relative 'nixonpi/command_processor'
 require_relative 'nixonpi/drivers/speech_driver'
 require_relative 'nixonpi/scheduler'
+require_relative 'os'
 require 'thread'
 require 'daemons'
+
+require 'ruby-prof' if $environment == "development"
 
 
 Thread.abort_on_exception = true
@@ -27,10 +30,13 @@ Thread.abort_on_exception = true
 module NixonPi
   class NixieService
     include Logging
+    include OS
+
 
     ActiveRecord::Base.logger = Logger.new(STDERR)
 
     def initialize
+      RubyProf.start if $environment == "development"
       log.info "Initializing Nixon-Pi service.."
       log.info "Environment: #{$environment}"
       system "cd #{File.dirname(__FILE__)} && rake db:migrate"
@@ -45,12 +51,25 @@ module NixonPi
     # Run service run
     def run!
       # Become a daemon
-      Daemons.daemonize if $environment == 'production'
+      #Daemons.daemonize if $environment == 'production'
 
       [:INT, :TERM].each do |sig|
         trap(sig) do
-          #todo finish all threads
-          quit!()
+          if $environment == "development"
+            result = RubyProf.stop
+            # Print a flat profile to text
+            printer = RubyProf::FlatPrinter.new(result)
+            printer.print(STDOUT, :min_percent => 1)
+            #printer = RubyProf::MultiPrinter.new(result)
+            #printer.print(:path => ".", :profile => "profile")
+          end
+          @sinatra_server.exit
+
+          if OS.mac?
+            log.warn "Crashing hard now - it's not a joke, it's the only way to stop the webrick server..."
+            exec "kill #{$$}"
+          end
+          exit!
         end
       end
 
@@ -58,7 +77,11 @@ module NixonPi
       log.info "turn on power"
       PowerDriver.instance.power_on
 
-      @web_thread = Thread.new { @server.run! }
+      @web_thread = Thread.new do
+        @server.run! do |server|
+          @sinatra_server = server
+        end
+      end
       CommandProcessor.add_receiver(NixonPi::Scheduler.instance, :schedule)
       CommandProcessor.add_receiver(NixonPi::SpeechDriver.instance, :speech)
       NixonPi::MachineManager.start_state_machines
