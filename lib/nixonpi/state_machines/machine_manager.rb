@@ -41,7 +41,7 @@ module NixonPi
         @@state_machines.each do |type, state_machine|
           log.info "Ading state machine #{state_machine.class} to the command processor as type #{type}"
 
-          CommandProcessor.add_receiver(state_machine, type)
+          NixonPi::CommandQueue.add_receiver(state_machine, type)
 
           log.info "Starting state machine: #{state_machine.class}"
           @@threads << Thread.new do

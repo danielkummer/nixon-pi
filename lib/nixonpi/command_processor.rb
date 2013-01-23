@@ -2,11 +2,12 @@ require_relative 'command_queue'
 require_relative 'logging/logging'
 
 
+
+
 module NixonPi
   class CommandProcessor
     extend Logging
 
-    @@listeners = {}
     @@thread = nil
 
     class << self
@@ -53,21 +54,7 @@ module NixonPi
         unless queue.empty?
           command = queue.pop
 
-          if command[:time] and command[:time] + 2 > Time.now #do nothing if command is older than 2 seconds
-            log.debug "processing command: #{command} in queue #{queue_name}, checking for invalid control parameters..."
-            @@listeners[queue_name].each do |listener|
 
-              #todo there might be a better place to handle invalid commands, maybe when enqueuing them?
-              command.delete_if { |k, v| !listener.class.available_commands.include?(k) or v.nil? }
-
-              if listener.respond_to?(:receive)
-                listener.try(:receive, command)
-                #todo add rescue (maybe)
-              else
-                log.error "Listener for #{queue_name} doesn't have the receive method!"
-              end
-            end
-          end
         end
 
       end

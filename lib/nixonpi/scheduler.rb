@@ -1,6 +1,5 @@
 require 'rufus/scheduler'
 require 'singleton'
-require_relative 'command_processor'
 require_relative 'logging/logging'
 require_relative 'command_receiver'
 
@@ -91,6 +90,7 @@ module NixonPi
         #if %w"in at".include?(method) or lock
         if lock
           log.debug "locking state machine..."
+
           CommandQueue.lock(queue)
         end
 

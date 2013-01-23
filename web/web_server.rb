@@ -9,12 +9,15 @@ require 'active_record'
 require 'sinatra/form_helpers'
 require 'sinatra/jsonp'
 
-require_relative '../../../lib/nixonpi/command_queue'
-require_relative '../configurations/state_hash'
-require_relative '../configurations/settings'
-require_relative '../logging/logging'
+$environment  = 'development'
+
+require_relative '../lib/nixonpi/configurations/settings'
+require_relative '../lib/nixonpi/logging/logging'
 require_relative 'models'
-require_relative '../../blank_monkeypatch'
+require_relative '../lib/blank_monkeypatch'
+require_relative '../lib/nixonpi/command_queue'
+
+
 
 module NixonPi
   class WebServer < Sinatra::Base
@@ -28,13 +31,15 @@ module NixonPi
     use Rack::MethodOverride
 
     set :database, 'sqlite:///db/settings.db'
-    set :run, false
-    set :app_file, __FILE__
+    #set :run, false
+    #set :app_file, __FILE__
     #set :lock, false #enable on threading errors
     set :root, File.dirname(__FILE__)
     set :public_folder, File.join(File.dirname(__FILE__), 'public')
     set :haml, {:format => :html5}
     set :port, Settings['web_server'].nil? ? '8080' : Settings['web_server']['port']
+
+    enable :sessions
 
     at_exit do
       log.info "Sinatra shut down..., don't restart"
@@ -114,7 +119,8 @@ module NixonPi
       target = params[:target]
 
       begin
-        receiver = NixonPi::CommandProcessor.get_receiver_for(target)
+        #todo recfactor away to the service and use channels
+        receiver = NixonPi::CommandQueue.get_receiver_for(target)
         data = receiver.available_commands
 
       rescue Exception => e
@@ -137,20 +143,28 @@ module NixonPi
 
       data = Hash.new
 
+
+
+
+
       case target.to_sym
         when :power
+          #todo recfactor away to the service and use channels
           data = NixonPi::PowerDriver.instance.get_params
         when :bars
           data[:bars] = Array.new
           %w(bar0 bar1 bar2 bar3).each do |bar|
+            #todo recfactor away to the service and use channels
             data[:bars] << NixonPi::MachineManager.get_params_for(bar)
           end
         when :lamps
           data[:lamps] = Array.new
           %w(lamp0 lamp1 lamp2 lamp3 lamp4).each do |lamp|
+            #todo recfactor away to the service and use channels
             data[:lamps] << NixonPi::MachineManager.get_params_for(lamp)
           end
         else
+          #todo recfactor away to the service and use channels
           data = NixonPi::MachineManager.get_params_for(target.to_sym)
       end
 
@@ -164,6 +178,7 @@ module NixonPi
       id = params[:id]
 
       target = "#{target}#{id}"
+      #todo recfactor away to the service and use channels
       data = NixonPi::MachineManager.get_params_for(target)
 
       if data.nil?
@@ -178,6 +193,7 @@ module NixonPi
 
 
     get '/info/hw/?.:format?' do
+      #todo recfactor away to the service and use channels
       data = {info: AbioCardClient.instance.info}
       formatted_response(params[:format], data, "Hardware information")
     end
@@ -348,5 +364,6 @@ module NixonPi
       halt jsonp(data)
     end
 
+    run! if app_file == $0
   end
 end

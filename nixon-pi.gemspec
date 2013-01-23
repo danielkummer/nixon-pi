@@ -26,6 +26,9 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'festivaltts4r'
   gem.add_dependency 'rufus-scheduler'
   #gem.add_dependency 'daemons'
+  gem.add_dependency 'foreman'
+  gem.add_dependency 'bunny', '~> 0.9.0.pre4'
+
 
   gem.add_dependency 'sinatra'
   gem.add_dependency 'sinatra-contrib'

@@ -4,7 +4,6 @@ require_relative '../drivers/bar_graph_driver'
 require_relative 'handler_state_machine'
 require_relative '../animations/animation'
 require_relative '../../nixonpi/animations/bar/ramp_up_down_animation'
-require_relative '../command_processor'
 require_relative '../configurations/settings'
 
 

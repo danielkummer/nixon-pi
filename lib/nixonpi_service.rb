@@ -12,10 +12,8 @@ require_relative 'nixonpi/state_machines/bar_state_machine'
 require_relative 'nixonpi/state_machines/tube_state_machine'
 require_relative 'nixonpi/state_machines/lamp_state_machine'
 require_relative 'nixonpi/animations/animation'
-require_relative 'nixonpi/web/web_server'
 require_relative 'nixonpi/state_machines/machine_manager'
 require_relative 'nixonpi/drivers/power_driver'
-require_relative 'nixonpi/command_processor'
 require_relative 'nixonpi/drivers/speech_driver'
 require_relative 'nixonpi/scheduler'
 require_relative 'os'
@@ -52,7 +50,6 @@ module NixonPi
       NixonPi::MachineManager.add_state_machine(:tubes)
       NixonPi::MachineManager.add_state_machine(:bar, Settings.in13_pins.size)
       NixonPi::MachineManager.add_state_machine(:lamp, Settings.in1_pins.size)
-      @server = WebServer
     end
 
     ##
@@ -71,30 +68,21 @@ module NixonPi
       log.info "Start running..."
       log.info "turn on power"
       PowerDriver.instance.power_on
-
-      @web_thread = Thread.new do
-        @server.run! do |server|
-          @sinatra_server = server
-        end
-      end
-      CommandProcessor.add_receiver(NixonPi::Scheduler.instance, :schedule)
-      CommandProcessor.add_receiver(NixonPi::SpeechDriver.instance, :speech)
+      CommandQueue.add_receiver(NixonPi::Scheduler.instance, :schedule)
+      CommandQueue.add_receiver(NixonPi::SpeechDriver.instance, :speech)
       NixonPi::MachineManager.start_state_machines
-      NixonPi::CommandProcessor.start
       NixonPi::MachineManager.join_threads
-      NixonPi::CommandProcessor.join_thread
     end
 
     ##
     # quit service power down nicely
     def quit!
       log.info "Nixon Pi is shutting down..."
-      Thread.kill(@web_thread)
       NixonPi::MachineManager.exit
-      NixonPi::CommandProcessor.exit
       NixonPi::Scheduler.exit_scheduler
       log.info "Turning off power"
       PowerDriver.instance.power_off
+      CommandQueue.at_exit
       log.info "Bye ;)"
       #exit(0)
       exit!

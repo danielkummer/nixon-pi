@@ -1,7 +1,7 @@
 require 'active_record'
 require 'active_model/validations'
-require_relative '../../blank_monkeypatch'
-require_relative '../configurations/settings'
+require_relative '../lib/blank_monkeypatch'
+require_relative '../lib/nixonpi/configurations/settings'
 
 class Command < ActiveRecord::Base
 

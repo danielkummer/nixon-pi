@@ -187,6 +187,16 @@ A telnet based client to drive nixie tubes via rest interface
 
 The application drops a .yml configuration file in the users home directory. Review and adjust if neccessary...
 
+Use foreman to start and stop the process.
+
+    foreman start
+    foreman start -f ./Procfile.production
+
+
+Export start and stop scripts using
+
+     foreman export upstart . -l .
+
 
 **NOTE** Most probably the ctrl+c combination will not suffice to stop the webrick server started by sinatra. In this case use ctrl+z to stop
 

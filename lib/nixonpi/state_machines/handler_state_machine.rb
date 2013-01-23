@@ -6,7 +6,7 @@ require_relative '../configurations/state_hash'
 require_relative '../factory'
 require_relative '../command_receiver'
 
-require_relative '../web/models'
+require_relative '../../../web/models'
 require 'active_record'
 
 
@@ -48,6 +48,7 @@ module NixonPi
     protected
     #todo refactor!!!
     def reload_from_db(state_machine)
+=begin
       ActiveRecord::Base.establish_connection("sqlite3:///db/settings.db")
       options = Command.find(:first, conditions: ["state_machine = ?", state_machine])
       ActiveRecord::Base.connection.close
@@ -58,6 +59,7 @@ module NixonPi
       else
         log.debug "no db settings found for :#{state_machine} "
       end
+=end
     end
 
     def set_params(options)

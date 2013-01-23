@@ -50,7 +50,9 @@
               %label{for:"power-value", style: "float:left;padding-left:5px"}
                 %i.icon-bolt.icon-4x.pull-left
               #power-toggle-button.toggle-button
-                -if NixonPi::PowerDriver.instance.on?
+                /TODO!!!!!!!!
+                /-if NixonPi::PowerDriver.instance.on?
+                -if false
                   %input.checkbox{:checked => "checked", id: "power-value", :name => "value", :type => "checkbox", :value => "1"}
                 -else
                   %input.checkbox{id: "power-value", :name => "value", :type => "checkbox", :value => "1"}

@@ -1,6 +1,7 @@
 require 'singleton'
 require_relative 'driver'
 require_relative '../configurations/settings'
+require_relative '../../nixonpi/command_queue'
 require_relative '../command_receiver'
 
 module NixonPi
@@ -16,7 +17,7 @@ module NixonPi
       @power_pin = Settings.power_pin
       @value = 0
       log.info "Initializing power pin: #{@power_pin.to_s}"
-      CommandProcessor.add_receiver(self, :power)
+      NixonPi::CommandQueue.add_receiver(self, :power)
     end
 
     def receive(command)
