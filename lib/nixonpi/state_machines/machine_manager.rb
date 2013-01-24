@@ -1,5 +1,6 @@
 require_relative 'handler_state_machine'
 require_relative '../logging/logging'
+require_relative '../messaging/messaging'
 
 module NixonPi
   class MachineManager
@@ -23,12 +24,15 @@ module NixonPi
       # Add a number of state machines to the manager
       # @param [Integer] instances_count number of instances to create, this adds a numeric suffix to the instances queue listeners (ex: lamp0, lamp1, lamp2,...)
       # @param [Symbol] name add a state machines to the manager, the machines added must have a corresponding type in the factory module (a machine registers itself using the register_as class method.)
-      def add_state_machine(name, instances_count = 1)
+      def add_state_machine(name, instances_count = 1, message_distributor)
+
         instances_count.times.with_index do |i|
           suffix = instances_count == 1 ? "" : i.to_s
           key = "#{name}#{suffix}".to_sym
           log.debug "adding state machine instance for #{name} under #{key}"
-          @@state_machines[key] = NixonPi::HandlerStateMachine.create(key)
+          instance = NixonPi::HandlerStateMachine.create(key)
+          @@state_machines[key] = instance
+          message_distributor.add_receiver(instance, key)
         end
 
       end
@@ -41,8 +45,6 @@ module NixonPi
         @@state_machines.each do |type, state_machine|
           log.info "Ading state machine #{state_machine.class} to the command processor as type #{type}"
 
-          NixonPi::CommandQueue.add_receiver(state_machine, type)
-
           log.info "Starting state machine: #{state_machine.class}"
           @@threads << Thread.new do
             loop do
@@ -51,11 +53,6 @@ module NixonPi
             end
           end
         end
-      end
-
-      def get_params_for(type)
-        instance = @@state_machines[type.to_sym]
-        instance.get_params.clone unless instance.nil?
       end
 
       ##

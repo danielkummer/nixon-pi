@@ -4,7 +4,7 @@ require 'active_support/inflector'
 require_relative '../logging/logging'
 require_relative '../configurations/state_hash'
 require_relative '../factory'
-require_relative '../command_receiver'
+require_relative '../messaging/message_listener'
 
 require_relative '../../../web/models'
 require 'active_record'
@@ -14,7 +14,7 @@ module NixonPi
   class HandlerStateMachine
     include Logging
     include Factory
-    include CommandReceiver
+    include MessageListener
 
     attr_accessor :registered_as_type
 
@@ -111,12 +111,25 @@ module NixonPi
     # Receive command parameters to change the state of the current state machine
     #todo: this currently doesn't abord running animations
     # @param [Hash] command command parameters
-    def receive(command)
+    def handle_command(command)
       log.debug "got #{self.class.to_s} command: #{command.to_s}"
       params.merge!(command)
       if command[:state] and command[:state] != params[:last_state]
         self.fire_state_event(command[:state].to_sym)
       end
+    end
+
+    def handle_inquiry(about)
+      ret = {}
+      case about[:what].to_sym
+        when :params
+          ret = get_params
+        when :commands
+          ret = self.class.available_commands
+        else
+          log.error "No info about #{about[:what]}"
+      end
+      ret
     end
 
   end

@@ -16,6 +16,7 @@ require_relative 'nixonpi/state_machines/machine_manager'
 require_relative 'nixonpi/drivers/power_driver'
 require_relative 'nixonpi/drivers/speech_driver'
 require_relative 'nixonpi/scheduler'
+require_relative 'nixonpi/messaging/messaging'
 require_relative 'os'
 require 'thread'
 #require 'daemons'
@@ -47,9 +48,11 @@ module NixonPi
         end
       end
 
-      NixonPi::MachineManager.add_state_machine(:tubes)
-      NixonPi::MachineManager.add_state_machine(:bar, Settings.in13_pins.size)
-      NixonPi::MachineManager.add_state_machine(:lamp, Settings.in1_pins.size)
+      @message_distributor = NixonPi::Messaging::MessageReceiver.new
+
+      NixonPi::MachineManager.add_state_machine(:tubes, 1, @message_distributor)
+      NixonPi::MachineManager.add_state_machine(:bar, Settings.in13_pins.size, @message_distributor)
+      NixonPi::MachineManager.add_state_machine(:lamp, Settings.in1_pins.size, @message_distributor)
     end
 
     ##
@@ -68,8 +71,9 @@ module NixonPi
       log.info "Start running..."
       log.info "turn on power"
       PowerDriver.instance.power_on
-      CommandQueue.add_receiver(NixonPi::Scheduler.instance, :schedule)
-      CommandQueue.add_receiver(NixonPi::SpeechDriver.instance, :speech)
+      @message_distributor.add_receiver(PowerDriver.instance, :power)
+      @message_distributor.add_receiver(NixonPi::Scheduler.new, :schedule)
+      @message_distributor.add_receiver(NixonPi::SpeechDriver.new, :speech)
       NixonPi::MachineManager.start_state_machines
       NixonPi::MachineManager.join_threads
     end
@@ -80,9 +84,9 @@ module NixonPi
       log.info "Nixon Pi is shutting down..."
       NixonPi::MachineManager.exit
       NixonPi::Scheduler.exit_scheduler
-      log.info "Turning off power"
+      @message_distributor.on_exit
+      log.info "Blow the candles out..."
       PowerDriver.instance.power_off
-      CommandQueue.at_exit
       log.info "Bye ;)"
       #exit(0)
       exit!

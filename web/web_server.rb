@@ -15,7 +15,7 @@ require_relative '../lib/nixonpi/configurations/settings'
 require_relative '../lib/nixonpi/logging/logging'
 require_relative 'models'
 require_relative '../lib/blank_monkeypatch'
-require_relative '../lib/nixonpi/command_queue'
+require_relative '../lib/nixonpi/messaging/messaging'
 
 
 
@@ -82,6 +82,15 @@ module NixonPi
         end unless data.nil?
         Haml::Engine.new(result.join("\n")).render
       end
+
+      def inquirer
+        @@inquirer ||= NixonPi::Messaging::InquirySender.new
+      end
+
+      def sender
+        @sender ||= NixonPi::Messaging::MessageSender.new
+      end
+
     end
 
 ###
@@ -106,7 +115,7 @@ module NixonPi
 
 
     #todo completely deprecated - can't be done anymore because no central command register
-    #could be done using the commandprocessor and iterating over every receiver...
+=begin
     get '/commands.:format?' do
       commands = {}
       %w(tubes bars lamps power say).each do |type|
@@ -114,15 +123,14 @@ module NixonPi
       end
       formatted_response('json', commands, "Available commands")
     end
+=end
 
+    #todo sorry this doesnt work anymore - at least for the moment
     get '/command/:target.:format?' do
       target = params[:target]
 
       begin
-        #todo recfactor away to the service and use channels
-        receiver = NixonPi::CommandQueue.get_receiver_for(target)
-        data = receiver.available_commands
-
+        data = inquirer.get_info(:target, :commands)
       rescue Exception => e
         data = {
             message: ["Options for #{target} not found"],
@@ -143,29 +151,23 @@ module NixonPi
 
       data = Hash.new
 
-
-
-
-
       case target.to_sym
         when :power
-          #todo recfactor away to the service and use channels
-          data = NixonPi::PowerDriver.instance.get_params
+          data = inquirer.get_info(:power, :params)
         when :bars
           data[:bars] = Array.new
           %w(bar0 bar1 bar2 bar3).each do |bar|
-            #todo recfactor away to the service and use channels
-            data[:bars] << NixonPi::MachineManager.get_params_for(bar)
+            data[:bars] << inquirer.get_info(bar.to_sym, :params)
           end
         when :lamps
           data[:lamps] = Array.new
           %w(lamp0 lamp1 lamp2 lamp3 lamp4).each do |lamp|
             #todo recfactor away to the service and use channels
-            data[:lamps] << NixonPi::MachineManager.get_params_for(lamp)
+            data[:lamps] << inquirer.get_info(lamp.to_sym, :params)
           end
         else
           #todo recfactor away to the service and use channels
-          data = NixonPi::MachineManager.get_params_for(target.to_sym)
+          data = inquirer.get_info(target.to_sym, :params)
       end
 
       formatted_response(params[:format], data, "#{target} state")
@@ -179,7 +181,7 @@ module NixonPi
 
       target = "#{target}#{id}"
       #todo recfactor away to the service and use channels
-      data = NixonPi::MachineManager.get_params_for(target)
+      data = inquirer.get_info(target.to_sym, :params)
 
       if data.nil?
         data = {
@@ -194,7 +196,8 @@ module NixonPi
 
     get '/info/hw/?.:format?' do
       #todo recfactor away to the service and use channels
-      data = {info: AbioCardClient.instance.info}
+      #data = {info: AbioCardClient.instance.info}
+      data = {message: "not implemented anymore"}
       formatted_response(params[:format], data, "Hardware information")
     end
 
@@ -219,7 +222,7 @@ module NixonPi
 
     post '/tubes/?' do
       preprocess_post_params(:tubes, @params) do |data|
-        CommandQueue.enqueue(:tubes, data)
+        sender.send_command(:tubes, data)
         formatted_response('json', data, "Tubes set to")
       end
     end
@@ -228,7 +231,7 @@ module NixonPi
     post '/lamp/?' do
       id = params[:id]
       preprocess_post_params(:lamp, @params) do |data|
-        CommandQueue.enqueue("lamp#{id}".to_sym, data)
+        sender.send_command("lamp#{id}".to_sym, data)
         formatted_response('json', data, "Lamps set to")
       end
     end
@@ -237,7 +240,7 @@ module NixonPi
       #todo error when no id
       id = params[:id]
       preprocess_post_params(:bars, @params) do |data|
-        CommandQueue.enqueue("bar#{id}".to_sym, data)
+        sender.send_command("bar#{id}".to_sym, data)
         formatted_response('json', data, "Bar #{id} set to")
       end
     end
@@ -247,7 +250,7 @@ module NixonPi
         #convert json to hash
         data[:command] = JSON.parse(data[:command])
         data[:id] = schedule.id
-        CommandQueue.enqueue(:schedule, data)
+        sender.send_command(:schedule, data)
 
         formatted_response('json', data, "Bars set to")
       end
@@ -255,7 +258,7 @@ module NixonPi
 
     post '/say/?' do
       preprocess_post_params(:speech, @params) do |data|
-        CommandQueue.enqueue(:speech, data)
+        sender.send_command(:speech, data)
         formatted_response('json', data, "Speak ")
       end
 
@@ -265,7 +268,7 @@ module NixonPi
       @params[:value] = 0 if @params.empty?
 
       preprocess_post_params(:power, @params) do |data|
-        CommandQueue.enqueue(:power, data)
+        sender.send_command(:power, data)
         formatted_response('json', data, "Power set to")
       end
     end

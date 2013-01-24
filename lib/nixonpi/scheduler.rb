@@ -1,7 +1,8 @@
 require 'rufus/scheduler'
 require 'singleton'
 require_relative 'logging/logging'
-require_relative 'command_receiver'
+require_relative 'messaging/message_listener'
+require_relative 'messaging/messaging'
 
 module NixonPi
 
@@ -14,8 +15,9 @@ module NixonPi
 
     def call(job)
       log.info "Job called#{job.to_s} "
-      CommandQueue.enqueue(@queue, @command)
-      CommandQueue.unlock(@queue) if @lock
+      NixonPi::Messaging::MessageSender.instance.send_command(@queue, @command)
+      #todo unlock queue
+      #CommandQueue.unlock(@queue) if @lock
       Schedule.delete(@id)
     end
   end
@@ -23,8 +25,7 @@ module NixonPi
 
   class Scheduler
     include Logging
-    include Singleton
-    include CommandReceiver
+    include MessageListener
 
 
     accepted_commands :method, :timing, :queue, :command, :time, :id
@@ -48,7 +49,7 @@ module NixonPi
     end
 
 
-    def receive(command)
+    def handle_command(command)
       log.info "got schedule command: #{command}, applying..."
       id, method, timing, queue = command[:id], command[:method], command[:timing], command[:queue]
 
@@ -91,7 +92,8 @@ module NixonPi
         if lock
           log.debug "locking state machine..."
 
-          CommandQueue.lock(queue)
+          #todo lock queue
+          #CommandQueue.lock(queue)
         end
 
         #todo test if block works

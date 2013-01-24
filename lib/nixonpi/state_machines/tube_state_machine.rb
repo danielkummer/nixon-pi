@@ -8,8 +8,8 @@ require_relative '../animations/animation'
 require_relative '../animations/tube/switch_numbers_animation'
 require_relative '../animations/tube/single_fly_in_animation'
 require_relative 'handler_state_machine'
-require_relative '../command_queue'
 require_relative '../logging/logging'
+require_relative '../messaging/messaging'
 
 
 module NixonPi
@@ -148,7 +148,7 @@ module NixonPi
                 options.keys.each do |k, o|
                   case k.to_sym
                     when :say
-                      CommandQueue.enqueue(:say, {value: o})
+                      NixonPi::Messaging::MessageSender.send_command(:say, {value: o})
                     when :state
                       self.fire_state_event(params[:o])
                     else

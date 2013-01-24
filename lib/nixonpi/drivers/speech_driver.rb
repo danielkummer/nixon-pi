@@ -1,14 +1,12 @@
-require 'singleton'
 require_relative '../logging/logging'
 require_relative '../../os'
-require_relative '../command_receiver'
+require_relative '../messaging/message_listener'
 
 module NixonPi
   class SpeechDriver
     include Logging
     include OS
-    include Singleton
-    include CommandReceiver
+    include MessageListener
 
     accepted_commands :value
 
