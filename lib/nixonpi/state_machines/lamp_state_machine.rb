@@ -24,7 +24,6 @@ module NixonPi
         transition all => :free_value
       end
 
-
       event :animation do
         transition all => :animation
       end
@@ -32,7 +31,6 @@ module NixonPi
       event :run_test do
         transition all => :run_test
       end
-
 
       state :free_value do
         def write
@@ -44,7 +42,6 @@ module NixonPi
 
         end
       end
-
 
       state :animation do
         def write

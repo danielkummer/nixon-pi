@@ -24,7 +24,7 @@ module NixonPi
       # Add a number of state machines to the manager
       # @param [Integer] instances_count number of instances to create, this adds a numeric suffix to the instances queue listeners (ex: lamp0, lamp1, lamp2,...)
       # @param [Symbol] name add a state machines to the manager, the machines added must have a corresponding type in the factory module (a machine registers itself using the register_as class method.)
-      def add_state_machine(name, instances_count = 1, message_distributor)
+      def add_state_machine(name, instances_count = 1)
 
         instances_count.times.with_index do |i|
           suffix = instances_count == 1 ? "" : i.to_s
@@ -32,7 +32,9 @@ module NixonPi
           log.debug "adding state machine instance for #{name} under #{key}"
           instance = NixonPi::HandlerStateMachine.create(key)
           @@state_machines[key] = instance
-          message_distributor.add_receiver(instance, key)
+          if block_given?
+            yield instance, key
+          end
         end
 
       end

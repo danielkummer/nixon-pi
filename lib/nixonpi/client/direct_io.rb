@@ -10,7 +10,7 @@ module NixonPi
 
     ##
     # Write to direct stdin and get values from stdout
-    # @param [String] cmd value
+    # @param [String] value
     # Pass a block if you like to handle the return value
     def cmd(value)
       @stdin.puts(value)

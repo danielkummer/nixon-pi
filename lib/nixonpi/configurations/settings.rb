@@ -6,10 +6,9 @@ YAML::ENGINE.yamler= 'syck'
 ## Monkeypath settingslogic
 class Settingslogic
 
-  #fix rspec to_ary error according to https://github.com/binarylogic/settingslogic/commit/d623622f7d8b184aebe9fda6c7996c4a44af5ee9
+  #fixes rspec to_ary error according to https://github.com/binarylogic/settingslogic/commit/d623622f7d8b184aebe9fda6c7996c4a44af5ee9
   def method_missing(name, *args, &block)
     super if name === :to_ary # delegate to_ary to Hash
-
     key = name.to_s
     return missing_key("Missing setting '#{key}' in #@section") unless has_key? key
     value = fetch(key)

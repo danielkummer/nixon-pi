@@ -17,7 +17,9 @@ require_relative 'nixonpi/drivers/power_driver'
 require_relative 'nixonpi/drivers/speech_driver'
 require_relative 'nixonpi/scheduler'
 require_relative 'nixonpi/messaging/messaging'
-require_relative 'os'
+require_relative 'nixonpi/information/information_proxy'
+require_relative 'nixonpi/information/os_info'
+require_relative 'nixonpi/information/hardware_info'
 require 'thread'
 #require 'daemons'
 
@@ -26,10 +28,12 @@ require 'ruby-prof' if $environment == "development"
 
 Thread.abort_on_exception = true
 
+DRBSERVER = 'druby://localhost:9001'
+
 module NixonPi
   class NixieService
     include Logging
-    include OS
+    include OSInfo
 
 
     ActiveRecord::Base.logger = Logger.new(STDERR)
@@ -48,11 +52,36 @@ module NixonPi
         end
       end
 
-      @message_distributor = NixonPi::Messaging::MessageReceiver.new
+      @message_distributor = NixonPi::Messaging::CommandReceiver.new
+      @info_gatherer = NixonPi::InformationProxy.new
 
-      NixonPi::MachineManager.add_state_machine(:tubes, 1, @message_distributor)
-      NixonPi::MachineManager.add_state_machine(:bar, Settings.in13_pins.size, @message_distributor)
-      NixonPi::MachineManager.add_state_machine(:lamp, Settings.in1_pins.size, @message_distributor)
+=begin
+DRb.start_service 'druby://:9000', Counter.new
+ puts "Server running at #{DRb.uri}"
+
+ trap("INT") { DRb.stop_service }
+ DRb.thread.join
+
+use drb to read params from state machines
+=end
+
+      NixonPi::MachineManager.add_state_machine(:tubes, 1) do |receiver, target|
+        @message_distributor.add_receiver(receiver, target)
+        @info_gatherer.add_info_holder(receiver, target)
+      end
+      NixonPi::MachineManager.add_state_machine(:bar, Settings.in13_pins.size) do |receiver, target|
+        @message_distributor.add_receiver(receiver, target)
+        @info_gatherer.add_info_holder(receiver, target)
+      end
+      NixonPi::MachineManager.add_state_machine(:lamp, Settings.in1_pins.size) do |receiver, target|
+        @message_distributor.add_receiver(receiver, target)
+        @info_gatherer.add_info_holder(receiver, target)
+      end
+
+      @message_distributor.add_receiver(SpeechDriver.new, :speech)
+      @message_distributor.add_receiver(PowerDriver.instance, :power)
+      @info_gatherer.add_info_holder(PowerDriver.instance, :power)
+      @info_gatherer.add_info_holder(HardwareInfo.new, :hardware)
     end
 
     ##
@@ -69,19 +98,24 @@ module NixonPi
       end
 
       log.info "Start running..."
-      log.info "turn on power"
       PowerDriver.instance.power_on
-      @message_distributor.add_receiver(PowerDriver.instance, :power)
+
       @message_distributor.add_receiver(NixonPi::Scheduler.new, :schedule)
-      @message_distributor.add_receiver(NixonPi::SpeechDriver.new, :speech)
+      @info_gatherer.add_info_holder(NixonPi::Scheduler.new, :schedule)
+      DRb.start_service( DRBSERVER, @info_gatherer )
+
       NixonPi::MachineManager.start_state_machines
-      NixonPi::MachineManager.join_threads
+
+      NixonPi::MachineManager.join_threads #this must be inside the main run script - else the subthreads exit
     end
 
     ##
     # quit service power down nicely
     def quit!
       log.info "Nixon Pi is shutting down..."
+
+      DRb.stop_service
+      DRb.thread.join
       NixonPi::MachineManager.exit
       NixonPi::Scheduler.exit_scheduler
       @message_distributor.on_exit

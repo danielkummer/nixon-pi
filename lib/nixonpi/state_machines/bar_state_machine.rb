@@ -43,10 +43,10 @@ module NixonPi
           #will switch to :last_state after animation
           self.fire_state_event(:animation)
           #unlucky naming - currently :state is a saved db value - if any; reason: no state transition has happened yet
-          if !params[:initial_state].nil?
-            params[:last_state] = params[:initial_state]
-          else
+          if params[:initial_state].nil?
             params[:last_state] = :free_value
+          else
+            params[:last_state] = params[:initial_state]
           end
 
 

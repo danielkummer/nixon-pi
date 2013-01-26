@@ -1,8 +1,9 @@
 require 'rufus/scheduler'
 require 'singleton'
 require_relative 'logging/logging'
-require_relative 'messaging/message_listener'
+require_relative 'messaging/command_listener'
 require_relative 'messaging/messaging'
+require_relative 'information/information_holder'
 
 module NixonPi
 
@@ -15,7 +16,7 @@ module NixonPi
 
     def call(job)
       log.info "Job called#{job.to_s} "
-      NixonPi::Messaging::MessageSender.instance.send_command(@queue, @command)
+      NixonPi::Messaging::CommandSender.instance.send_command(@queue, @command)
       #todo unlock queue
       #CommandQueue.unlock(@queue) if @lock
       Schedule.delete(@id)
@@ -25,14 +26,12 @@ module NixonPi
 
   class Scheduler
     include Logging
-    include MessageListener
-
+    include CommandListener
+    include InformationHolder
 
     accepted_commands :method, :timing, :queue, :command, :time, :id
 
-
     def initialize
-      #https://github.com/jmettraux/rufus-scheduler
       @@scheduler ||= Rufus::Scheduler.start_new
       @@jobs = {}
 
@@ -41,11 +40,29 @@ module NixonPi
       end
 
       log.info "Scheduler started"
+      reload
     end
 
-    def reload_from_db
+    def reload
       #delete all ambiguous records
-      Schedule.find(:all, conditions: ["method IN (?)", %w(in every)])
+      #Schedule.find(:all, conditions: ["method IN (?)", %w(in every)])
+      schedules = Schedule.find(:all)
+      schedules.each do |s|
+        schedule(s.id, s.method, s.timing, s.queue, s.command)
+      end
+    end
+
+    def handle_info_request(about)
+      ret = {}
+      case about.to_sym
+        when :commands
+          ret = self.class.available_commands
+        when :jobs
+          ret = {jobs: jobs}
+        else
+          log.error "No information about #{about}"
+      end
+      ret
     end
 
 

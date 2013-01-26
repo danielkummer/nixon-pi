@@ -1,22 +1,22 @@
 require_relative '../logging/logging'
-require_relative '../../os'
-require_relative '../messaging/message_listener'
+require_relative '../information/os_info'
+require_relative '../messaging/command_listener'
 
 module NixonPi
   class SpeechDriver
     include Logging
-    include OS
-    include MessageListener
+    include OSInfo
+    include CommandListener
 
     accepted_commands :value
 
-    def receive(command)
+    def handle_command(command)
       value = command[:value]
       log.info "got speech command: say #{command}"
       case true
-        when OS.mac?
+        when OSInfo.mac?
           IO.popen("say #{value}")
-        when OS.windows?
+        when OSInfo.windows?
           log.warn "No windows speech support at the moment..."
         else
           value.to_speech

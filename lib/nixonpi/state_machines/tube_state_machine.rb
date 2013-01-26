@@ -19,8 +19,6 @@ module NixonPi
     register_as :tubes
     accepted_commands :state, :value, :time_format, :animation_name, :options, :initial_mode
 
-
-
     def initialize()
       super()
       register_driver NixonPi::TubeDriver
@@ -148,7 +146,7 @@ module NixonPi
                 options.keys.each do |k, o|
                   case k.to_sym
                     when :say
-                      NixonPi::Messaging::MessageSender.send_command(:say, {value: o})
+                      NixonPi::Messaging::CommandSender.send_command(:say, {value: o})
                     when :state
                       self.fire_state_event(params[:o])
                     else
