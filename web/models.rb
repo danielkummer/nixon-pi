@@ -92,23 +92,23 @@ class Schedule < ActiveRecord::Base
 
   def valid_schedule?
     require 'rufus-scheduler'
-    case timing.to_sym
+    case method.to_sym
       when :in, :every
         begin
-          Rufus.parse_time_string(time)
+          Rufus.parse_time_string(timing)
         rescue ArgumentError => e
-          errors.add(:timing, "Schedule invalid for timing #{timing} with time #{time}: #{e.message}")
+          errors.add(:timing, "Schedule invalid for method #{method} with timing #{timing}: #{e.message}")
         end
       when :at
         begin
           Time.parse(time)
         rescue ArgumentError => e
-          errors.add(:time, "Schedule invalid for timing #{timing} with time #{time}: #{e.message}")
+          errors.add(:time, "Schedule invalid for method #{method} with timing #{timing}: #{e.message}")
         end
       when :cron
         #todo validate cron string
       else
-        errors.add(:timing, "Timing #{timing} not supported!")
+        errors.add(:timing, "Method #{method} not supported!")
     end
   end
 end

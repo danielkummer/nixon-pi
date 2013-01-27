@@ -9,6 +9,7 @@ module NixonPi
 
   class CommandJob
     include Logging
+    include Messaging
 
     def initialize(id, queue, command, lock)
       @id, @queue, @command, @lock = id, queue, command, lock
@@ -16,7 +17,7 @@ module NixonPi
 
     def call(job)
       log.info "Job called#{job.to_s} "
-      NixonPi::Messaging::CommandSender.instance.send_command(@queue, @command)
+      CommandSender.new.send_command(@queue, @command)
       #todo unlock queue
       #CommandQueue.unlock(@queue) if @lock
       Schedule.delete(@id)
@@ -36,7 +37,7 @@ module NixonPi
       @@jobs = {}
 
       def @@scheduler.handle_exception(job, exception)
-        log.error "job #{job.job_id} caught exception '#{exception}'"
+        self.log.error "job #{job.job_id} caught exception '#{exception}'"
       end
 
       log.info "Scheduler started"
@@ -78,7 +79,7 @@ module NixonPi
       command[:command] = new_commands
 
       locked = command[:lock] ? true : false
-      schedule(id, method, timing, queue, command, locked)
+      schedule(id, method, timing, queue, command[:command], locked)
     end
 
     def self.exit_scheduler

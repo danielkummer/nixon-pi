@@ -210,6 +210,7 @@ module NixonPi
 
       if record.valid?
         record.save if params[:initial]
+        data[:id] = record.id
         yield data if block_given?
       else
         set_message!(data, record.errors.map { |error, message| "#{error}: #{message}" }, false)
@@ -235,10 +236,8 @@ module NixonPi
     # @param [Hash] data
     def get_or_create_record_for(data)
       case data[:state_machine].to_sym
-        when :schedule
-          s = Schedule.new(data) #schedules are always newly created - you can only delete existing ones
-          data[:id] = s.id
-          s
+        when :scheduler
+          Schedule.new(data) #schedules are always newly created - you can only delete existing ones
         else
           get_or_create_command(data)
       end
@@ -261,7 +260,7 @@ module NixonPi
       end
       command = nil
       if params[:initial]
-        initial = Command.find(:first, conditions: ["state_machine = ?", target.to_s])
+        initial = Command.find(:first, conditions: ["state_machine = ?", data[:state_machine].to_s])
         command = initial if initial.update_attributes(data)
       end
       command ||= Command.new(data)
