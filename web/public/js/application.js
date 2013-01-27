@@ -15,7 +15,6 @@
             $('#power-toggle-button').toggleButtons({
                 onChange:function ($el, status, e) {
                     $el.closest("form").submit();
-                    console.log($el, status, e);
                 },
                 width:150,
                 height:60,
@@ -62,8 +61,6 @@
                     var checked = !(value == 0),
                         $el = $('#lamp_' + i);
 
-                    console.log("lamp " + i + " state is " + checked);
-
                     if (checked) {
                         $el.button('toggle')
                             .children("i:first")
@@ -82,16 +79,11 @@
             var $checkBoxes = $(this).children("input[name=value]");
             var checked = !$checkBoxes.attr("checked");
             $checkBoxes.attr("checked", checked);
-
-            console.debug("Checked:" + checked);
-
             if (checked) {
                 $(this).children("i:first").removeClass('icon-circle-blank').addClass('icon-circle');
             } else {
                 $(this).children("i:first").removeClass('icon-circle').addClass('icon-circle-blank');
             }
-
-
             $(this).closest("form").submit();
         });
 
@@ -196,6 +188,20 @@
 
         states['free_value']();
 
+        //todo
+        $.getJSON('targets.json', function (data) {
+            delete data.success;
+            delete data.message;
+            var targets = data.targets;
+
+            var $options = $('#target');
+            $.each(targets, function(){
+                $options.append($("<option />").val(this.toString()).text(this.toString()));
+                $options.trigger("liszt:updated")
+            });
+        });
+
+
         $("#tube_state").chosen().change(function (event) {
             states[$(event.target).val()]();
         });
@@ -229,7 +235,7 @@
             $.getJSON('command/' + target.toLowerCase() + '.json', function (data) {
                 delete data.success;
                 delete data.message;
-                $('[name="command"]').val(JSON.stringify(data, null, 2))
+                $('[name="command"]').val(JSON.stringify(data.commands, null, 2))
             });
         });
 

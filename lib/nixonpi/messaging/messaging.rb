@@ -5,6 +5,7 @@ require 'bunny'
 require_relative '../logging/logging'
 require_relative 'command_listener'
 require_relative '../../nixonpi/hash_monkeypatch'
+require_relative '../information/information_holder'
 
 module NixonPi
   module Messaging
@@ -56,6 +57,7 @@ module NixonPi
 
     class CommandReceiver
       include Common
+      include InformationHolder
 
       def initialize
         @receivers = Hash.new
@@ -100,6 +102,17 @@ module NixonPi
           end
         end if @receivers.has_key?(target)
       end
+
+      def handle_info_request(about)
+        ret = Hash.new
+        if about.to_sym == :targets
+          ret = {targets: @receivers.keys}
+        else
+          log.error "no information about #{about} found"
+        end
+        ret
+      end
+
     end
   end
 end

@@ -81,7 +81,6 @@ module NixonPi
 ###
 # GET REQUESTS
 ###
-
     get '/' do
       @no_of_bars = Settings.in13_pins.size
       @no_of_lamps = Settings.in1_pins.size
@@ -101,6 +100,12 @@ module NixonPi
       target = params[:target]
       data = get_data_for(target, :commands)
       formatted_response('json', data, "Options for command #{target}")
+    end
+
+    get '/targets.:format?' do
+      #get all available targets for commands
+      data = get_data_for(:commands, :targets)
+      formatted_response('json', data, "available command targets")
     end
 
     get '/information/:target/?.:format?' do

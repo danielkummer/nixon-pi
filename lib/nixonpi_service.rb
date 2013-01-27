@@ -55,15 +55,6 @@ module NixonPi
       @message_distributor = NixonPi::Messaging::CommandReceiver.new
       @info_gatherer = NixonPi::InformationProxy.new
 
-=begin
-DRb.start_service 'druby://:9000', Counter.new
- puts "Server running at #{DRb.uri}"
-
- trap("INT") { DRb.stop_service }
- DRb.thread.join
-
-use drb to read params from state machines
-=end
 
       NixonPi::MachineManager.add_state_machine(:tubes, 1) do |receiver, target|
         @message_distributor.add_receiver(receiver, target)
@@ -82,6 +73,7 @@ use drb to read params from state machines
       @message_distributor.add_receiver(PowerDriver.instance, :power)
       @info_gatherer.add_info_holder(PowerDriver.instance, :power)
       @info_gatherer.add_info_holder(HardwareInfo.new, :hardware)
+      @info_gatherer.add_info_holder(@message_distributor, :commands)
     end
 
     ##

@@ -43,6 +43,25 @@
 %body
   .container
     .content
+      .navbar
+        .navbar-inner
+          %ul.nav
+            %li
+              %a{href: "/"}
+                %i.icon-cogs.pull-left
+                Control
+            %li{style:"height:30px;"}
+              %a{href: "/scheduler.html"}
+                %i.icon-tasks.pull-left
+                Scheduler
+            %li{style:"height:30px;"}
+              %a{href: "/logs.html"}
+                %i.icon-list-alt.pull-left
+                Log
+            %li{style:"height:30px;"}
+              %a{href: "http://danielkummer.github.com/nixon-pi/#api"}
+                %i.icon-exchange.pull-left
+                API
       .row
         .span3
           .hero-unit
@@ -61,24 +80,6 @@
             %h1 Nixon-&#960;
         .span3
           #alert-container{"data-spy"=>"affix", "data-offset-top"=>"-20"}
-          .hero-unit
-            %ul.nav.nav-list
-              %li{style:"height:30px;"}
-                %a{href: "/"}
-                  %i.icon-cogs.pull-left
-                  Control
-              %li{style:"height:30px;"}
-                %a{href: "/scheduler.html"}
-                  %i.icon-tasks.pull-left
-                  Scheduler
-              %li{style:"height:30px;"}
-                %a{href: "/logs.html"}
-                  %i.icon-list-alt.pull-left
-                  Log
-              %li{style:"height:30px;"}
-                %a{href: "http://danielkummer.github.com/nixon-pi/#api"}
-                  %i.icon-exchange.pull-left
-                  API
 
 
       .row
