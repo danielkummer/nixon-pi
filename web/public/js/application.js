@@ -2,6 +2,18 @@
     $(document).ready(function () {
 
 
+        $.getJSON('/state.json', function (data) {
+            if(!data.rabbitmq) {
+                var $alert = $("<div class='alert alert-error fade in'><button data-dismiss='alert' class='close' type='button'>×</button>RabbitMQ message broker not running!</div>")
+                $('#alert-container').append($alert);
+            }
+
+            if(!data.service) {
+                var $alert = $("<div class='alert alert-error fade in'><button data-dismiss='alert' class='close' type='button'>×</button>Nixon-Pi service not running!</div>")
+                $('#alert-container').append($alert);
+            }
+        });
+
         /**
          * Initialize power button
          */
@@ -45,7 +57,6 @@
                 }
             });
         }
-
 
         /**
          * Initialize lamp data
@@ -114,10 +125,6 @@
 
 
         $(".chzn-select").chosen();
-
-
-        //$("#form_field").trigger("liszt:updated");
-
 
         $(document).on('submit', 'form[data-remote]', function (e) {
             e.preventDefault();
@@ -195,7 +202,7 @@
             var targets = data.targets;
 
             var $options = $('#target');
-            $.each(targets, function(){
+            $.each(targets, function () {
                 $options.append($("<option />").val(this.toString()).text(this.toString()));
                 $options.trigger("liszt:updated")
             });

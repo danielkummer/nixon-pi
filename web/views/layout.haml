@@ -41,10 +41,10 @@
     /compile:  $ lessc public/less/style.less > public/css/mycss.css
     /source: http://stackoverflow.com/questions/11481203/how-to-start-using-twitter-bootstrap-and-sass-in-a-sinatra-project
 %body
-  .container
-    .content
-      .navbar
-        .navbar-inner
+  .navbar.navbar-fixed-bottom
+    .navbar-inner
+      .container
+        .nav-collapse
           %ul.nav
             %li
               %a{href: "/"}
@@ -62,6 +62,8 @@
               %a{href: "http://danielkummer.github.com/nixon-pi/#api"}
                 %i.icon-exchange.pull-left
                 API
+  .container
+    .content
       .row
         .span3
           .hero-unit

@@ -118,7 +118,7 @@ module NixonPi
     get '/information/:target/:id.:format?' do
       target = "#{params[:target]}#{params[:id]}"
       data = get_data_for(target, :params)
-      formatted_response(params[:format], data, "#{target} set to")
+      formatted_response(params[:format], data, "#{target} information")
     end
 
     get '/logs.:format' do
@@ -130,6 +130,14 @@ module NixonPi
         else
           haml :logs
       end
+    end
+
+    #todo refactor
+    get '/state.:format' do
+      data = Hash.new
+      data[:rabbitmq] = sender.connected?
+      data[:service] = get_data_for(:power, :params)[:success]
+      formatted_response(params[:format], data, "application state")
     end
 
     ###
@@ -174,7 +182,6 @@ module NixonPi
         sender.send_command(:speech, data)
         formatted_response('json', data, "Speak ")
       end
-
     end
 
     post '/power/?', :provides => [:json] do

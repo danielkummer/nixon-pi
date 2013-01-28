@@ -29,6 +29,16 @@ module NixonPi
         $direct_exchange ||= client.create_channel.direct("nixonpi.channel")
       end
 
+      def connected?
+        begin
+          client.connected?
+          true
+        rescue Exception => e
+          log.error "can't connect to rabbitmq: #{e.message}"
+          false
+        end
+      end
+
       ##
       # Clean up
       def on_exit
