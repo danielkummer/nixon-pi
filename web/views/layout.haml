@@ -44,24 +44,23 @@
   .navbar.navbar-fixed-bottom
     .navbar-inner
       .container
-        .nav-collapse
-          %ul.nav
-            %li
-              %a{href: "/"}
-                %i.icon-cogs.pull-left
-                Control
-            %li{style:"height:30px;"}
-              %a{href: "/scheduler.html"}
-                %i.icon-tasks.pull-left
-                Scheduler
-            %li{style:"height:30px;"}
-              %a{href: "/logs.html"}
-                %i.icon-list-alt.pull-left
-                Log
-            %li{style:"height:30px;"}
-              %a{href: "http://danielkummer.github.com/nixon-pi/#api"}
-                %i.icon-exchange.pull-left
-                API
+        %ul.nav
+          %li
+            %a{href: "/"}
+              %i.icon-cogs.pull-left
+              Control
+          %li{style:"height:30px;"}
+            %a{href: "/scheduler.html"}
+              %i.icon-tasks.pull-left
+              Scheduler
+          %li{style:"height:30px;"}
+            %a{href: "/logs.html"}
+              %i.icon-list-alt.pull-left
+              Log
+          %li{style:"height:30px;"}
+            %a{href: "http://danielkummer.github.com/nixon-pi/#api"}
+              %i.icon-exchange.pull-left
+              API
   .container
     .content
       .row
@@ -88,8 +87,4 @@
         = yield
 
   %footer.footer
-    %p
-      &copy; Daniel Kummer, 2013
-      %a{href:"http://danielkummer.github.com/nixon-pi/", target:"_blank", title:"Project Page"} github
-
 

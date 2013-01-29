@@ -27,4 +27,4 @@ module ActiveModel::Validations
   alias :error_on :errors_on
 end
 
-ActiveRecord::Migrator.up("db/migrate")
+ActiveRecord::Migrator.up("../db/migrate")
