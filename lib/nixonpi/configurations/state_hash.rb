@@ -52,11 +52,4 @@ module NixonPi
     JSON.encode(self)
   end
 
-
-
-
-
-
-
-
 end

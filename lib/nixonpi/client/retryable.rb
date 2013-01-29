@@ -1,9 +1,11 @@
 require_relative '../exceptions'
+require_relative '../logging/logging'
 
 module NixonPi
   module Retryable
     ##
     # If retry times more than retry times in option parameter, will raise a RetryError.
+    # @param [Hash] options
     # * :retry_times - Retry times , Defaults 10
     # * :on - The Exception on which a retry will be performed. Defaults Exception
     # Notice: This method will call block many times, so don't put can't retryable code in it.

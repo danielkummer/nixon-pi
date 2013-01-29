@@ -21,7 +21,7 @@ module NixonPi
       information_target = information_target.to_sym
       raise "Receiver must include the receiver module" unless receiver.is_a?(InformationHolder)
       if @receivers[information_target].nil?
-        @receivers[information_target] = [receiver]
+        @receivers[information_target] = Array.wrap(receiver)
       else
         @receivers[information_target] << receiver
       end

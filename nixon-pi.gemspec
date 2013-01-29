@@ -44,7 +44,9 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'chronic_duration'
 
   gem.add_development_dependency 'rdoc'
+  gem.add_development_dependency 'rvm-capistrano'
   gem.add_development_dependency 'rspec'
+  gem.add_development_dependency 'shoulda-matchers'
   gem.add_development_dependency 'bundler'
   gem.add_development_dependency 'simplecov'
   gem.add_development_dependency 'simplecov-gem-adapter'

@@ -7,6 +7,19 @@ describe NixonPi::AbioCardClient do
     @client = NixonPi::AbioCardClient.instance
   end
 
+  context "conversion helper module" do
+    it "should convert hex to bits" do
+      out = @client.hex_to_bit("FF")
+      out.should eq "11111111"
+    end
+
+    it "should convert bits to hex" do
+      out = @client.bit_to_hex("1110")
+      out.should eq "0E"
+    end
+
+  end
+
   it "should get a valid singleton instance" do
     @client.should_not be_nil
   end
