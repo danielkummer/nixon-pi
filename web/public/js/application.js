@@ -3,12 +3,12 @@
 
 
         $.getJSON('/state.json', function (data) {
-            if(!data.rabbitmq) {
+            if (!data.rabbitmq) {
                 var $alert = $("<div class='alert alert-error fade in'><button data-dismiss='alert' class='close' type='button'>×</button>RabbitMQ message broker not running!</div>")
                 $('#alert-container').append($alert);
             }
 
-            if(!data.service) {
+            if (!data.service) {
                 var $alert = $("<div class='alert alert-error fade in'><button data-dismiss='alert' class='close' type='button'>×</button>Nixon-Pi service not running!</div>")
                 $('#alert-container').append($alert);
             }
@@ -166,12 +166,14 @@
 
         var states = {
             'free_value':function () {
+                $('#tubes').val("");
                 $(".tube_animation_group").hide();
                 $('.tube_time_group').hide();
                 $("#countdown_examples").hide();
             },
 
             'animation':function () {
+                $('#tubes').val("");
                 $(".tube_animation_group").show();
                 $('.tube_time_group').hide();
                 $("#countdown_examples").hide();
@@ -188,6 +190,14 @@
                 $(".tube_animation_group").hide();
                 $('.tube_time_group').hide();
                 $("#countdown_examples").show();
+
+            },
+
+            'meeting_ticker':function () {
+                $('#tubes').val("attendees:hourly_rate")
+                $(".tube_animation_group").hide();
+                $('.tube_time_group').hide();
+                $("#countdown_examples").hide();
 
             }
 

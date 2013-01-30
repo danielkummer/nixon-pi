@@ -41,6 +41,10 @@ class Command < ActiveRecord::Base
         end unless options.blank?
       when :countdown
         errors.add(:value, "Countdown format invalid - unable to parse!") if ChronicDuration.parse(value, format: :chrono).nil?
+      when :meeting_ticker
+        unless value =~ /\d+:\d+/
+          errors.add(:value, "enter in the form of attendees:hourly_rate")
+        end
     end
   end
 

@@ -21,10 +21,7 @@ require_relative 'nixonpi/information/information_proxy'
 require_relative 'nixonpi/information/os_info'
 require_relative 'nixonpi/information/hardware_info'
 require 'thread'
-#require 'daemons'
-
-require 'ruby-prof' if $environment == "development"
-
+require 'active_record'
 
 Thread.abort_on_exception = true
 
@@ -35,14 +32,15 @@ module NixonPi
     include Logging
     include OSInfo
 
-
     ActiveRecord::Base.logger = Logger.new(STDERR)
 
     def initialize
       RubyProf.start if $environment == "development"
       log.info "Initializing Nixon-Pi service.."
       log.info "Environment: #{$environment}"
-      system "cd #{File.dirname(__FILE__)} && rake db:migrate"
+      #system "cd #{File.dirname(__FILE__)} && rake db:migrate"
+      ActiveRecord::Base.establish_connection("sqlite3:///db/settings.db")
+      ActiveRecord::Migrator.up("/db/migrate")
 
       %w(INT TERM).each do |sig|
         Signal.trap(sig) do

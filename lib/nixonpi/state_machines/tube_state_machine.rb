@@ -187,6 +187,26 @@ module NixonPi
           end
         end
       end
+
+      state :meeting_ticker do
+        def write
+          #find out if initial values or not....
+          value = params[:value]
+
+          if value =~ /\d+:\d+/
+            @meeting_start = Time.now
+            @attendees, @hourly_rate = value.split(":")
+            params[:value] = ""
+          end
+
+          per_second_burn = @hourly_rate.to_i * @attendee.to_i / 3600
+          elapsed_seconds = Time.now - @meeting_start
+          cost = per_second_burn * elapsed_seconds
+          #todo, enable led to show digit
+          cost.round(2)
+          driver.write(cost.to_s.gsub(/\./, ""))
+        end
+      end
     end
   end
 end
