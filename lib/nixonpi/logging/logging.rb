@@ -53,6 +53,10 @@ module NixonPi
               format = format.green
             when 'ERROR'
               format = format.red
+            when 'DEBUG'
+              format = format.yellow
+            else
+              format
           end
           format
         end

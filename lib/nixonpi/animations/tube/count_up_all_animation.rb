@@ -21,11 +21,10 @@ module NixonPi
         from = start
         to = from
         if @options[:single_digit]
-          from.each_char_with_index { |f, i| to[i] = (f = f.to_i += 1).to_s }
-
+          from.each_char.with_index { |f, i| to[i] = (f.to_i += 1).to_s }
 
           from.reverse.each_char.with_index do |number, index|
-            write(current_output, index)
+            write(number, index)
             sleep sleep_step
           end
         end

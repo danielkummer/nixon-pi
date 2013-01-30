@@ -1,7 +1,6 @@
 require 'net/telnet'
 require 'singleton'
 require 'thread'
-#require 'profile'
 
 require_relative 'retryable'
 require_relative 'conversion_helper'
@@ -27,7 +26,6 @@ module NixonPi
     ##
     # Initialize client connection to telnet server
     def initialize
-      @environment = $environment
 
       unless Settings['telnet_server'].nil?
         @host, @port = Settings.telnet_server.host, Settings.telnet_server.port
@@ -216,7 +214,7 @@ module NixonPi
     def connection
       @mutex.synchronize {
         retryable do
-          @conn ||= connection_for(@environment)
+          @conn ||= connection_for($environment)
         end
         @conn
       }
@@ -242,6 +240,8 @@ module NixonPi
           end
         when :test
           MockTelnet.new
+        else
+          log.error "Unknown environment: #{environment}"
       end
     end
 

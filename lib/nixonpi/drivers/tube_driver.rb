@@ -31,7 +31,6 @@ module NixonPi
     # Write number
     # @param [String] output
     def write(output)
-
       if Settings.in12a_tubes['write_blanks']
         write_string_with_blanks(output)
       else
@@ -113,7 +112,7 @@ module NixonPi
     # Initialize the shift register control pins
     def init_pins
       @data_pin, @clock_pin, @latch_pin = Settings.in12a_tubes.data_pin, Settings.in12a_tubes.clock_pin, Settings.in12a_tubes.latch_pin
-      log.info "initialize nixie with pins - data: #{@data_pin}, clock: #{@clock_pin}, latch: #{@latch_pin}"
+      log.debug "initialize tubes with pins - data: #@data_pin, clock: #@clock_pin, latch: #@latch_pin"
       client.io_write(@data_pin, 0)
       client.io_write(@clock_pin, 0)
       client.io_write(@latch_pin, 0)

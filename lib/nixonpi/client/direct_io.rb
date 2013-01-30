@@ -10,7 +10,7 @@ module NixonPi
 
     ##
     # Write to direct stdin and get values from stdout
-    # @param [String] cmd command
+    # @param [String] value
     # Pass a block if you like to handle the return value
     def cmd(value)
       @stdin.puts(value)
@@ -25,7 +25,6 @@ module NixonPi
       @stdout.close
       @stderr.close
       exit_status = @wait_thr.value # Process::Status object returned.
-      exit_status
     end
   end
 end

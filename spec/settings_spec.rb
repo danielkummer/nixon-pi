@@ -1,5 +1,4 @@
 require_relative 'spec_helper'
-
 require_relative '../lib/nixonpi/configurations/settings'
 
 describe NixonPi::Settings do
@@ -11,6 +10,13 @@ describe NixonPi::Settings do
   after :all do
     FileUtils.rm(File.join(Dir.home, @file_name))
   end
+
+  it "should get the correct path to the configuration file" do
+    expected = File.join(Dir.home, "nixonpi-settings.yml")
+    NixonPi::Settings.path_to_config.should eq expected
+    #todo test special cases file up to date or dev environment
+  end
+
 
   it "should copy the settings file to the users home directory" do
     File.exist?(File.join(Dir.home, @file_name)).should be_true

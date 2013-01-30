@@ -13,7 +13,8 @@ module NixonPi
 
       attr_accessor :thread
 
-      def initialize
+      def initialize()
+        super()
         @semaphore = Mutex.new
         @options ||= {}
         @driver = TubeDriver.instance

@@ -4,9 +4,11 @@
 The Nixon-&#960; Display consists of **Nixie Tubes** provided by [Ogilumen](http://www.ogilumen.com/), driven by a **Raspberry Pi Model B** with an **I/O expansion card** from [Axiris](http://www.axiris.be/).
 It's driven by a multi-threaded ruby application consisting of I/O drivers, state machines, a sinatra based web app and json api connected by message queues.
 
-What started out as a private idea found it's way into a mini-project on a __LABS__ team event from [Namics](http://www.namics.com).
+What started out as a private idea found it's way into a mini-project on a __LAB__ team event from [Namics](http://www.namics.com).
 
 Many thanks to all who contributed and hopefully will contribute to this project!
+
+--------------------------
 
 **Jump to**
 
@@ -16,6 +18,7 @@ Many thanks to all who contributed and hopefully will contribute to this project
 - [Service](#service)
 - [API](#api)
 
+--------------------------
 
 ##<a id="components" name="components"></a>Components
 
@@ -23,7 +26,7 @@ The following main components were used for assembly, not mentioning wiring and 
 
 ### 1x Raspberry Pi Model B
 
-<img src="http://www.raspberrypi.org/wp-content/uploads/2012/04/Raspi_Iso_Blue.png" width="400" height="150">
+<img src="http://www.raspberrypi.org/wp-content/uploads/2012/04/Raspi_Iso_Blue.png" width="400" >
 ---
 The [Raspberry Pi](http://www.raspberrypi.org/) is ideal for the project as it's a fully flegded mini computer which is capable of running all the things we need.
 
@@ -42,7 +45,7 @@ Here's a condensed list of the commands:
 
 ### 1x [Axiris](http://www.axiris.be/) I/O Card for Raspberry Pi
 
-<img src="http://www.axiris.be/en/images/stories/bcm2835/bcm2835_013_500.jpg" width="400" height="150">
+<img src="http://www.axiris.be/en/images/stories/bcm2835/bcm2835_013_500.jpg" width="400" >
 ---
 Because the Raspberry Pi only has [limited IO capabilites](http://elinux.org/RPi_Low-level_peripherals) the [Axisis I/O card](http://www.axiris.be/en/index.php?option=com_content&view=article&id=51:i2c-io-card-for-use-with-raspberry-pi-computer&catid=14:io-cards&Itemid=34) is the perfect addition to fully satisfy our needs. It adds:
 
@@ -54,9 +57,61 @@ Because the Raspberry Pi only has [limited IO capabilites](http://elinux.org/RPi
 The repository contains a modified driver to allow direct console output - without the need to start a telnet server in order to control the expansion card.
 However, you're still able to use the telnet server while developing - with it you can remotely execute the code with a live connection.
 
+<img src="https://dl.dropbox.com/u/23566127/nixon-pi_images/io_card.png" width="400" >
+
+1 lowel left, 2 upper left
+
+1. IO Ports
+	1. I/O channel 0
+	2. I/O channel 1
+	3. I/O channel 2
+	4. I/O channel 3
+	5. I/O channel 4
+	6. I/O channel 5
+	7. I/O channel 6
+	8. I/O channel 7
+	9. GND
+	10. 5 V output
+2. timestamp input
+	1. PCF2129A TS input
+	2. GND
+3. ADC input
+	1. Analog input 0
+	2. Analog input 1
+	3. Analog input 2
+	4. Analog input 3
+	5. Analog input 4
+	6. Analog input 5
+	7. Analog input 6
+	8. Analog input 7
+	9. GND
+	10. 5 V output
+4. PWM8-PWM15
+	1. PWM driver pin PWM8
+	2. PWM driver pin PWM9
+	3. PWM driver pin PWM10
+	4. PWM driver pin PWM11
+	5. PWM driver pin PWM12
+	6. PWM driver pin PWM13
+	7. PWM driver pin PWM14
+	8. PWM driver pin PWM15
+	9. GND
+	10. 5 V output
+5. PWM0-PWM7
+	1. PWM driver pin PWM0
+	2. PWM driver pin PWM1
+	3. PWM driver pin PWM2
+	4. PWM driver pin PWM3
+	5. PWM driver pin PWM4
+	6. PWM driver pin PWM5
+	7. PWM driver pin PWM6
+	8. PWM driver pin PWM7
+	9. GND
+	10. 5 V output
+
 ### 6x Nixie Duo Kits
 
-<img src="http://www.ogilumen.com/images/product_pics/n2xdp1.jpg" width="400" height="150">
+<img src="http://www.ogilumen.com/images/product_pics/n2xdp1.jpg" width="400" >
 ---
 
 [Ogilumen](http://www.ogilumen.com/) sells beautiful, compact and easy to assemble nixie tube kits containing two IN-12A tubes each.
@@ -64,37 +119,37 @@ Some electronics are needed so we're able to drive them using the 12-bit PWM cha
 
 **Electric diagram**
 
-<img src="https://dl.dropbox.com/u/23566127/nixon-pi_images/nixie_duo_diagram.png" width="400" height="150">
+<img src="https://dl.dropbox.com/u/23566127/nixon-pi_images/nixie_duo_diagram.png" width="400" >
 
 
 ### 4x IN-13 Bar Graphs
 
 
-<img src="http://www.ogilumen.com/images/product_pics/IN-13a.jpg" width="400" height="150">
+<img src="http://www.ogilumen.com/images/product_pics/IN-13a.jpg" width="400" >
 ---
 
 The IN-13 Neon Bar Graphs sold by Ogilumen are a beautiful way to display a variable length glowing bar.
 
 **Electric diagram**
 
-<img src="https://dl.dropbox.com/u/23566127/nixon-pi_images/bargraph_diagram.png" width="400" height="150">
+<img src="https://dl.dropbox.com/u/23566127/nixon-pi_images/bargraph_diagram.png" width="400" >
 
 
 ### 5x IN-1 Neon
 
 
-<img src="http://www.ogilumen.com/images/product_pics/n1a.jpg" width="400" height="150">
+<img src="http://www.ogilumen.com/images/product_pics/n1a.jpg" width="400" >
 ---
 The IN-1 Neon Lamps are simply a nice LED-alternative and they have a nice warm orange glow...
 
 **Electric diagram**
 
-<img src="https://dl.dropbox.com/u/23566127/nixon-pi_images/lamp_diagram.png" width="400" height="150">
+<img src="https://dl.dropbox.com/u/23566127/nixon-pi_images/lamp_diagram.png" width="400" >
 
 
 ## 1x 50 mA Nixie Tube Power Supply
 
-<img src="http://www.ogilumen.com/images/product_pics/smps1.jpg" width="400" height="150">
+<img src="http://www.ogilumen.com/images/product_pics/smps1.jpg" width="400" >
 ---
 
 In the end we need a power supply to drive all our high-voltage Nixie goodness. Luckly ogilumen provides us with a readily assembled power supply capable of providing all the power we need...
@@ -102,7 +157,7 @@ If you want to power everything with a 12V power supply, use a voltage divider a
 
 **Voltage divider electric diagram**
 
-<img src="https://dl.dropbox.com/u/23566127/nixon-pi_images/voltage_divider_diagram.png" width="400" height="150">
+<img src="https://dl.dropbox.com/u/23566127/nixon-pi_images/voltage_divider_diagram.png" width="400" >
 
 ##<a id="case" name="case"></a> Case
 
@@ -115,12 +170,14 @@ The casing gives the nixon-pi a retro look - it should remind one of a sixties r
 Although nixon-pi can be packed as a gem it's currently suggested to install it by cloning the repository.
 The master branch contains the newest production release.
 
+--------------------------
+
 ##<a id="service" name="service"></a> The Service
 
 A telnet based client to drive nixie tubes via rest interface
 
 ## Comand line options
-	
+
 	bin/nixon-pi -h
 	Usage: nixon-pi [options]
 	    -e env                           set the environment (default is development, others are test and production)
@@ -128,17 +185,24 @@ A telnet based client to drive nixie tubes via rest interface
 	    -p port                          set the webserver port (default is 8080)
 	    -h, --help                       Display help
 
-The application drops a .yml configuration file in the users home directory. Review and adjust if neccessary...    
+The application drops a .yml configuration file in the users home directory. Review and adjust if neccessary...
 
-### Manage the daemon process
+Use foreman to start and stop the process.
 
-    ruby bin/nixonpi.rb start
-    ruby bin/nixonpi.rb restart
-    ruby bin/nixonpi.rb stop
+    foreman start
+    foreman start -f ./Procfile.production
+
+
+Export start and stop scripts using
+
+     foreman export upstart . -l .
+
+
+**NOTE** Most probably the ctrl+c combination will not suffice to stop the webrick server started by sinatra. In this case use ctrl+z to stop
 
 ### Controlling
 
-The daemon is controlled via sinatra web application, see the example page at [server ip]:[port]
+The whole device is controlled via sinatra web application, see the example page at [server ip]:[port]
 
 ## The Gem
 
@@ -177,8 +241,9 @@ Generate state machine diagrams with the following command:
 **Lamp State Machine**
 
 <img src="https://dl.dropbox.com/u/23566127/nixon-pi_images/LampStateMachine_state.png" width="400">
-	
-	
+
+--------------------------
+
 #<a id="api" name="api"></a> API
 
 All api requests can be made as either .html or .json.
@@ -192,6 +257,7 @@ The web server port can be configured in the nixonpi-settings.yml file inside yo
 	  web_server:
 	    port: 3000
 
+--------------------------
 
 ## POST Requests
 
@@ -255,6 +321,8 @@ Control the high-voltage power supply.
 
 ### POST /scheduler
 
+--------------------------
+
 ## GET Requests
 
 Get requests to get information about the nixon-pi.
@@ -287,7 +355,36 @@ Returns:
 	    "success": true
 	}
 
-### GET /info.:format
+
+### GET /info/:target/:id.:format
+
+Get information about the current state of a specified state machine.
+
+| Parameters | Values |
+| ---------- | ------ |
+| :target | state machine |
+| :id | numeric identifier |
+| :format | html, json |
+
+**Example:**
+
+	wget http://localhost:3000/info/lamp/0.json
+
+Returns:
+
+	{
+	    "value": 0,
+	    "last_state": "startup",
+	    "state": "free_value",
+	    "last_value": 0,
+	    "message": [
+	        "lamp0 set to"
+	    ],
+	    "success": true
+	}
+
+
+### GET /info/hw.:format
 
 Get hardware information about the Raspberry-Pi I/O expansion card.
 Information include:
@@ -398,6 +495,8 @@ Returns:
 	    "success": true
 	}
 
+--------------------------
+
 ## DELETE Requests
 
 Delete saved values.
@@ -421,6 +520,6 @@ Returns:
 		"success":true,
 		"message":"Schedule deleted"
 	}
-	
+
 
 

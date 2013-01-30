@@ -1,13 +1,10 @@
 require 'singleton'
 require_relative 'settings'
-#require 'active_support/core_ext/hash/indifferent_access'
 require 'json'
 
 module NixonPi
   class StateHash < ::Hash
     require 'sync'
-
-
 
     def initialize(*args, &block)
       super
@@ -54,12 +51,5 @@ module NixonPi
   def to_json
     JSON.encode(self)
   end
-
-
-
-
-
-
-
 
 end

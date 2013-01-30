@@ -41,6 +41,26 @@
     /compile:  $ lessc public/less/style.less > public/css/mycss.css
     /source: http://stackoverflow.com/questions/11481203/how-to-start-using-twitter-bootstrap-and-sass-in-a-sinatra-project
 %body
+  .navbar.navbar-fixed-bottom
+    .navbar-inner
+      .container
+        %ul.nav
+          %li
+            %a{href: "/"}
+              %i.icon-cogs.pull-left
+              Control
+          %li{style:"height:30px;"}
+            %a{href: "/scheduler.html"}
+              %i.icon-tasks.pull-left
+              Scheduler
+          %li{style:"height:30px;"}
+            %a{href: "/logs.html"}
+              %i.icon-list-alt.pull-left
+              Log
+          %li{style:"height:30px;"}
+            %a{href: "http://danielkummer.github.com/nixon-pi/#api"}
+              %i.icon-exchange.pull-left
+              API
   .container
     .content
       .row
@@ -50,7 +70,9 @@
               %label{for:"power-value", style: "float:left;padding-left:5px"}
                 %i.icon-bolt.icon-4x.pull-left
               #power-toggle-button.toggle-button
-                -if NixonPi::PowerDriver.instance.on?
+                /TODO!!!!!!!!
+                /-if NixonPi::PowerDriver.instance.on?
+                -if false
                   %input.checkbox{:checked => "checked", id: "power-value", :name => "value", :type => "checkbox", :value => "1"}
                 -else
                   %input.checkbox{id: "power-value", :name => "value", :type => "checkbox", :value => "1"}
@@ -59,27 +81,10 @@
             %h1 Nixon-&#960;
         .span3
           #alert-container{"data-spy"=>"affix", "data-offset-top"=>"-20"}
-          .hero-unit
-            %ul.nav.nav-list
-              %li{style:"height:30px;"}
-                %a{href: "/"}
-                  %i.icon-cogs.pull-left
-                  Control
-              %li{style:"height:30px;"}
-                %a{href: "/scheduler.html"}
-                  %i.icon-tasks.pull-left
-                  Scheduler
-              %li{style:"height:30px;"}
-                %a{href: "#"}
-                  %i.icon-exchange.pull-left
-                  API
+
 
       .row
         = yield
 
   %footer.footer
-    %p
-      &copy; Daniel Kummer, 2013
-      %a{href:"http://danielkummer.github.com/nixon-pi/", target:"_blank", title:"Project Page"} github
-
 

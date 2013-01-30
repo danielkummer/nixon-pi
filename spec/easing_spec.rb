@@ -1,5 +1,5 @@
 require_relative 'spec_helper'
-require_relative '../lib/nixieberry/animations/easing'
+require_relative '../lib/nixonpi/animations/easing'
 
 describe NixonPi::Easing do
 

@@ -1,12 +1,15 @@
 require 'rufus/scheduler'
 require 'singleton'
-require_relative 'command_processor'
 require_relative 'logging/logging'
+require_relative 'messaging/command_listener'
+require_relative 'messaging/messaging'
+require_relative 'information/information_holder'
 
 module NixonPi
 
   class CommandJob
     include Logging
+    include Messaging
 
     def initialize(id, queue, command, lock)
       @id, @queue, @command, @lock = id, queue, command, lock
@@ -14,8 +17,9 @@ module NixonPi
 
     def call(job)
       log.info "Job called#{job.to_s} "
-      CommandQueue.enqueue(@queue, @command)
-      CommandQueue.unlock(@queue) if @lock
+      CommandSender.new.send_command(@queue, @command)
+      #todo unlock queue
+      #CommandQueue.unlock(@queue) if @lock
       Schedule.delete(@id)
     end
   end
@@ -23,28 +27,48 @@ module NixonPi
 
   class Scheduler
     include Logging
-    include Singleton
+    include CommandListener
+    include InformationHolder
+
+    accepted_commands :method, :timing, :queue, :command, :time, :id
 
     def initialize
-      #https://github.com/jmettraux/rufus-scheduler
       @@scheduler ||= Rufus::Scheduler.start_new
       @@jobs = {}
 
       def @@scheduler.handle_exception(job, exception)
-        log.error "job #{job.job_id} caught exception '#{exception}'"
+        self.log.error "job #{job.job_id} caught exception '#{exception}'"
       end
 
       log.info "Scheduler started"
+      reload
     end
 
-    def reload_from_db
+    def reload
       #delete all ambiguous records
-      Schedule.find(:all, conditions: ["method IN (?)", %w"in every"])
+      #Schedule.find(:all, conditions: ["method IN (?)", %w(in every)])
+      schedules = Schedule.find(:all)
+      schedules.each do |s|
+        schedule(s.id, s.method, s.timing, s.queue, s.command)
+      end
+    end
+
+    def handle_info_request(about)
+      ret = {}
+      case about.to_sym
+        when :commands
+          ret = self.class.available_commands
+        when :jobs
+          ret = {jobs: jobs}
+        else
+          log.error "No information about #{about}"
+      end
+      ret
     end
 
 
-    def receive(command)
-      log.debug "got schedule command: #{command}, applying..."
+    def handle_command(command)
+      log.info "got schedule command: #{command}, applying..."
       id, method, timing, queue = command[:id], command[:method], command[:timing], command[:queue]
 
       new_commands = Hash.new
@@ -54,11 +78,11 @@ module NixonPi
 
       command[:command] = new_commands
 
-      locked = command[:lock] ? true : false;
-      schedule(id, method, timing, queue, command, locked)
+      locked = command[:lock] ? true : false
+      schedule(id, method, timing, queue, command[:command], locked)
     end
 
-    def exit_scheduler
+    def self.exit_scheduler
       #unschedule_all #quit cron jobs too...
     end
 
@@ -80,12 +104,14 @@ module NixonPi
     # @param [Symbol] queue Name of the queue -> command receiver
     # @param [Hash] command Hash of command parameters
     def schedule(id, method, timing, queue, command, lock = false)
-      if %w"power tubes bars lamps".include?(queue)
+      if %w(power tubes bars lamps).include?(queue)
         log.debug "schedule command #{command}, #{method} #{timing} for #{queue}"
         #if %w"in at".include?(method) or lock
         if lock
           log.debug "locking state machine..."
-          CommandQueue.lock(queue)
+
+          #todo lock queue
+          #CommandQueue.lock(queue)
         end
 
         #todo test if block works
@@ -98,6 +124,8 @@ module NixonPi
                   @@scheduler.every "#{timing}", CommandJob.new(id, queue, command, lock), :mutex => "#{queue}"
                 when :cron
                   @@scheduler.cron "#{timing}", CommandJob.new(id, queue, command, lock), :mutex => "#{queue}"
+                else
+                  false
               end
 
 

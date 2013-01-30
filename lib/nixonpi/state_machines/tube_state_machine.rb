@@ -8,8 +8,8 @@ require_relative '../animations/animation'
 require_relative '../animations/tube/switch_numbers_animation'
 require_relative '../animations/tube/single_fly_in_animation'
 require_relative 'handler_state_machine'
-require_relative '../command_queue'
 require_relative '../logging/logging'
+require_relative '../messaging/messaging'
 
 
 module NixonPi
@@ -17,12 +17,11 @@ module NixonPi
     include Logging
 
     register_as :tubes
+    accepted_commands :state, :value, :time_format, :animation_name, :options, :initial_mode
 
-    def after_create
+    def initialize()
+      super()
       register_driver NixonPi::TubeDriver
-      ##todo process options...
-      reload_from_db(:tubes)
-      CommandProcessor.add_receiver(self, :tubes)
     end
 
     state_machine :initial => :startup do
@@ -111,7 +110,6 @@ module NixonPi
           options ||= {}
           start_value = params[:last_value]
           NixonPi::Animations::Animation.create(name.to_sym, options).run(start_value)
-          puts "state #{params}"
           self.fire_state_event(params[:last_state]) #go back to old state again and do whatever was done before
         end
       end
@@ -148,7 +146,7 @@ module NixonPi
                 options.keys.each do |k, o|
                   case k.to_sym
                     when :say
-                      CommandQueue.enqueue(:say, {value: o})
+                      NixonPi::Messaging::CommandSender.send_command(:say, {value: o})
                     when :state
                       self.fire_state_event(params[:o])
                     else
