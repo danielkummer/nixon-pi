@@ -24,6 +24,6 @@ describe 'The Nixon-Pi Web Application', :exclude => true do
   end
 
   #todo
-  #get post delete
+  #get post delete actions
 
 end
