@@ -3,12 +3,8 @@ require_relative 'support/active_record'
 require_relative '../web/models'
 
 describe Command do
-
-
   context "tube commands" do
     context "free value" do
-
-
       before :each do
         @tc = Command.new(state_machine: :tubes, state: :free_value)
       end
@@ -33,6 +29,7 @@ describe Command do
       end
 
     end
+
     context "time" do
       before :each do
         @tc = Command.new(state_machine: :tubes, state: :time)
@@ -45,6 +42,11 @@ describe Command do
     end
 
     context "animation" do
+
+      before :each do
+        @tc = Command.new(state_machine: :tubes, state: :animation)
+      end
+
       it "should require an animation name" do
         fail
       end
@@ -55,6 +57,11 @@ describe Command do
     end
 
     context "countdown" do
+
+      before :each do
+        @tc = Command.new(state_machine: :tubes, state: :coountdown)
+      end
+
       it "should only allow a valid time string" do
         fail
       end

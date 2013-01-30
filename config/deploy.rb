@@ -6,16 +6,18 @@ set :scm_username, "daniel.kummer@gmail.com"
 server 'nixonpi', :app, :web, :db
 
 set :deploy_to, "/home/pi/nixon-pi"
-set :deploy_via, :copy
-set :copy_strategy, :export
+set :git_shallow_clone, 1
+
+#set :deploy_via, :copy
+#set :copy_strategy, :export
 
 set :copy_local_tar, "/usr/bin/gnutar" if `uname` =~ /Darwin/
 
 
-#set :rvm_ruby_string, 'ree@rails3'                     # Or:
 require "rvm/capistrano"                               # Load RVM's capistrano plugin.
 
-set :rvm_ruby_string, ENV['GEM_HOME'].gsub(/.*\//,"") # Read from local system
+set :rvm_ruby_string, '1.9.3@global'                     # Or:
+#set :rvm_ruby_string, ENV['GEM_HOME'].gsub(/.*\//,"") # Read from local system
 set :rvm_type, :system
 
 after "deploy:restart", "deploy:cleanup"

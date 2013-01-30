@@ -25,11 +25,8 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'state_machine'
   gem.add_dependency 'festivaltts4r'
   gem.add_dependency 'rufus-scheduler'
-  #gem.add_dependency 'daemons'
   gem.add_dependency 'foreman'
   gem.add_dependency 'bunny', '~> 0.9.0.pre4'
-
-
   gem.add_dependency 'sinatra'
   gem.add_dependency 'sinatra-contrib'
   gem.add_dependency 'sinatra-activerecord'
@@ -37,8 +34,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'sqlite3'
   gem.add_dependency 'sinatra-formhelpers'
   gem.add_dependency 'sinatra-jsonp'
-
-
   gem.add_dependency 'json'
   gem.add_dependency 'haml'
   gem.add_dependency 'chronic_duration'
