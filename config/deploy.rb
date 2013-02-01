@@ -6,17 +6,16 @@ set :scm_username, "daniel.kummer@gmail.com"
 server 'nixonpi', :app, :web, :db
 
 set :deploy_to, "/home/pi/nixon-pi"
-set :git_shallow_clone, 1
-
-#set :deploy_via, :copy
+#set :git_shallow_clone, 1
+set :deploy_via, :copy
 #set :copy_strategy, :export
 
 set :copy_local_tar, "/usr/bin/gnutar" if `uname` =~ /Darwin/
 
 
-require "rvm/capistrano"                               # Load RVM's capistrano plugin.
+require "rvm/capistrano" # Load RVM's capistrano plugin.
 
-set :rvm_ruby_string, '1.9.3@global'                     # Or:
+set :rvm_ruby_string, '1.9.3@global' # Or:
 #set :rvm_ruby_string, ENV['GEM_HOME'].gsub(/.*\//,"") # Read from local system
 set :rvm_type, :system
 
@@ -39,9 +38,19 @@ def kill_processes_matching(name)
   run "ps -ef | grep #{name} | grep -v grep | awk '{print $2}' | xargs kill || echo 'no process with name #{name} found'"
 end
 
+before "deploy:update", "deploy:link_db"
 after 'deploy:update', 'bundle:install'
 after 'deploy:update', 'foreman:export'
 after 'deploy:update', 'foreman:restart'
+before 'deploy:update_code', 'less:compile'
+
+namespace :less do
+
+  desc "compile less files"
+  task :compile do
+    run_locally "cd web/public/less/ && lessc style.less > ../css/style.css"
+  end
+end
 
 namespace :bundle do
   desc "Installs the application dependencies"
@@ -78,8 +87,15 @@ namespace :foreman do
   end
 end
 
+
 # stub out deploy:restart
 namespace :deploy do
+
+  task :link_db do
+    run "rm -f  #{latest_release}/db/settings.db"
+    run "ln -s #{shared_path}/db/settings.db #{latest_release}/db/settings.db"
+  end
+
   task :restart do
   end
 end

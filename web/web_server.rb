@@ -1,3 +1,4 @@
+
 require 'sinatra'
 require 'sinatra/base'
 require 'sinatra/contrib'
@@ -10,7 +11,7 @@ require 'sinatra/form_helpers'
 require 'sinatra/jsonp'
 require 'drb'
 
-$environment = 'development'
+$environment = ENV['RACK_ENV']
 
 require_relative '../lib/nixonpi/configurations/settings'
 require_relative 'models'
@@ -29,6 +30,9 @@ module NixonPi
     helpers Sinatra::Jsonp
 
     use Rack::MethodOverride
+
+    #todo always development
+    set :environment => ENV['RACK_ENV'].to_sym
 
     set :database, 'sqlite:///db/settings.db'
     #set :lock, false #enable on threading errors
@@ -136,7 +140,7 @@ module NixonPi
     get '/state.:format' do
       data = Hash.new
       data[:rabbitmq] = sender.connected?
-      data[:service] = get_data_for(:power, :params)[:success]
+      data[:service] = get_data_for(:power, :params)[:value]
       formatted_response(params[:format], data, "application state")
     end
 

@@ -35,7 +35,6 @@ module NixonPi
     ActiveRecord::Base.logger = Logger.new(STDERR)
 
     def initialize
-      RubyProf.start if $environment == "development"
       log.info "Initializing Nixon-Pi service.."
       log.info "Environment: #{$environment}"
       #system "cd #{File.dirname(__FILE__)} && rake db:migrate"
@@ -69,9 +68,14 @@ module NixonPi
 
       @message_distributor.add_receiver(SpeechDriver.new, :speech)
       @message_distributor.add_receiver(PowerDriver.instance, :power)
+      @message_distributor.add_receiver(NixonPi::Scheduler.new, :schedule)
+
       @info_gatherer.add_info_holder(PowerDriver.instance, :power)
       @info_gatherer.add_info_holder(HardwareInfo.new, :hardware)
+      @info_gatherer.add_info_holder(NixonPi::Scheduler.new, :schedule)
       @info_gatherer.add_info_holder(@message_distributor, :commands)
+
+      DRb.start_service(DRBSERVER, @info_gatherer)
     end
 
     ##
@@ -90,10 +94,6 @@ module NixonPi
       log.info "Start running..."
       PowerDriver.instance.power_on
 
-      @message_distributor.add_receiver(NixonPi::Scheduler.new, :schedule)
-      @info_gatherer.add_info_holder(NixonPi::Scheduler.new, :schedule)
-      DRb.start_service( DRBSERVER, @info_gatherer )
-
       NixonPi::MachineManager.start_state_machines
 
       NixonPi::MachineManager.join_threads #this must be inside the main run script - else the subthreads exit
@@ -103,7 +103,6 @@ module NixonPi
     # quit service power down nicely
     def quit!
       log.info "Nixon Pi is shutting down..."
-
       DRb.stop_service
       DRb.thread.join
       NixonPi::MachineManager.exit

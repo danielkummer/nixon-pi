@@ -6,6 +6,7 @@ require_relative '../configurations/state_hash'
 require_relative '../factory'
 require_relative '../messaging/command_listener'
 require_relative '../../../lib/nixonpi/information/information_holder'
+require_relative '../messaging/messaging'
 
 require_relative '../../../web/models'
 require 'active_record'
@@ -21,6 +22,7 @@ module NixonPi
     attr_accessor :registered_as_type
 
     @state_parameters = {}
+    @command_sender = NixonPi::Messaging::CommandSender.new
 
     def initialize()
       super() # NOTE: This *must* be called, otherwise states won't get initialized
@@ -87,22 +89,6 @@ module NixonPi
 
 
     protected
-    #todo refactor!!!
-    def reload_from_db(state_machine)
-=begin
-      ActiveRecord::Base.establish_connection("sqlite3:///db/settings.db")
-      options = Command.find(:first, conditions: ["state_machine = ?", state_machine])
-      ActiveRecord::Base.connection.close
-      if options
-        log.debug "db setting loaded for #{state_machine} => #{options.to_s} "
-        set_params(options)
-        log.debug "state set to: #{params.to_s}"
-      else
-        log.debug "no db settings found for :#{state_machine} "
-      end
-=end
-    end
-
     def set_params(options)
       options.each do |option, value|
         params[option.to_sym] = value if params.has_key?(option.to_sym) and !value.nil?
@@ -134,8 +120,19 @@ module NixonPi
     # @param [block] block
     def self.handle_around_transition(object, transition, block)
       object.params[:last_state] = object.state if !object.state.nil?
+
+      begin
+        object.leave_state
+      rescue NoMethodError => e;
+      end
+
       block.call
       object.params[:state] = object.state
+
+      begin
+        object.enter_state if object.respond_to?(:enter_state)
+      rescue NoMethodError => e
+      end
       object.log.debug "TRANSITION:  #{object.params[:last_state]} --#{transition.event}--> #{object.state}"
       object.log.debug "new state: #{object.state}"
     end

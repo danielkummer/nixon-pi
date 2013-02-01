@@ -16,6 +16,7 @@ Many thanks to all who contributed and hopefully will contribute to this project
 - [Case](#case)
 - [Installation](#installation)
 - [Service](#service)
+- [Web Server](#web_server)
 - [API](#api)
 
 --------------------------
@@ -187,15 +188,17 @@ A telnet based client to drive nixie tubes via rest interface
 
 The application drops a .yml configuration file in the users home directory. Review and adjust if neccessary...
 
-Use foreman to start and stop the process.
+Use foreman to start and stop the service and the web application.
 
     foreman start
     foreman start -f ./Procfile.production
 
 
-Export start and stop scripts using
+Export start and stop scripts using either
 
      foreman export upstart . -l .
+
+or the capistrano deploy script.     
 
 
 **NOTE** Most probably the ctrl+c combination will not suffice to stop the webrick server started by sinatra. In this case use ctrl+z to stop
@@ -241,6 +244,19 @@ Generate state machine diagrams with the following command:
 **Lamp State Machine**
 
 <img src="https://dl.dropbox.com/u/23566127/nixon-pi_images/LampStateMachine_state.png" width="400">
+
+--------------------------
+
+#<a id="web_server" name="web_server"></a> Web Server
+
+The Sinatra based web server exposes a json api to control the service as well as a simple web application. 
+
+As well as the service, the web application can be started using foreman.
+Before you do however, be sure to set the RACK_ENV variable to the necessary environment.
+
+Set it for example in the .bash_profile file	
+
+	RACK_ENV=production	
 
 --------------------------
 

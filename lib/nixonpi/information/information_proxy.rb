@@ -9,6 +9,9 @@ module NixonPi
   class InformationProxy
     include Logging
 
+    include DRb::DRbUndumped
+
+
     def initialize
       @receivers = Hash.new
     end

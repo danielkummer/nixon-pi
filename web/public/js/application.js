@@ -4,7 +4,7 @@
 
         $.getJSON('/state.json', function (data) {
             if (!data.rabbitmq) {
-                var $alert = $("<div class='alert alert-error fade in'><button data-dismiss='alert' class='close' type='button'>×</button>RabbitMQ message broker not running!</div>")
+                var $alert = $("<div class='alert alert-error fade in'><button data-dismiss='alert' class='close' type='button'>×</button>RabbitMQ broker not running!</div>")
                 $('#alert-container').append($alert);
             }
 

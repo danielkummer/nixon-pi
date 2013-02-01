@@ -46,6 +46,9 @@ module NixonPi
       event :countdown do
         transition all => :countdown
       end
+      event :meeting_ticker do
+        transition all => :meeting_ticker
+      end
 
       event :run_test do
         transition all => :run_test
@@ -189,17 +192,26 @@ module NixonPi
       end
 
       state :meeting_ticker do
-        def write
+        def enter_state
+          #lock lamps
           #find out if initial values or not....
           value = params[:value]
 
           if value =~ /\d+:\d+/
             @meeting_start = Time.now
             @attendees, @hourly_rate = value.split(":")
-            params[:value] = ""
           end
 
-          per_second_burn = @hourly_rate.to_i * @attendee.to_i / 3600
+          @command_sender.send_command(:lamp5, {state: :free_value, locking: :lock, value: 1})
+        end
+
+        def leave_state
+          #unlock lamps
+          @command_sender.send_command(:lamp5, {state: :free_value, locking: :unlock, value: 0})
+        end
+
+        def write
+          per_second_burn = @hourly_rate.to_i * @attendees.to_i / 3600
           elapsed_seconds = Time.now - @meeting_start
           cost = per_second_burn * elapsed_seconds
           #todo, enable led to show digit
