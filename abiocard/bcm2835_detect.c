@@ -22,9 +22,18 @@
 //      * Added detection of revision number.
 //      * Released.
 //
+//   2012-11-30  Peter S'heeren, Axiris
+//
+//      * The revision number is an hexadecimal value. Replaced the parser.
+//
+//   2012-12-10  Peter S'heeren, Axiris
+//
+//      * Added support for the warranty void bit in the revision code.
+//      * Fixed the hexadecimal parser and added overflow checking.
+//
 // ----------------------------------------------------------------------------
 //
-// Copyright (c) 2012  Peter S'heeren, Axiris
+// Copyright (c) 2012-2013  Peter S'heeren, Axiris
 //
 // This source text is provided as-is without any implied or expressed
 // warranty. The authors don't accept any liability for damages that arise from
@@ -89,9 +98,11 @@ static  FLAG    line_buf_error;
 
 
 static
-FLAG  parse_u32 (CHAR **s, U32 *res)
+FLAG  parse_hex_u32 (CHAR **s, U32 *res)
 {
     U32     val;
+    U32     prev_val;
+    U8      digit;
     CHAR    c;
     FLAG    digit_parsed;
 
@@ -101,23 +112,25 @@ FLAG  parse_u32 (CHAR **s, U32 *res)
     for (;;)
     {
         c = **s;
-        if ((c >= '0') && (c <= '9'))
-        {
-            digit_parsed = 1;
-            (*s)++;
-            val = val * 10 + (c - '0');     // Add the digit to the result
-        }
-        else
-        {
-            if (digit_parsed)
-            {
-                *res = val;
-                return 1;
-            }
+        if ((c >= '0') && (c <= '9')) digit = c - '0'; else
+        if ((c >= 'A') && (c <= 'F')) digit = c - 'A' + 10; else
+        if ((c >= 'a') && (c <= 'f')) digit = c - 'a' + 10; else
+            break;
 
-            return 0;
-        }
+        digit_parsed = 1;
+        (*s)++;
+
+        prev_val = val;
+
+        val = val * 16 + (U32)digit;    // Add the digit to the result
+
+        if (val < prev_val) return 0;   // Check for overflow
     }
+
+    if (!digit_parsed) return 0;
+
+    *res = val;
+    return 1;
 }
 
 
@@ -129,9 +142,10 @@ FLAG  bcm2835_detect (BCM2835_DETECT_IO *io)
     FLAG    io_ok;
 
     io->res_detected = 0;
-    io->res_revision = 0;
+    io->res_word     = 0;
 
     fd = open("/proc/cpuinfo",O_RDONLY);
+//    fd = open("cpuinfo.txt",O_RDONLY);    // TEST.
     if (fd == -1) return 0;
 
     // Result values
@@ -181,9 +195,9 @@ FLAG  bcm2835_detect (BCM2835_DETECT_IO *io)
 
                             s = line_buf + MATCH_REV_LEN;
 
-                            if (parse_u32(&s,&val))
+                            if (parse_hex_u32(&s,&val))
                             {
-                                io->res_revision = val;
+                                io->res_word = val;
                             }
                         }
                     }

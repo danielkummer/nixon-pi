@@ -1,6 +1,6 @@
 require "bundler/gem_tasks"
 
-if $environment = 'development'
+if $environment == 'development'
   require 'rspec/core/rake_task'
   require 'tasks/state_machine'
   RSpec::Core::RakeTask.new('spec')
