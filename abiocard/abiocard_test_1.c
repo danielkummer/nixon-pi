@@ -20,16 +20,18 @@
 //   2012-09-09  Peter S'heeren, Axiris
 //
 //      * Added choice of BSC.
-//      * Released.
 //
 //   2012-10-19  Peter S'heeren, Axiris
 //
 //      * Added support for AbioCard model B.
-//      * Released.
+//
+//   2013-01-25  Peter S'heeren, Axiris
+//
+//      * Added support for the i2c-dev interface.
 //
 // ----------------------------------------------------------------------------
 //
-// Copyright (c) 2012  Peter S'heeren, Axiris
+// Copyright (c) 2012-2013  Peter S'heeren, Axiris
 //
 // This source text is provided as-is without any implied or expressed
 // warranty. The authors don't accept any liability for damages that arise from
@@ -42,6 +44,7 @@
 
 
 #include <stdio.h>
+#include <sys/stat.h>
 
 #include "bcm2835_detect.h"
 #include "abiocard.h"
@@ -168,8 +171,21 @@ VOID  test_pwm2 (VOID)
 
 int  main (int argc, char *argv[])
 {
-    BCM2835_DETECT_IO    detect_io;
-    ABIOCARD_INIT_IO     abiocard_init_io;
+    static  CHAR                 dev_name[20];
+    static  struct  stat         stat_info;
+
+    static  BCM2835_DETECT_IO    detect_io = { 0 };
+
+    static  ABIOCARD_INIT_IO     abiocard_init_io =
+    {
+        .intf        = ABIOCARD_INIT_INTF_BSC,
+        .bsc_index   = 0,
+        .i2cdev_name = 0
+    };
+
+
+    int     i;
+
 
     if (!bcm2835_detect(&detect_io))
     {
@@ -187,6 +203,29 @@ int  main (int argc, char *argv[])
     // * <0004:  Computer rev. 1, use BSC0
     // * >=0004: Computer rev. 2, use BSC1
     if (detect_io.res_revision >= 4) abiocard_init_io.bsc_index = 1;
+
+    // Check whether the i2c-dev file for the target BSC is present. If
+    // the file is present then use the i2c-dev interface rather than
+    // direct I/O.
+
+    sprintf(dev_name,"/dev/i2c-%d",abiocard_init_io.bsc_index);
+
+    i = stat(dev_name,&stat_info);
+    if (i == 0)
+    {
+        // Switch interface to i2c-dev
+        abiocard_init_io.intf        = ABIOCARD_INIT_INTF_I2CDEV;
+        abiocard_init_io.i2cdev_name = dev_name;
+    }
+
+
+    // DBG.
+    printf("abiocard_test_1: intf %d, ",abiocard_init_io.intf);
+    if (abiocard_init_io.intf == ABIOCARD_INIT_INTF_BSC)
+        printf("bsc %d\n",abiocard_init_io.bsc_index);
+    else
+        printf("dev %s\n",abiocard_init_io.i2cdev_name);
+
 
     if (!abiocard_init(&abiocard_init_io))
     {

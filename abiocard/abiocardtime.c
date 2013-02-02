@@ -23,16 +23,18 @@
 //   2012-09-09  Peter S'heeren, Axiris
 //
 //      * Added the ability to choose the BSC.
-//      * Released.
 //
 //   2012-09-10  Peter S'heeren, Axiris
 //
 //      * Added detection of revision number to set the default BSC index.
-//      * Released.
+//
+//   2013-01-25  Peter S'heeren, Axiris
+//
+//      * Added support for the i2c-dev interface.
 //
 // ----------------------------------------------------------------------------
 //
-// Copyright (c) 2012  Peter S'heeren, Axiris
+// Copyright (c) 2012-2013  Peter S'heeren, Axiris
 //
 // This source text is provided as-is without any implied or expressed
 // warranty. The authors don't accept any liability for damages that arise from
@@ -48,6 +50,7 @@
 #include <string.h>
 #include <time.h>
 #include <errno.h>
+#include <sys/stat.h>
 
 #include "bcm2835_detect.h"
 #include "abiocard.h"
@@ -55,8 +58,17 @@
 
 static  BCM2835_DETECT_IO       detect_io = { 0 };
 static  FLAG                    bsc_parsed = 0;
+static  FLAG                    dev_parsed = 0;
 
-static  ABIOCARD_INIT_IO        abiocard_init_io = { 0 };
+static  CHAR                    dev_name[20];
+static  struct  stat            stat_info;
+
+static  ABIOCARD_INIT_IO        abiocard_init_io =
+{
+    .intf        = ABIOCARD_INIT_INTF_BSC,
+    .bsc_index   = 0,
+    .i2cdev_name = 0
+};
 
 static  ABIOCARD_RTC_POLL_INFO  poll_info;
 static  ABIOCARD_RTC_TIME       rtc_time;
@@ -214,10 +226,26 @@ FLAG  parse_cmdline (int argc, char *argv[])
             s = argv[arg_index];
             if (!parse_u32(&s,&val,0,1)) return 0;
 
+            abiocard_init_io.intf      = ABIOCARD_INIT_INTF_BSC;
             abiocard_init_io.bsc_index = (U8)val;
             bsc_parsed = 1;
 
             if ((*s) != 0) return 0;
+
+            arg_index++;
+        }
+        else
+        if (strcmp(argv[arg_index],"-dev") == 0)
+        {
+            CHAR   *s;
+            U32     val;
+
+            arg_index++;
+            if (arg_index == argc) return 0;
+
+            abiocard_init_io.intf        = ABIOCARD_INIT_INTF_I2CDEV;
+            abiocard_init_io.i2cdev_name = argv[arg_index];
+            dev_parsed                   = 1;
 
             arg_index++;
         }
@@ -243,6 +271,8 @@ VOID  usage_cmdline (VOID)
         "-u         Update the system time using the RTC\n" \
         "-p         Poll the RTC and print\n" \
         "-bsc n     Choose the BSC controller, n=0..1\n" \
+        "-dev FILE  Specify the I2C device path\n" \
+        "           Example FILE: /dev/i2c-0\n" \
         "\n" \
         "When multiple commands are specified, they're executed in the following\n" \
         "order: -s -u -p\n" \
@@ -305,29 +335,57 @@ int  main (int argc, char *argv[])
     }
 
 
-    // Detect the BCM2835 hardware
-    ok = bcm2835_detect(&detect_io);
-    if (!ok)
+    if (abiocard_init_io.intf == ABIOCARD_INIT_INTF_BSC)
     {
-        printf("Error detecting BCM2835 hardware\n");
-        goto Stop;
+        // Detect the BCM2835 hardware
+        ok = bcm2835_detect(&detect_io);
+        if (!ok)
+        {
+            printf("Error detecting BCM2835 hardware\n");
+            goto Stop;
+        }
+
+        if (!detect_io.res_detected)
+        {
+            printf("BCM2835 hardware not detected\n");
+            goto Stop;
+        }
+
+        if (!bsc_parsed)
+        {
+            // The bsc parameter wasn't parsed
+
+            // Determine the BSC index from the revision number:
+            // * <0004:  Computer rev. 1, use BSC0
+            // * >=0004: Computer rev. 2, use BSC1
+
+            if (detect_io.res_revision >= 4) abiocard_init_io.bsc_index = 1;
+
+            // Check whether the i2c-dev file for the target BSC is present. If
+            // the file is present then use the i2c-dev interface rather than
+            // direct I/O.
+
+            sprintf(dev_name,"/dev/i2c-%d",abiocard_init_io.bsc_index);
+
+            i = stat(dev_name,&stat_info);
+            if (i == 0)
+            {
+                // Switch interface to i2c-dev
+                abiocard_init_io.intf        = ABIOCARD_INIT_INTF_I2CDEV;
+                abiocard_init_io.i2cdev_name = dev_name;
+            }
+        }
     }
 
-    if (!detect_io.res_detected)
-    {
-        printf("BCM2835 hardware not detected\n");
-        goto Stop;
-    }
 
-    if (!bsc_parsed)
-    {
-        // If the bsc parameter wasn't parsed, determine the BSC index from the
-        // revision number:
-        // * <0004:  Computer rev. 1, use BSC0
-        // * >=0004: Computer rev. 2, use BSC1
-
-        if (detect_io.res_revision >= 4) abiocard_init_io.bsc_index = 1;
-    }
+/*
+    // DBG.
+    printf("abiocardtime: intf %d, ",abiocard_init_io.intf);
+    if (abiocard_init_io.intf == ABIOCARD_INIT_INTF_BSC)
+        printf("bsc %d\n",abiocard_init_io.bsc_index);
+    else
+        printf("dev %s\n",abiocard_init_io.i2cdev_name);
+*/
 
 
     // Acquire root permission
@@ -345,7 +403,14 @@ int  main (int argc, char *argv[])
     if (!abiocard_init(&abiocard_init_io))
     {
         if (abiocard_init_io.err == ABIOCARD_INIT_ERR_NO_CARD)
-            printf("AbioCard not present on BSC%d\n",abiocard_init_io.bsc_index);
+        {
+            printf("AbioCard not present on ");
+
+            if (abiocard_init_io.intf == ABIOCARD_INIT_INTF_BSC)
+                printf("BSC%d\n",abiocard_init_io.bsc_index);
+            else
+                printf("%s\n",abiocard_init_io.i2cdev_name);
+        }
         else
             printf("Can't initialise AbioCard\n");
 

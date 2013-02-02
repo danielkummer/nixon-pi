@@ -22,9 +22,13 @@
 //      * Added detection of revision number.
 //      * Released.
 //
+//   2012-12-10  Peter S'heeren, Axiris
+//
+//      * Added support for the warranty void bit in the revision code.
+//
 // ----------------------------------------------------------------------------
 //
-// Copyright (c) 2012  Peter S'heeren, Axiris
+// Copyright (c) 2012-2013  Peter S'heeren, Axiris
 //
 // This source text is provided as-is without any implied or expressed
 // warranty. The authors don't accept any liability for damages that arise from
@@ -48,7 +52,19 @@ typedef struct  _BCM2835_DETECT_IO      BCM2835_DETECT_IO;
 struct  _BCM2835_DETECT_IO
 {
     FLAG    res_detected;
-    U32     res_revision;
+
+    union
+    {
+        U32     res_word;
+
+        struct
+        {
+            U32     res_revision  : 16;
+            U32                   :  8;
+            U32     warranty_void :  1;
+            U32                   :  7;
+        };
+    };
 };
 
 

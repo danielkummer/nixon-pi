@@ -30,11 +30,11 @@ chmod 4755 $destdir/abiocardserver
 # Add lines to the crontab of root
 #
 
-# addline1="@reboot /opt/abiocard/abiocardtime -u"
-# addline2="@daily /opt/abiocard/abiocardtime -u"
-# addline3="@reboot /opt/abiocard/abiocardserver -p 5678 -t 20"
+addline1="@reboot /opt/abiocard/abiocardtime -u"
+addline2="@daily /opt/abiocard/abiocardtime -u"
+addline3="@reboot /opt/abiocard/abiocardserver -p 5678 -t 20"
 
-# ( crontab -l | grep "$addline1" ) || ( crontab -l; echo "$addline1"; ) | crontab -
-# ( crontab -l | grep "$addline2" ) || ( crontab -l; echo "$addline2"; ) | crontab -
-# ( crontab -l | grep "$addline3" ) || ( crontab -l; echo "$addline3"; ) | crontab -
+( crontab -l | grep "$addline1" ) || ( crontab -l; echo "$addline1"; ) | crontab -
+( crontab -l | grep "$addline2" ) || ( crontab -l; echo "$addline2"; ) | crontab -
+( crontab -l | grep "$addline3" ) || ( crontab -l; echo "$addline3"; ) | crontab -
 

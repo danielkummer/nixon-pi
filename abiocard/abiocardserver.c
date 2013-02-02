@@ -20,17 +20,18 @@
 //   2012-09-09  Peter S'heeren, Axiris
 //
 //      * Added the ability to choose the BSC.
-//      * Released.
 //
 //   2012-09-10  Peter S'heeren, Axiris
 //
 //      * Added detection of revision number to set the default BSC index.
-//      * Released.
 //
 //   2012-10-19  Peter S'heeren, Axiris
 //
 //      * Added support for AbioCard model B.
-//      * Released.
+//
+//   2013-01-25  Peter S'heeren, Axiris
+//
+//      * Added support for the i2c-dev interface.
 //
 // ----------------------------------------------------------------------------
 //
@@ -49,6 +50,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <errno.h>
@@ -79,10 +81,19 @@ static  U16                 client_timeout_sec  = 30;
 
 static  BCM2835_DETECT_IO   detect_io           = { 0 };
 static  FLAG                bsc_parsed          = 0;
-
+static  FLAG                dev_parsed = 0;
 static  FLAG                commandline_mode    = 0;
 
-static  ABIOCARD_INIT_IO    abiocard_init_io    = { 0 };
+
+static  CHAR                dev_name[20];
+static  struct  stat        stat_info;
+
+static  ABIOCARD_INIT_IO    abiocard_init_io =
+{
+    .intf        = ABIOCARD_INIT_INTF_BSC,
+    .bsc_index   = 0,
+    .i2cdev_name = 0
+};
 
 static  U16                 server_port;
 static  struct sockaddr_in  server_sin;
@@ -92,7 +103,7 @@ static  socklen_t           client_sin_size;
 
 // Receive buffer. This is a cache for reading data from the client socket.
 
-#define RCV_BUF_LEN         64
+#define RCV_BUF_LEN         256
 
 static  CHAR                rcv_buf[RCV_BUF_LEN];
 
@@ -101,11 +112,9 @@ static  CHAR                rcv_buf[RCV_BUF_LEN];
 //
 // The longest incoming command is:
 //
-// PW0011xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-//
-// -> 40 characters
+// -> 134 characters
 
-#define RCV_CMD_LEN         40
+#define RCV_CMD_LEN         134
 
 static  CHAR                rcv_cmd[RCV_CMD_LEN];
 static  U32                 rcv_cmd_si;
@@ -115,7 +124,7 @@ static  FLAG                rcv_cmd_error;
 
 // Send response buffer.
 
-#define SND_RSP_LEN         128
+#define SND_RSP_LEN         256
 
 static  CHAR                snd_rsp[SND_RSP_LEN];
 static  U32                 snd_rsp_si;
@@ -1153,7 +1162,21 @@ FLAG  parse_cmdline (int argc, char *argv[])
             arg_index++;
         }
         else
-        if (strcmp(argv[arg_index],"-cl") == 0)
+        if (strcmp(argv[arg_index],"-dev") == 0)
+        {
+            CHAR   *s;
+            U32     val;
+
+            arg_index++;
+            if (arg_index == argc) return 0;
+
+            abiocard_init_io.intf        = ABIOCARD_INIT_INTF_I2CDEV;
+            abiocard_init_io.i2cdev_name = argv[arg_index];
+            dev_parsed                   = 1;
+
+            arg_index++;
+        }
+    if (strcmp(argv[arg_index],"-cl") == 0)
         {
             commandline_mode = 1;
             return 1;
@@ -1185,6 +1208,8 @@ VOID  usage_cmdline (VOID)
         "-p n       Server port, n=1..65535\n" \
         "-t n       Time-out value (seconds) for the client connection, n=5..65535\n" \
         "-bsc n     Choose the BSC controller, n=0..1\n" \
+        "-dev FILE  Specify the I2C device path\n" \
+        "           Example FILE: /dev/i2c-0\n" \
         "-cl        Use command line mode instead of telnet server\n" \
         "\n"
     );
@@ -1200,6 +1225,7 @@ int  main (int argc, char *argv[])
 {
     int     error;
     FLAG    ok;
+    int     i;
     int     so_reuseaddr;
 
 
@@ -1220,6 +1246,8 @@ int  main (int argc, char *argv[])
     }
 
 
+    if (abiocard_init_io.intf == ABIOCARD_INIT_INTF_BSC)
+    {
 #ifndef DISABLE_ABIOCARD
 
     // Detect the BCM2835 hardware
@@ -1244,11 +1272,34 @@ int  main (int argc, char *argv[])
         // * <0004:  Computer rev. 1, use BSC0
         // * >=0004: Computer rev. 2, use BSC1
 
-        if (detect_io.res_revision >= 4) abiocard_init_io.bsc_index = 1;
+            if (detect_io.res_revision >= 4) abiocard_init_io.bsc_index = 1;
+
+            // Check whether the i2c-dev file for the target BSC is present. If
+            // the file is present then use the i2c-dev interface rather than
+            // direct I/O.
+
+            sprintf(dev_name,"/dev/i2c-%d",abiocard_init_io.bsc_index);
+
+            i = stat(dev_name,&stat_info);
+            if (i == 0)
+            {
+                // Switch interface to i2c-dev
+                abiocard_init_io.intf        = ABIOCARD_INIT_INTF_I2CDEV;
+                abiocard_init_io.i2cdev_name = dev_name;
+            }
+        }
+
     }
 
-
 #endif
+
+
+    // DBG.
+    printf("abiocardserver: intf %d, ",abiocard_init_io.intf);
+    if (abiocard_init_io.intf == ABIOCARD_INIT_INTF_BSC)
+        printf("bsc %d\n",abiocard_init_io.bsc_index);
+    else
+        printf("dev %s\n",abiocard_init_io.i2cdev_name);
 
 
 #ifndef DISABLE_ABIOCARD
@@ -1275,7 +1326,10 @@ int  main (int argc, char *argv[])
 
             // Initialise the AbioCard driver
             ok = abiocard_init(&abiocard_init_io);
-            if (!ok) return;
+            if (!ok) {
+                printf("Not ok\n");
+                return;
+            }
 #else
             // Emulate
             abiocard_init_io.rtc_present   = 0;
@@ -1290,16 +1344,16 @@ int  main (int argc, char *argv[])
          //Read the commands from command line instead of opening a telent server.
          printf("Accept commands\n");
        
-	     int     n;
-	
-	     // Reset the response buffer
-	     snd_rsp_si = 0;
-	
-	     // Reset the received command buffer
-	     rcv_cmd_si    = 0;
-	     rcv_cmd_error = 0;
-	     for (;;)
-	     {
+         int     n;
+    
+         // Reset the response buffer
+         snd_rsp_si = 0;
+    
+         // Reset the received command buffer
+         rcv_cmd_si    = 0;
+         rcv_cmd_error = 0;
+         for (;;)
+         {
              for (;;)
              {
                 int c = fgetc(stdin);

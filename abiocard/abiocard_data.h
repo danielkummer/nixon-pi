@@ -20,16 +20,18 @@
 //   2012-09-09  Peter S'heeren, Axiris
 //
 //      * Added the ability to choose the BSC.
-//      * Released.
 //
 //   2012-10-19  Peter S'heeren, Axiris
 //
 //      * Added support for AbioCard model B.
-//      * Released.
+//
+//   2013-01-25  Peter S'heeren, Axiris
+//
+//      * Added support for the i2c-dev interface.
 //
 // ----------------------------------------------------------------------------
 //
-// Copyright (c) 2012  Peter S'heeren, Axiris
+// Copyright (c) 2012-2013  Peter S'heeren, Axiris
 //
 // This source text is provided as-is without any implied or expressed
 // warranty. The authors don't accept any liability for damages that arise from
@@ -64,23 +66,31 @@ typedef U8      ABIOCARD_INIT_ERR;
 #define ABIOCARD_INIT_ERR_PARAM         5
 
 
+typedef U8      ABIOCARD_INIT_INTF;
+
+#define ABIOCARD_INIT_INTF_BSC          0
+#define ABIOCARD_INIT_INTF_I2CDEV       1
+
+
 // Initialisation I/O
 
 struct  _ABIOCARD_INIT_IO
 {
-    U8                  bsc_index;              // Index of the BSC controller (0, 1)
+    ABIOCARD_INIT_INTF  intf;           // [IN]  Interface type
+    U8                  bsc_index;      // [IN]  Index of the BSC controller (0, 1)
+    CHAR               *i2cdev_name;    // [IN]  Device path
 
     // Valid when abiocard_init() returns 0
     //
-    ABIOCARD_INIT_ERR   err;
+    ABIOCARD_INIT_ERR   err;            // [OUT] Error code
 
     // Valid when abiocard_init() returns 1
     //
-    FLAG                rtc_present;    // NXP PCF2129A - realtime clock present y/n
-    FLAG                ioexp_present;  // NXP PCF8574 - I/O expander present y/n
-    FLAG                adc_present;    // Maxim MAX11614EEE+ - ADC present y/n
-    FLAG                pwm_present;    // NXP PCA9635 - PWM present y/n
-    FLAG                pwm2_present;   // NXP PCA9685 - PWM2 present y/n
+    FLAG                rtc_present;    // [OUT] NXP PCF2129A - realtime clock present y/n
+    FLAG                ioexp_present;  // [OUT] NXP PCF8574 - I/O expander present y/n
+    FLAG                adc_present;    // [OUT] Maxim MAX11614EEE+ - ADC present y/n
+    FLAG                pwm_present;    // [OUT] NXP PCA9635 - PWM present y/n
+    FLAG                pwm2_present;   // [OUT] NXP PCA9685 - PWM2 present y/n
 };
 
 
@@ -101,9 +111,9 @@ struct  _ABIOCARD_RTC_TIME
 
 struct  _ABIOCARD_RTC_POLL_INFO
 {
-    ABIOCARD_RTC_TIME   time;           // Date & time
-    FLAG                power_up;       // Power-up detected y/n
-    FLAG                battery_low;    // Battery low y/n
+    ABIOCARD_RTC_TIME   time;           // [OUT] Date & time
+    FLAG                power_up;       // [OUT] Power-up detected y/n
+    FLAG                battery_low;    // [OUT] Battery low y/n
 };
 
 

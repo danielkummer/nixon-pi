@@ -8,6 +8,8 @@ CFLAGS     := -std=gnu89 -I$(SOURCE_DIR)
 LDFLAGS    := 
 SRCS       := $(SOURCE_DIR)/abiocardserver.c \
               $(SOURCE_DIR)/bcm2835_detect.c \
+              $(SOURCE_DIR)/bsc.c \
+              $(SOURCE_DIR)/debug.c \
               $(SOURCE_DIR)/abiocard.c
 OBJS       := $(patsubst $(SOURCE_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
 
