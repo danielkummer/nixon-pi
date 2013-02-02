@@ -26,7 +26,6 @@ module NixonPi
     ##
     # Initialize client connection to telnet server
     def initialize
-
       unless Settings['telnet_server'].nil?
         @host, @port = Settings.telnet_server.host, Settings.telnet_server.port
       end
