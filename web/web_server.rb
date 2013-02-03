@@ -1,10 +1,12 @@
-
 require 'sinatra'
 require 'sinatra/base'
 require 'sinatra/contrib'
 require 'sinatra/activerecord'
+require 'sinatra/assetpack'
+
 require 'chronic_duration'
 require 'haml'
+require 'less'
 require 'json'
 require 'active_record'
 require 'sinatra/form_helpers'
@@ -25,7 +27,15 @@ DRb.start_service
 
 module NixonPi
   class WebServer < Sinatra::Base
+    set :root, File.dirname(__FILE__)
+    Less.paths <<  "#{WebServer.root}/css"
     register Sinatra::ActiveRecordExtension
+    register Sinatra::AssetPack
+
+    enable :inline_templates
+
+    #Less.paths << File.join(WebServer.root, 'css')
+
     helpers Sinatra::FormHelpers
     helpers Sinatra::Jsonp
 
@@ -33,17 +43,40 @@ module NixonPi
 
     #todo always development
     set :environment => ENV['RACK_ENV'].to_sym
-
     set :database, 'sqlite:///db/settings.db'
     #set :lock, false #enable on threading errors
-    set :root, File.dirname(__FILE__)
     set :public_folder, File.join(File.dirname(__FILE__), 'public')
     set :haml, {:format => :html5}
     set :port, Settings['web_server'].nil? ? '8080' : Settings['web_server']['port']
 
-    #error 400..510 do
-    #  'Boom'
-    #end
+
+    assets {
+
+      serve '/js', from: 'js' # Optional
+      serve '/css', from: 'css' # Optional
+      serve '/images', from: 'images' # Optional
+
+      css :styles, [
+          # '/css/bootstrap.css', # bootstrap.less
+          '/css/bootstrap-toggle-buttons.css',
+          '/css/chosen.css',
+          '/css/jquery-cron.css',
+          '/css/jquery-gentleSelect.css',
+          '/css/application.css'
+      ]
+
+
+
+      # The second parameter defines where the compressed version will be served.
+      # (Note: that parameter is optional, AssetPack will figure it out.)
+      js :app, [
+          '/js/bootstrap/*.js',
+          '/js/libs/*.js',
+          '/js/application.js'
+      ]
+      #js_compression :jsmin # Optional
+      css_compression :less
+    }
 
     not_found do
       'This is nowhere to be found.'

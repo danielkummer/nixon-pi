@@ -38,17 +38,17 @@ def kill_processes_matching(name)
   run "ps -ef | grep #{name} | grep -v grep | awk '{print $2}' | xargs kill || echo 'no process with name #{name} found'"
 end
 
-before "deploy:update", "deploy:link_db"
 after 'deploy:update', 'bundle:install'
+after 'deploy:update', 'deploy:link_db'
 after 'deploy:update', 'foreman:export'
 after 'deploy:update', 'foreman:restart'
-before 'deploy:update_code', 'less:compile'
+#before 'deploy:update_code', 'less:compile'
 
 namespace :less do
 
   desc "compile less files"
   task :compile do
-    run_locally "cd web/public/less/ && lessc style.less > ../css/style.css"
+    run_locally "cd web/public/less/ && lessc application.less > ../css/style.css"
   end
 end
 

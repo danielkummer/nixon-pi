@@ -34,7 +34,10 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'sqlite3'
   gem.add_dependency 'sinatra-formhelpers'
   gem.add_dependency 'sinatra-jsonp'
+  gem.add_dependency 'sinatra-assetpack'
   gem.add_dependency 'json'
+  gem.add_dependency 'less'
+  gem.add_dependency 'therubyracer' #for less
   gem.add_dependency 'haml'
   gem.add_dependency 'chronic_duration'
 
@@ -47,6 +50,8 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'simplecov-gem-adapter'
   gem.add_development_dependency 'mocha'
   gem.add_development_dependency 'ruby-graphviz'
+
+
 
   gem.add_development_dependency 'capistrano'
   gem.add_development_dependency 'railsless-deploy'
