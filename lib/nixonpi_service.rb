@@ -104,7 +104,7 @@ module NixonPi
     def quit!
       log.info "Nixon Pi is shutting down..."
       DRb.stop_service
-      DRb.thread.join
+      DRb.thread.join unless DRb.thread.nil?
       NixonPi::MachineManager.exit
       NixonPi::Scheduler.exit_scheduler
       @message_distributor.on_exit

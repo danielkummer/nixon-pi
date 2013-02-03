@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-#require 'profile'
 
 $environment = ENV['RACK_ENV'] #default value if nothing else is set
 $force_mock_client = false

@@ -60,7 +60,7 @@ module NixonPi
       ##
       # Join the state machine threads
       def join_threads
-        @@threads.each { |thread| thread.join }
+        @@threads.each { |thread| thread.join unless thread.nil? }
       end
     end
   end
