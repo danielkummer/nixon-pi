@@ -73,7 +73,7 @@
       Lamps
   .span6
     .row
-      .span12
+      .span12#lamps
         -@no_of_lamps.times.with_index do |index|
           %form{ action: "/lamp", method: "POST", class: "form-inline", "data-remote" => true, style:"display:inline;"}
             %button{type: "button", class: "btn btn-lamp", "data-toggle" => "button", title:"icon-circle-blank", id:"lamp_#{index}" }

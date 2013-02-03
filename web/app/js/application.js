@@ -61,29 +61,31 @@
         /**
          * Initialize lamp data
          */
-        $.getJSON('/information/lamps.json', function (data) {
-            var lamps = data.lamps;
-            for (var i = 0, ii = lamps.length; i < ii; i++) {
-                var state = lamps[i].state,
-                    value = lamps[i].value;
+        if ($('#lamps').length === 1) {
+            $.getJSON('/information/lamps.json', function (data) {
+                var lamps = data.lamps;
+                for (var i = 0, ii = lamps.length; i < ii; i++) {
+                    var state = lamps[i].state,
+                        value = lamps[i].value;
 
 
-                if (state == "free_value") {
-                    var checked = !(value == 0),
-                        $el = $('#lamp_' + i);
+                    if (state == "free_value") {
+                        var checked = !(value == 0),
+                            $el = $('#lamp_' + i);
 
-                    if (checked) {
-                        $el.button('toggle')
-                            .children("i:first")
-                            .removeClass('icon-circle-blank')
-                            .addClass('icon-circle')
-                            .children("input[name=value]").attr("checked", checked);
+                        if (checked) {
+                            $el.button('toggle')
+                                .children("i:first")
+                                .removeClass('icon-circle-blank')
+                                .addClass('icon-circle')
+                                .children("input[name=value]").attr("checked", checked);
 
+                        }
                     }
                 }
-            }
 
-        });
+            });
+        }
 
 
         $(".btn-lamp").click(function () {
@@ -113,16 +115,16 @@
                     }
                 }
             });
+
+
+            $(":range").rangeinput({
+                progress:true
+            });
+
+            $(":range").change(function (event, value) {
+                $(this).closest("form").submit();
+            });
         }
-
-        $(":range").rangeinput({
-            progress:true
-        });
-
-        $(":range").change(function (event, value) {
-            $(this).closest("form").submit();
-        });
-
 
         $(".chzn-select").chosen();
 
@@ -203,78 +205,83 @@
 
         };
 
-        states['free_value']();
+        if ($('#tubes').length === 1) {
+            states['free_value']();
+        }
 
         //todo
-        $.getJSON('targets.json', function (data) {
-            delete data.success;
-            delete data.message;
-            var targets = data.targets;
+        if ($('#scheduler').length === 1) {
 
-            var $options = $('#target');
-            $.each(targets, function () {
-                $options.append($("<option />").val(this.toString()).text(this.toString()));
-                $options.trigger("liszt:updated")
-            });
-        });
-
-
-        $("#tube_state").chosen().change(function (event) {
-            states[$(event.target).val()]();
-        });
-
-        $("#tube_animation").chosen();
-
-
-        $("#method").chosen().change(function (event) {
-            var newValue = $(event.target).val(),
-                scheduler_times = {
-                    'in':'1h2m3s',
-                    'at':new Date().toUTCString(),
-                    'every':'10s'
-                },
-                result;
-
-            result = scheduler_times[newValue];
-
-            if (newValue == 'cron') {
-                $('#cron').show();
-            } else {
-                $('#cron').hide();
-            }
-
-            $('#time').val(result);
-        });
-
-        $("#target").chosen().change(function (event) {
-            var target = $(event.target).val();
-
-            $.getJSON('command/' + target.toLowerCase() + '.json', function (data) {
+            $.getJSON('targets.json', function (data) {
                 delete data.success;
                 delete data.message;
-                $('[name="command"]').val(JSON.stringify(data.commands, null, 2))
-            });
-        });
+                var targets = data.targets;
 
-        $("#cron").cron({
-            onChange:function () {
-                $("#time").val($(this).cron("value"));
-            }
-        });
-
-        $('#time-defaults li a').click(function () {
-            $('#time').val($(this).text());
-        });
-
-        $(".delete-schedule").click(function () {
-            var $this = $(this);
-            var id = $this.data('id');
-            $.post('/schedule/' + id, {_method:'delete'},function (result_data) {
-                $($this).closest("tr").remove();
-            }).error(function () {
-                    console.log("Error trying to DELETE");
+                var $options = $('#target');
+                $.each(targets, function () {
+                    $options.append($("<option />").val(this.toString()).text(this.toString()));
+                    $options.trigger("liszt:updated")
                 });
-            return false; // prevents default behavior
-        });
+            });
+
+
+            $("#tube_state").chosen().change(function (event) {
+                states[$(event.target).val()]();
+            });
+
+            $("#tube_animation").chosen();
+
+
+            $("#method").chosen().change(function (event) {
+                var newValue = $(event.target).val(),
+                    scheduler_times = {
+                        'in':'1h2m3s',
+                        'at':new Date().toUTCString(),
+                        'every':'10s'
+                    },
+                    result;
+
+                result = scheduler_times[newValue];
+
+                if (newValue == 'cron') {
+                    $('#cron').show();
+                } else {
+                    $('#cron').hide();
+                }
+
+                $('#time').val(result);
+            });
+
+            $("#target").chosen().change(function (event) {
+                var target = $(event.target).val();
+
+                $.getJSON('command/' + target.toLowerCase() + '.json', function (data) {
+                    delete data.success;
+                    delete data.message;
+                    $('[name="command"]').val(JSON.stringify(data.commands, null, 2))
+                });
+            });
+
+            $("#cron").cron({
+                onChange:function () {
+                    $("#time").val($(this).cron("value"));
+                }
+            });
+
+            $('#time-defaults li a').click(function () {
+                $('#time').val($(this).text());
+            });
+
+            $(".delete-schedule").click(function () {
+                var $this = $(this);
+                var id = $this.data('id');
+                $.post('/schedule/' + id, {_method:'delete'},function (result_data) {
+                    $($this).closest("tr").remove();
+                }).error(function () {
+                        console.log("Error trying to DELETE");
+                    });
+                return false; // prevents default behavior
+            });
+        }
     });
 }(jQuery));

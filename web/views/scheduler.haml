@@ -2,7 +2,7 @@
   .span2
     %h2 Scheduler
   .span6
-    %form{ action: "/scheduler", method: "POST", class: "form-horizontal", "data-remote" => true}
+    %form#scheduler{ action: "/scheduler", method: "POST", class: "form-horizontal", "data-remote" => true}
       %input{type: "hidden", name: "initial", value: "1"}
       .control-group
         %label.control-label

@@ -17,11 +17,7 @@ module NixonPi
       def client
         unless $client
           conn = Bunny.new
-          begin
-            conn.start
-          rescue Bunny::TCPConnectionFailed => e
-            log.error "Couldn't connect to RabbitMQ"
-          end
+          conn.start
           $client = conn
           $client
         end

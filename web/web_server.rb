@@ -28,7 +28,7 @@ DRb.start_service
 module NixonPi
   class WebServer < Sinatra::Base
     set :root, File.dirname(__FILE__)
-    Less.paths <<  "#{WebServer.root}/css"
+    Less.paths <<  "#{WebServer.root}/app/css"
     register Sinatra::ActiveRecordExtension
     register Sinatra::AssetPack
 
@@ -45,16 +45,19 @@ module NixonPi
     set :environment => ENV['RACK_ENV'].to_sym
     set :database, 'sqlite:///db/settings.db'
     #set :lock, false #enable on threading errors
-    set :public_folder, File.join(File.dirname(__FILE__), 'public')
+    set :public_folder, File.join(File.dirname(__FILE__), 'app/public')
     set :haml, {:format => :html5}
     set :port, Settings['web_server'].nil? ? '8080' : Settings['web_server']['port']
 
 
     assets {
 
-      serve '/js', from: 'js' # Optional
-      serve '/css', from: 'css' # Optional
-      serve '/images', from: 'images' # Optional
+      serve '/js', from: 'app/js' # Optional
+      serve '/css', from: 'app/css' # Optional
+      serve '/img', from: 'app/images' # Optional
+
+      ignore '*-popover.js'
+
 
       css :styles, [
           # '/css/bootstrap.css', # bootstrap.less
@@ -70,8 +73,8 @@ module NixonPi
       # The second parameter defines where the compressed version will be served.
       # (Note: that parameter is optional, AssetPack will figure it out.)
       js :app, [
-          '/js/bootstrap/*.js',
           '/js/libs/*.js',
+          '/js/bootstrap/*.js',
           '/js/application.js'
       ]
       #js_compression :jsmin # Optional
@@ -80,6 +83,10 @@ module NixonPi
 
     not_found do
       'This is nowhere to be found.'
+    end
+
+    error do
+      haml :rabbitmq_down
     end
 
     helpers do
@@ -119,6 +126,8 @@ module NixonPi
 # GET REQUESTS
 ###
     get '/' do
+      sender.client #trigger 500 error
+
       @no_of_bars = Settings.in13_pins.size
       @no_of_lamps = Settings.in1_pins.size
       %w(tubes bar0 bar1 bar2 bar3).each do |state_machine|
