@@ -7,20 +7,12 @@
     %meta{:content => "width=device-width, initial-scale=1, maximum-scale=1", :name => "viewport"}
 
     != css :styles
-
-
-
-
     /fonts
     %link{:href => "http://fonts.googleapis.com/css?family=Josefin+Sans:400,700", :rel => "stylesheet", :type => "text/css"}
     %link{:href => "http://fonts.googleapis.com/css?family=Lobster+Two:400,700", :rel => "stylesheet", :type => "text/css"}
     %link{:href => "http://fonts.googleapis.com/css?family=Carrois+Gothic+SC|Share+Tech+Mono|Montserrat+Subrayada:400,700|Allerta+Stencil", :rel => "stylesheet", :type => "text/css"}
-
     != js :app
-    /javascript
 
-    /compile:  $ lessc public/less/application.less > public/css/style.css
-    /source: http://stackoverflow.com/questions/11481203/how-to-start-using-twitter-bootstrap-and-sass-in-a-sinatra-project
 %body
   .navbar.navbar-fixed-bottom
     .navbar-inner

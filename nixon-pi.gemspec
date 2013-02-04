@@ -49,6 +49,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'simplecov'
   gem.add_development_dependency 'simplecov-gem-adapter'
   gem.add_development_dependency 'mocha'
+  gem.add_development_dependency 'moqueue'
   gem.add_development_dependency 'ruby-graphviz'
 
 

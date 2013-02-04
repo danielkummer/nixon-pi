@@ -46,9 +46,11 @@ module NixonPi
     set :database, 'sqlite:///db/settings.db'
     #set :lock, false #enable on threading errors
     set :public_folder, File.join(File.dirname(__FILE__), 'app/public')
-    set :haml, {:format => :html5}
+    set :haml, { :format => :html5 }
     set :port, Settings['web_server'].nil? ? '8080' : Settings['web_server']['port']
 
+
+    set :show_exceptions, false
 
     assets {
 
@@ -82,11 +84,11 @@ module NixonPi
     }
 
     not_found do
-      'This is nowhere to be found.'
+      haml :error, layout: false, locals: {info: {title: "404", message: "Nothing found"}}
     end
 
     error do
-      haml :rabbitmq_down
+      haml :error, layout: false, locals: {info: {title: "The bunny is dead", message: "Make sure your RabbitMQ server is up and running..."}}
     end
 
     helpers do

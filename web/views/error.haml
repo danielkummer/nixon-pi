@@ -1,0 +1,31 @@
+!!!
+%head
+  %meta{:charset => "utf-8"}
+    %title Nixon-&#960;
+
+    :css
+      body {
+        font-family: 'Share Tech Mono', sans-serif;
+        background-color: #ECF1F4;
+        color: #f03737;
+        font-size: 28px;
+
+      }
+
+      h1, p {
+        margin-left: auto;
+        margin-right: auto;
+        width: 600px;
+      }
+
+      img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto
+      }
+    %link{:href => "http://fonts.googleapis.com/css?family=Carrois+Gothic+SC|Share+Tech+Mono|Montserrat+Subrayada:400,700|Allerta+Stencil", :rel => "stylesheet", :type => "text/css"}
+
+%body
+  %h1= info[:title]
+  %img{src:"img/dead-bunny.png", alt: "dead bunny"}
+  %p= info[:message]

@@ -1,12 +1,11 @@
 require "bundler/gem_tasks"
 
-if $environment == 'development'
+#if $environment == 'development'
   require 'rspec/core/rake_task'
   require 'tasks/state_machine'
   RSpec::Core::RakeTask.new('spec')
   task :default => :spec
-
-end
+#end
 
 require 'sinatra/activerecord/rake'
 
@@ -22,3 +21,6 @@ APP_CLASS = 'App'
 
 require 'sinatra/assetpack/rake'
 =end
+
+
+

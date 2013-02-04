@@ -1,6 +1,5 @@
 set :application, "nixon-pi"
 set :repository, "git@github.com:danielkummer/nixon-pi.git"
-
 set :scm_username, "daniel.kummer@gmail.com"
 
 server 'nixonpi', :app, :web, :db
@@ -15,12 +14,10 @@ set :copy_local_tar, "/usr/bin/gnutar" if `uname` =~ /Darwin/
 
 require "rvm/capistrano" # Load RVM's capistrano plugin.
 
-set :rvm_ruby_string, '1.9.3@global' # Or:
-#set :rvm_ruby_string, ENV['GEM_HOME'].gsub(/.*\//,"") # Read from local system
+set :rvm_ruby_string, '1.9.3@global' # Or: :rvm_ruby_string, ENV['GEM_HOME'].gsub(/.*\//,"") # Read from local system
 set :rvm_type, :system
 
 after "deploy:restart", "deploy:cleanup"
-
 
 set :user, "pi"
 set :password, "pi"
@@ -41,16 +38,8 @@ end
 after 'deploy:update', 'bundle:install'
 after 'deploy:update', 'deploy:link_db'
 after 'deploy:update', 'foreman:export'
-after 'deploy:update', 'foreman:restart'
-#before 'deploy:update_code', 'less:compile'
+#after 'deploy:update', 'foreman:restart' #TODO restart bluepill recipe using bash script
 
-namespace :less do
-
-  desc "compile less files"
-  task :compile do
-    run_locally "cd web/public/less/ && lessc application.less > ../css/style.css"
-  end
-end
 
 namespace :bundle do
   desc "Installs the application dependencies"
@@ -62,13 +51,15 @@ end
 namespace :foreman do
   desc "Export the Procfile to Ubuntu's upstart scripts"
   task :export, :roles => :app do
-    run "cd #{release_path} && rvmsudo bundle exec foreman export upstart /etc/init " +
+    #run "cd #{release_path} && rvmsudo bundle exec foreman export upstart /etc/init " +
+    #        "-f ./Procfile.production -a #{application} -u #{user} -l #{shared_path}/log"
+    run "cd #{release_path} && rvmsudo bundle exec foreman export bluepill ./config " +
             "-f ./Procfile.production -a #{application} -u #{user} -l #{shared_path}/log"
   end
 
-  desc "Start the application services"
+  desc " Start the application services "
   task :start, :roles => :app do
-    sudo "start #{application}"
+    sudo " start #{application}"
   end
 
   desc "Stop the application services"
@@ -85,12 +76,14 @@ namespace :foreman do
   task :logs, :roles => :app do
     run "cd #{current_path}/log && cat #{ENV["PROCESS"]}.log"
   end
+
 end
 
 
 # stub out deploy:restart
 namespace :deploy do
 
+  desc "Link production db into current directory"
   task :link_db do
     run "rm -f  #{latest_release}/db/settings.db"
     run "ln -s #{shared_path}/db/settings.db #{latest_release}/db/settings.db"
