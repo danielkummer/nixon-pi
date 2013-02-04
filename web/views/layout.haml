@@ -5,7 +5,6 @@
     %meta{:content => "", :name => "description"}
     %meta{:content => "", :name => "author"}
     %meta{:content => "width=device-width, initial-scale=1, maximum-scale=1", :name => "viewport"}
-
     != css :styles
     /fonts
     %link{:href => "http://fonts.googleapis.com/css?family=Josefin+Sans:400,700", :rel => "stylesheet", :type => "text/css"}
@@ -34,14 +33,24 @@
             %a{href: "http://danielkummer.github.com/nixon-pi/#api"}
               %i.icon-exchange.pull-left
               API
+          %li{style:"height:30px;"}
+            %a{href: "https://github.com/danielkummer/nixon-pi"}
+              %i.icon-github-alt.pull-left
+              Github
+
   .container
     .content
       .row
         .span3
           .hero-unit
-            %form{action: "/power", method: "post", class:""," data-remote" => "true"}
-              %label{for:"power-value", style: "float:left;padding-left:5px"}
-                %i.icon-bolt.icon-4x.pull-left
+            %h1
+              Nixon
+              %img{src:"images/nixie-tube.png", alt:"nixie-tube", height: "200px"}
+        .span2
+          .hero-unit
+            %form{action: "/power", method: "post", style:"margin-bottom:0px;","data-remote" => "true"}
+              %h2
+                %i.icon-bolt.pull-left
               #power-toggle-button.toggle-button
                 /TODO!!!!!!!!
                 /-if NixonPi::PowerDriver.instance.on?
@@ -49,19 +58,15 @@
                   %input.checkbox{:checked => "checked", id: "power-value", :name => "value", :type => "checkbox", :value => "1"}
                 -else
                   %input.checkbox{id: "power-value", :name => "value", :type => "checkbox", :value => "1"}
-        .span6
-          .hero-unit
-            %h1
-              Nixon
-              %span
-                %img{src:"images/nixie-tube.png", alt:"nixie-tube", height: "200px"}
-
+            %p
+              V:
+              = version
         .span3
           #alert-container{"data-spy"=>"affix", "data-offset-top"=>"-20"}
 
 
-      .row
-        = yield
+
+      = yield
 
   %footer.footer
 

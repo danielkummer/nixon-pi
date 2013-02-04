@@ -18,7 +18,7 @@ body {
   font-family: 'Share Tech Mono', sans-serif;
   background-color: @background_color;
   color: #656565;
-  font-size: 28px;
+  font-size: 20px;
 }
 
 .right {
@@ -29,26 +29,30 @@ h1, h2, h3, p, label, a {
   color: @first_color;
 }
 
+h3 {
+  line-height: 20px;
+}
+
 label.checkbox {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .footer {
   background-color: #F5F5F5;
   border-top: 1px solid #E5E5E5;
-  margin-top: 70px;
-  padding: 30px 0;
+  margin-top: 35px;
+  //padding: 30px 0;
   text-align: center;
   font-size: 0.7em;
 }
 
 .hero-unit {
   background-color: transparent;
-  padding: 30px;
+  padding: 5px;
   h1 {
     color: @first_color;
-    font-size: 80px;
-    letter-spacing: 15px;
+    font-size: 45px;
+    letter-spacing: 5px;
     line-height: 0.6em;
   }
 }
@@ -58,13 +62,20 @@ input.input-tubes {
   height: 1.3em;
   color: @second_color;
   padding-left: 0px;
-  border-radius: 1em 1em 1em 1em;
+  border-radius: 1em 0em 0em 1em;
   background-color: #eaebdf; //border: 3px solid #474747;
+}
+
+.input-append .add-on:last-child, .input-append .btn:last-child {
+  height: 1.5em;
+  line-height: 1.1em;
+  border-radius: 0em 1em 1em 0em !important;
+
 }
 
 input[type="text"] {
   font-family: 'Allerta Stencil', sans-serif;
-  font-size: 28px;
+  font-size: 20px;
   height: 1.3em;
   color: @second_color;
   background-color: #eaebdf;
@@ -72,7 +83,7 @@ input[type="text"] {
 
 select {
   font-family: 'Allerta Stencil', sans-serif;
-  font-size: 28px;
+  font-size: 20px;
   height: 1.3em;
   padding-top: 0px;
   padding-bottom: 0px;
@@ -86,7 +97,7 @@ select {
 
 .btn {
   font-family: 'Share Tech Mono', sans-serif;
-  font-size: 28px;
+  font-size: 20px;
   height: 1.3em;
 }
 
@@ -101,10 +112,10 @@ div.btn-group[data-toggle=buttons-radio] input[type=radio] {
 }
 
 .btn-lamp {
-  border-radius: 40px !important;
-  margin-right: 30px;
-  font-size: 40px;
-  height: 1.3em;
+  border-radius: 25px !important;
+  margin-right: 10px;
+  font-size: 20px;
+  height: 2em;
 }
 
 .btn-lamp.active { //background-color: #7f9b47;
@@ -118,7 +129,7 @@ div.btn-group[data-toggle=buttons-radio] input[type=radio] {
 }
 
 .bar-control {
-  height: 47px;
+  height: 36px;
 }
 
 /**
@@ -132,7 +143,7 @@ Slider
   width: 400px;
   float: left;
   clear: right;
-  margin-top: 19px;
+  margin-top: 12px;
   border-radius: 5px;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
@@ -151,7 +162,7 @@ Slider
   background-image: linear-gradient(to bottom, @second_color, darken(@second_color, 20%));
 
   height: 28px;
-  width: 44px;
+  width: 28px;
   top: -12px;
   position: absolute;
   display: block;
@@ -184,13 +195,13 @@ Chosen
 **/
 .chzn-container {
   font-family: 'Allerta Stencil', sans-serif;
-  font-size: 28px;
+  font-size: 20px;
   height: 1.3em;
   color: @second_color !important;
 }
 .chzn-single {
-  height: 48px !important;
-  line-height: 48px !important;
+  height: 30px !important;
+  line-height: 30px !important;
 }
 .chzn-single span {
   color: @second_color !important;
@@ -200,7 +211,7 @@ Chosen
 }
 
 .chzn-drop {
-  top: 45px !important;
+  top: 30px !important;
 }
 
 .log {
@@ -249,4 +260,13 @@ dt, dd {
 
 .navbar-fixed-top, .navbar-fixed-bottom {
   position: fixed;
+}
+
+.form-horizontal .control-label {
+  width: 25px;
+}
+
+.form-horizontal .controls {
+  width: 25px;
+  margin-left: 40px;
 }

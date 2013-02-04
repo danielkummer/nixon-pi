@@ -3,14 +3,18 @@
 
 
         $.getJSON('/state.json', function (data) {
-            if (!data.rabbitmq) {
+
+            /*if (!data.rabbitmq) {
                 var $alert = $("<div class='alert alert-error fade in'><button data-dismiss='alert' class='close' type='button'>×</button>RabbitMQ broker not running!</div>")
                 $('#alert-container').append($alert);
-            }
+            }*/
 
             if (!data.service) {
-                var $alert = $("<div class='alert alert-error fade in'><button data-dismiss='alert' class='close' type='button'>×</button>Nixon-Pi service not running!</div>")
-                $('#alert-container').append($alert);
+                var $alert = $("<div class='alert alert-error fade in'><i class='icon-ok-circle' />RabbitMQ up and running</div>")
+                $('#state-container').append($alert);
+            } else {
+                $('#state-container').append($("<i class='icon-ok-circle' />RabbitMQ up and running"));
+
             }
         });
 
@@ -28,10 +32,10 @@
                 onChange:function ($el, status, e) {
                     $el.closest("form").submit();
                 },
-                width:150,
-                height:60,
+                width:100,
+                height:30,
                 font:{
-                    'font-size':'40px'
+                    'font-size':'20px'
                 },
                 animated:true,
                 transitionspeed:0.5, // Accepted values float or "percent" [ 1, 0.5, "150%" ]
