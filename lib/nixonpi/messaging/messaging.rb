@@ -19,8 +19,8 @@ module NixonPi
           conn = Bunny.new
           conn.start
           $client = conn
-          $client
         end
+        $client
       end
 
       ##

@@ -29,7 +29,6 @@ defaults: &defaults
 
 development:
   <<: *defaults
-  log_level: DEBUG
 
 test:
   <<: *defaults

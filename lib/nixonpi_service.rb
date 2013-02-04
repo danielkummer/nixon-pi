@@ -92,10 +92,9 @@ module NixonPi
       end
 
       log.info "Start running..."
+      NixonPi::Messaging::CommandSender.new.send_command(:speech, {value: "power on!"})
       PowerDriver.instance.power_on
-
       NixonPi::MachineManager.start_state_machines
-
       NixonPi::MachineManager.join_threads #this must be inside the main run script - else the subthreads exit
     end
 

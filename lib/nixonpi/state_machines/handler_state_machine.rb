@@ -125,8 +125,10 @@ module NixonPi
         object.leave_state
       rescue NoMethodError => e;
       end
-
       block.call
+      #todo speech is overlaying at the moment...
+      NixonPi::Messaging::CommandSender.new.send_command(:speech, {value: "Entering  #{object.state} state for #{object.registered_as_type}"}) unless
+          object.params[:last_state].to_sym == :startup
       object.params[:state] = object.state
 
       begin

@@ -58,8 +58,9 @@ module NixonPi
         def write
           params[:animation_name] = "single_fly_in"
           params[:options] = {}
-          params[:last_value] = "0000"
+          params[:last_value] = "000123456789"
           self.fire_state_event(:animation)
+
           if params[:initial_state].nil?
             params[:last_state] = :time
           else

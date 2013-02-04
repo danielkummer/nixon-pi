@@ -1,29 +1,26 @@
 require_relative 'spec_helper'
-require 'moqueue'
 
 require_relative '../lib/nixonpi/messaging/messaging'
 
+=begin
+describe NixonPi::Messaging::CommandReceiver do
 
-describe CommandSender do
-  before :all do
-    overload_amqp
+  before :each do
+    @cr = NixonPi::Messaging::CommandReceiver.new
   end
 
-
-
-  it "should send a command to the registered receivers" do
-    cs = CommandSender.new
-    cmd = {test: 'command'}
-    cs.send_command(:tubes, cmd)
-
-
+  it "should allow the registration of receivers who implement commandlistener" do
+    receiver = Object.new
+    receiver.extend(CommandListener)
+    expect { @cr.add_receiver(receiver, :command) }.not_to raise_error
   end
 
+  it "should reject objects who don't implement CommandListener" do
+    receiver = Object.new
+    expect { @cr.add_receiver(receiver, :command) }.to raise_error
 
-
-
-  #queue.should have_received("a message")
-  #queue.should have_ack_for("a different message")
+  end
 
 end
+=end
 

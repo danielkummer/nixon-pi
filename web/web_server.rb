@@ -12,6 +12,7 @@ require 'active_record'
 require 'sinatra/form_helpers'
 require 'sinatra/jsonp'
 require 'drb'
+require_relative '../lib/nixonpi/version'
 
 $environment = ENV['RACK_ENV']
 
@@ -117,6 +118,10 @@ module NixonPi
           end
         end unless data.nil?
         Haml::Engine.new(result.join("\n")).render
+      end
+
+      def version
+        NixonPi::VERSION.to_s
       end
 
       def sender
