@@ -53,9 +53,10 @@ module NixonPi
     #todo: this currently doesn't abord running animations
     # @param [Hash] command command parameters
     def handle_command(command)
+      #todo add new param -> after state to specify a transition to go to  - can't use last state because it's aready used... - maybe its not needed anymore
       log.debug "got #{self.class.to_s} command: #{command.to_s}"
-      params.merge!(command)
-      if command[:state] and command[:state] != params[:last_state]
+      if command[:state] and command[:state] != params[:state]
+        params.merge!(command)
         self.fire_state_event(command[:state].to_sym)
       end
     end
@@ -119,23 +120,23 @@ module NixonPi
     # @param [Transition] transition
     # @param [block] block
     def self.handle_around_transition(object, transition, block)
-      object.params[:last_state] = object.state if !object.state.nil?
+      object.params[:goto_state] = object.state if object.params[:goto_state].nil? and !object.state.nil?
 
+      last_state = object.state
       begin
         object.leave_state
       rescue NoMethodError => e;
       end
       block.call
       #todo speech is overlaying at the moment...
-      NixonPi::Messaging::CommandSender.new.send_command(:speech, {value: "Entering  #{object.state} state for #{object.registered_as_type}"}) unless
-          object.params[:last_state].to_sym == :startup
+      NixonPi::Messaging::CommandSender.new.send_command(:speech, {value: "Entering  #{object.state} state for #{object.registered_as_type}"})
       object.params[:state] = object.state
 
       begin
         object.enter_state if object.respond_to?(:enter_state)
       rescue NoMethodError => e
       end
-      object.log.debug "TRANSITION:  #{object.params[:last_state]} --#{transition.event}--> #{object.state}"
+      object.log.debug "TRANSITION:  #{last_state} --#{transition.event}--> #{object.state}"
       object.log.debug "new state: #{object.state}"
     end
 

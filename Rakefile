@@ -14,13 +14,7 @@ require 'sinatra/activerecord'
 
 set :database, 'sqlite3:///db/settings.db'
 
-=begin
-# Rakefile
-APP_FILE  = 'app.rb'
-APP_CLASS = 'App'
 
-require 'sinatra/assetpack/rake'
-=end
 
 
 

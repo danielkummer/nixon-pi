@@ -14,11 +14,11 @@ defaults: &defaults
     count: 12
     write_blanks: true
   in1_pins:
+    - 8
     - 9
     - 10
     - 11
     - 12
-    - 13
   in13_pins:
     - 0
     - 1

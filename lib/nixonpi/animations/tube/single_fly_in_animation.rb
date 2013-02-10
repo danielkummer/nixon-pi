@@ -11,7 +11,7 @@ module NixonPi
       register_as :single_fly_in
 
       def initialize(options = {})
-        @options = {sleep: 0.3}.merge(options)
+        @options = {sleep: 0.05}.merge(options)
         super()
       end
 

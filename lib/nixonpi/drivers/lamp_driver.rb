@@ -19,7 +19,7 @@ module NixonPi
     # @param [Integer] number
     # @param [Integer] value 0 or > 1
     def write_to_lamp(number, value)
-      value = value.to_i >= 1 ? 124 : 0
+      value = value.to_i >= 1 ? 255 : 0
       client.pwm_write(@pin_array[number], value)
     end
 
@@ -28,7 +28,7 @@ module NixonPi
     # @param [Array] value_array 0 = off, >=1 = on
     def write(value_array)
       log.error "more values than configured lamps" and return if value_array.size > @pin_array.size
-      value_array.map!{|x| x.to_i >= 1 ? 124 : 0 }
+      value_array.map!{|x| x.to_i >= 1 ? 255 : 0 }
       client.pwm_write_registers(start_index: @pin_array.first, values: value_array)
     end
   end

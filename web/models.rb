@@ -22,6 +22,7 @@ class Command < ActiveRecord::Base
   validate :valid_power?, :if => Proc.new { |c| c.state_machine.to_s.include? "power" }
 
 
+
   def valid_tubes?
     case self.state.to_sym
       when :free_value
@@ -43,7 +44,11 @@ class Command < ActiveRecord::Base
           errors.add(:options, "options invalid json string: #{e.message}")
         end unless options.blank?
       when :countdown
-        errors.add(:value, "countdown format invalid - unable to parse!") if ChronicDuration.parse(value, format: :chrono).nil?
+        unless duration = ChronicDuration.parse(value, format: :chrono)
+          errors.add(:value, "countdown format invalid - unable to parse!")
+        else
+          self.value = duration
+        end
       when :meeting_ticker
         unless value =~ /\d+:\d+/
           errors.add(:value, "enter in the form of attendees:hourly_rate")

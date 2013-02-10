@@ -1,6 +1,6 @@
 require 'rubygems'
 
-require_relative 'nixonpi/version'
+require_relative 'version'
 require_relative 'nixonpi/delegators/multi_delegator'
 require_relative 'nixonpi/configurations/state_hash'
 require_relative 'nixonpi/logging/logging'

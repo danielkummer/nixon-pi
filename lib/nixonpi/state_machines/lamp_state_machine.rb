@@ -55,11 +55,15 @@ module NixonPi
           #todo refactor
           params[:value] = 0
 
+=begin
           if params[:initial_state].nil?
             self.fire_state_event(:free_value)
           else
             self.fire_state_event(params[:initial_state])
           end
+=end
+
+          handle_command(state: :free_value, value: 0)
         end
       end
 

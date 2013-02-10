@@ -5,7 +5,7 @@
       %i.icon-lightbulb
       Tubes
   .span6
-    %form{ action: "/tubes", method: "POST", class: "form-horizontal", "data-remote" => true}
+    %form{ action: "/tubes", method: "POST", class: "form-horizontal form-hidden", "data-remote" => true}
       .row
         .span6
           .control-group
@@ -80,7 +80,7 @@
           %form{ action: "/lamp", method: "POST", class: "form-inline", "data-remote" => true, style:"display:inline;"}
             %button{type: "button", class: "btn btn-lamp", "data-toggle" => "button", title:"icon-circle-blank", id:"lamp_#{index}" }
               %i.icon-circle-blank
-              %input{type: "checkbox", name: "value", value: "#{index}", style:"display: none;"}
+              %input{type: "checkbox", name: "value", value: "1", style:"display: none;"}
             %input{type: "hidden", name: "state", value: "free_value"}
             %input{type: "hidden", name: "id", value: "#{index}"}
   .span4

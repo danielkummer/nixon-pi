@@ -1,4 +1,8 @@
-root = ::File.dirname(__FILE__)
-require ::File.join( root, 'web_server' )
+require File.join( File.dirname(__FILE__), 'web_server' )
 
-run NixonPi::WebServer
+disable :run
+
+map '/' do
+  run NixonPi::WebServer
+end
+

@@ -29,7 +29,7 @@ module NixonPi
       unless Settings['telnet_server'].nil?
         @host, @port = Settings.telnet_server.host, Settings.telnet_server.port
       end
-      @pwm_register_array, @io_register, @mutex = Array.new(NUMBER_OF_PWM_PORTS, 0), Array.new(NUMBER_OF_IO_PORTS, 0), Mutex.new
+      @io_register, @mutex = Array.new(NUMBER_OF_IO_PORTS, 0), Mutex.new
     end
 
     ##
@@ -46,7 +46,7 @@ module NixonPi
     # @param [Time] time
     def clock_write(time)
       time_string = time.strftime("%y%m%d%H%M%S")
-      command = ("CW" + time_string)
+      command = "CW#{time_string}".upcase
       handle { connection.cmd(command) }
     end
 
@@ -96,7 +96,7 @@ module NixonPi
         @out_register ||= "".rjust(NUMBER_OF_IO_PORTS, '0')
 
         @out_register[NUMBER_OF_IO_PORTS - 1 - pin] = value.to_s
-        handle { connection.cmd("EW" + bit_to_hex(@out_register)) }
+        handle { connection.cmd("EW#{bit_to_hex(@out_register)}") }
       end
     end
 
@@ -121,8 +121,7 @@ module NixonPi
     # @param [Integer] number 0..16
     # @param [Integer] value  0.255
     def pwm_write(number, value)
-      @pwm_register_array[number] = value
-      pwm_write_registers(start_index: 0, values: @pwm_register_array)
+      pwm_write_registers(start_index: number, values: [value])
     end
 
     ##
@@ -135,7 +134,6 @@ module NixonPi
     # Dim all pwm registers at once over the global pwm register no. 16
     # @param [Integer] value 0..255
     def pwm_global_dim(value)
-      @pwm_register_array[NUMBER_OF_PWM_PORTS] = value
       pwm_write_registers(start_index: NUMBER_OF_PWM_PORTS, values: [value])
     end
 
@@ -154,8 +152,9 @@ module NixonPi
       start_at_register = 0 unless (0..NUMBER_OF_PWM_PORTS).include?(start_at_register) #set to 0 if out of bounds
       start_at_register = start_at_register.to_s(16).rjust(2, '0') #convert startindex to hex string
       register_count = count.to_s(16).rjust(2, '0')
+      @pwm_register_array ||= Array.new(NUMBER_OF_PWM_PORTS, 0)
       handle {
-        connection.cmd("PR" + start_at_register + register_count) do |return_value|
+        connection.cmd("PR#{start_at_register.upcase}#{register_count.upcase}") do |return_value|
           return_value.strip!
           log.info ("read pwm return value: " + return_value)
           index = return_value[2..3].to_i(16)
@@ -195,7 +194,7 @@ module NixonPi
         output_array_string << value.to_i.round.to_s(16).rjust(2, '0')
       end
 
-      command = ("PW" + start_at_register + register_count + output_array_string).upcase
+      command = "PW#{start_at_register}#{register_count}#{output_array_string}".upcase
       handle { connection.cmd(command) }
     end
 
@@ -251,6 +250,7 @@ module NixonPi
       begin
         yield
           #rescue Exception => exception
+      #todo this can end in a loop if the driver is perminately unavailable
       rescue Exception => e
         case e
           when Errno::ECONNRESET, Errno::ECONNABORTED, Errno::ETIMEDOUT, Errno::EPIPE

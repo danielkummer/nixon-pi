@@ -1,2 +1,2 @@
 service: ./bin/nixon-pi -e production
-web: rackup -p 3000 web/config.ru -s thin
+web: thin start -p 3000 -c web

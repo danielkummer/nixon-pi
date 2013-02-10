@@ -1,13 +1,13 @@
-(function ($) {
+jQuery(function ($) {
     $(document).ready(function () {
 
 
         $.getJSON('/state.json', function (data) {
 
             /*if (!data.rabbitmq) {
-                var $alert = $("<div class='alert alert-error fade in'><button data-dismiss='alert' class='close' type='button'>×</button>RabbitMQ broker not running!</div>")
-                $('#alert-container').append($alert);
-            }*/
+             var $alert = $("<div class='alert alert-error fade in'><button data-dismiss='alert' class='close' type='button'>×</button>RabbitMQ broker not running!</div>")
+             $('#alert-container').append($alert);
+             }*/
 
             if (!data.service) {
                 var $alert = $("<div class='alert alert-error fade in'><i class='icon-ok-circle' />RabbitMQ up and running</div>")
@@ -56,7 +56,7 @@
          */
         if ($('#tubes').length === 1) {
             $.getJSON('/information/tubes.json', function (data) {
-                if (data.value.length > 0) {
+                if (data.value && data.value.length > 0) {
                     $('#tubes').val(data.value);
                 }
             });
@@ -141,7 +141,7 @@
                 type:self.attr('method'),
                 dataType:'json',
                 success:function (res) {
-                    var value = res['value'] || res['values']
+                    var value = res['value']
                     var text = res['message'] + " : " + value;
 
                     var $alert = $("<div class='alert alert-success fade in'><button data-dismiss='alert' class='close' type='button'>×</button>" + text + "</div>")
@@ -211,6 +211,12 @@
 
         if ($('#tubes').length === 1) {
             states['free_value']();
+
+            $("#tube_state").chosen().change(function (event) {
+                states[$(event.target).val()]();
+            });
+
+            $("#tube_animation").chosen();
         }
 
         //todo
@@ -227,14 +233,6 @@
                     $options.trigger("liszt:updated")
                 });
             });
-
-
-            $("#tube_state").chosen().change(function (event) {
-                states[$(event.target).val()]();
-            });
-
-            $("#tube_animation").chosen();
-
 
             $("#method").chosen().change(function (event) {
                 var newValue = $(event.target).val(),
@@ -288,4 +286,4 @@
             });
         }
     });
-}(jQuery));
+});

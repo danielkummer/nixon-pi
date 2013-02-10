@@ -1,6 +1,9 @@
 set :application, "nixon-pi"
-set :repository, "git@github.com:danielkummer/nixon-pi.git"
-set :scm_username, "daniel.kummer@gmail.com"
+#set :repository, "git@github.com:danielkummer/nixon-pi.git"
+#set :scm_username, "daniel.kummer@gmail.com"
+set :scm, :none
+set :repository, "."
+#set :local_repository, "."
 
 server 'nixonpi', :app, :web, :db
 
@@ -8,6 +11,7 @@ set :deploy_to, "/home/pi/nixon-pi"
 #set :git_shallow_clone, 1
 set :deploy_via, :copy
 #set :copy_strategy, :export
+set :branch, $1 if `git branch` =~ /\* (\S+)\s/m
 
 set :copy_local_tar, "/usr/bin/gnutar" if `uname` =~ /Darwin/
 
@@ -38,6 +42,7 @@ end
 after 'deploy:update', 'bundle:install'
 after 'deploy:update', 'deploy:link_db'
 after 'deploy:update', 'foreman:export'
+after 'deploy:update', 'deploy:link_init'
 #after 'deploy:update', 'foreman:restart' #TODO restart bluepill recipe using bash script
 
 
@@ -56,7 +61,6 @@ namespace :foreman do
     run "cd #{release_path} && rvmsudo bundle exec foreman export bluepill ./config " +
             "-f ./Procfile.production -a #{application} -u #{user} -l #{shared_path}/log"
   end
-
   desc " Start the application services "
   task :start, :roles => :app do
     sudo " start #{application}"
@@ -87,6 +91,12 @@ namespace :deploy do
   task :link_db do
     run "rm -f  #{latest_release}/db/settings.db"
     run "ln -s #{shared_path}/db/settings.db #{latest_release}/db/settings.db"
+  end
+
+  desc "Link the init script into init.d"
+  task :link_init do
+    run "sudo rm -f /etc/init.d/#{application}"
+    run "sudo ln -s #{latest_release}/config/bluepill-init.sh /etc/init.d/#{application}"
   end
 
   task :restart do

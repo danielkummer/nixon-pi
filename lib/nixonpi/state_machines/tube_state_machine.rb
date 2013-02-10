@@ -1,6 +1,4 @@
 require 'state_machine'
-require 'festivaltts4r'
-
 
 require_relative '../drivers/tube_driver'
 require 'active_support/inflector'
@@ -50,22 +48,17 @@ module NixonPi
         transition all => :meeting_ticker
       end
 
-      event :run_test do
-        transition all => :run_test
-      end
-
       state :startup do
         def write
-          params[:animation_name] = "single_fly_in"
-          params[:options] = {}
-          params[:last_value] = "000123456789"
-          self.fire_state_event(:animation)
+          NixonPi::Animations::Animation.create(:single_fly_in).run("000123456789")
 
           if params[:initial_state].nil?
-            params[:last_state] = :time
+            params[:goto_state] = :time
           else
-            params[:last_state] = params[:initial_state]
+            params[:goto_state] = params[:initial_state] #todo load initial values
           end
+
+          handle_command(state: params[:goto_state])
         end
       end
 
@@ -114,7 +107,8 @@ module NixonPi
           options ||= {}
           start_value = params[:last_value]
           NixonPi::Animations::Animation.create(name.to_sym, options).run(start_value)
-          self.fire_state_event(params[:last_state]) #go back to old state again and do whatever was done before
+
+          handle_command(state: params[:goto_state])
         end
       end
 
@@ -122,12 +116,16 @@ module NixonPi
       state :countdown do
         require 'chronic_duration'
 
+        def enter_state
+
+        end
+
         def write
           seconds_to_go = params[:value].to_i
           current_time = Time.now
 
           if params[:target_time].nil?
-            params[:target_time] = Time.now + seconds_to_go.seconds
+            params[:target_time] = current_time + seconds_to_go.seconds
           end
           target_time = params[:target_time]
 
@@ -137,6 +135,7 @@ module NixonPi
 
             output = ChronicDuration.output(seconds_to_go, :format => :chrono).gsub(/:/, ' ')
             log.debug "write countdown: #{output}"
+
             driver.write(output)
           end
 
@@ -144,6 +143,7 @@ module NixonPi
 
           if current_time >= params[:target_time]
             log.debug "end of countdown"
+
             options = params[:options]
             unless options.nil?
               if options.is_a? Hash
@@ -152,42 +152,15 @@ module NixonPi
                     when :say
                       NixonPi::Messaging::CommandSender.send_command(:say, {value: o})
                     when :state
-                      self.fire_state_event(params[:o])
+                      handle_command(state: o)
+                      return
                     else
                       log.debug "option unknown"
                   end
                 end
               end
             end
-            self.fire_state_event(params[:last_state])
-          end
-        end
-      end
-
-      state :run_test do
-        def write
-          unless params[:test_done]
-            number_of_digits = 12
-            test_data = Array.new
-            9.times do |time|
-              test_data << "#{time}" * number_of_digits
-            end
-            i = 0
-            bm = Benchmark.measure do
-              test_data.each do |val|
-                driver.write(val)
-                #sleep 0.1
-                i += 1
-              end
-            end
-
-            #simple animation
-            NixonPi::Animations::Animation.create(:switch_numbers).run("    12345678")
-            NixonPi::Animations::Animation.create(:single_fly_in).run("    12345678")
-
-            puts "Benchmark write 2-pair strings from 00 to 99:"
-            puts bm
-            self.fire_state_event(params[:last_state])
+            handle_command(state: params[:goto_state])
           end
         end
       end
@@ -198,12 +171,18 @@ module NixonPi
           #find out if initial values or not....
           value = params[:value]
 
-          if value =~ /\d+:\d+/
+          value.match(/.\s(\d+):(\d+)/)
+          if $1 and $2
             @meeting_start = Time.now
-            @attendees, @hourly_rate = value.split(":")
+            @attendees, @hourly_rate = $1, $2
+            @command_sender.send_command(:lamp5, {state: :free_value, locking: :lock, value: 1})
+          else
+            error_msg = "invalid input for attendees - going to last state"
+            NixonPi::Messaging::CommandSender.new.send_command(:speech, {value: error_msg})
+            log.error error_msg
+            handle_command(state: :time)
           end
 
-          @command_sender.send_command(:lamp5, {state: :free_value, locking: :lock, value: 1})
         end
 
         def leave_state
@@ -215,9 +194,7 @@ module NixonPi
           per_second_burn = @hourly_rate.to_i * @attendees.to_i / 3600
           elapsed_seconds = Time.now - @meeting_start
           cost = per_second_burn * elapsed_seconds
-          #todo, enable led to show digit
-          cost.round(2)
-          driver.write(cost.to_s.gsub(/\./, ""))
+          driver.write(cost.round(2).to_s.gsub(/\./, " "))
         end
       end
     end

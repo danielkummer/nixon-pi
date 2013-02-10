@@ -35,7 +35,7 @@
     var d = 'disabled'
       , $el = this.$element
       , data = $el.data()
-      , val = $el.is('input') ? 'val' : 'html'
+      , val = $el.is('input') ? 'val' : 'html';
 
     state = state + 'Text'
     data.resetText || $el.data('resetText', $el[val]())

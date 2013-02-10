@@ -61,7 +61,8 @@ module NixonPi
         direct_exchange_channel.publish(payload.to_json,
                                         routing_key: "nixonpi.command",
                                         content_type: 'application/json',
-                                        type: target)
+                                        type: target,
+                                        immediate: true)
       end
     end
 
@@ -71,13 +72,14 @@ module NixonPi
 
       def initialize
         @receivers = Hash.new
-        @locks = Array.new
+        @locks = Set.new
         @incomming_commands_queue = client.queue("", exclusive: false, auto_delete: true).bind(direct_exchange_channel, routing_key: "nixonpi.command")
         @incomming_commands_queue.subscribe(consumer_tag: "command_consumer") do |delivery_info, metadata, data|
           if metadata[:content_type] == 'application/json'
             data = JSON.parse(data).string_key_to_sym
             type = metadata.type
-            handle_locking(type, data) {
+            handle_access(type) {
+              handle_lock(type, data[:lock])
               handle_command_for(type, data)
             }
           else
@@ -86,21 +88,34 @@ module NixonPi
         end
       end
 
+      def handle_lock(type, lock)
+        return if lock.nil?
+        case data[:lock].to_sym
+          when :lock
+            lock(type)
+          when
+            unlock(type)
+        end
+      end
+
+      def locked?(type)
+        @locks.include?(type)
+      end
+
+      def lock(type)
+        @locks << type
+      end
+
+      def unlock(type)
+        @locks.delete_if { |l| l == type }
+      end
+
       ##
       # @param [Symbol] type target
       # @param [Hash] data data containing locking information
-      def handle_locking(type, data)
-        locked = false
-        locking = data[:locking].nil? ? :no : data[:locking].to_sym
-
-        if @locks.include?(type)
-          locked = true unless data[:priority]
-        end
-        @locks << type if locking == :lock
-        @locks.delete_if { |l| l == type } if locking == :unlock
-
-        if locked
-          log.error "Queue #{type} is locked, can't enqueue because priority flag is missing"
+      def handle_access(type)
+        if locked?(type)
+          log.error "Queue #{type} is locked!"
         else
           yield
         end

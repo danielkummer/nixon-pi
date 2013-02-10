@@ -4,8 +4,8 @@ module NixonPi
   class DirectIO
 
     def initialize
-      @stdin, @stdout, @stderr, @wait_thr = Open3.popen3("#{Dir.pwd}/c-driver/abiocard/abiocardserver -cl")
-      #pid = @wait_thr[:pid]
+      @stdin, @stdout, @stderr, @wait_thr = Open3.popen3("sudo #{Dir.pwd}/c-driver/abiocard/abiocardserver -cl")
+        #pid = @wait_thr[:pid]
     end
 
     ##
@@ -21,6 +21,7 @@ module NixonPi
 
     # Close io connections
     def exit
+      @stdin.puts("QU")
       @stdin.close
       @stdout.close
       @stderr.close

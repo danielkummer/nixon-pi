@@ -36,19 +36,14 @@ module NixonPi
 
       state :startup do
         def write
-          params[:animation_name] = "ramp_up_down"
-          params[:options] = {bar: bar_index}
-          params[:last_value] = "0"
-
-          #will switch to :last_state after animation
-          self.fire_state_event(:animation)
           #unlucky naming - currently :state is a saved db value - if any; reason: no state transition has happened yet
           if params[:initial_state].nil?
-            params[:last_state] = :free_value
+            params[:goto_state] = :free_value
           else
-            params[:last_state] = params[:initial_state]
+            params[:goto_state] = params[:initial_state]
           end
 
+          handle_command({state:"animation", animation_name: "ramp_up_down", options: { bar: bar_index }, last_value: 0})
 
         end
       end
@@ -75,17 +70,10 @@ module NixonPi
           options ||= {}
           start_value = params[:last_value]
           NixonPi::Animations::Animation.create(name.to_sym, options).run(start_value)
-          self.send(params[:last_state]) #go back to old state again and do whatever was done before
+          handle_command(state: params[:goto_state])
         end
       end
 
-      state :run_test do
-        def write
-          #careful, endless loop!!
-          #NixieBerry::Animations::Animation.create(:ramp_up_down).run
-          self.fire_state_event(:free_value)
-        end
-      end
     end
 
     def bar_index

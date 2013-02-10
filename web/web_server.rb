@@ -2,17 +2,16 @@ require 'sinatra'
 require 'sinatra/base'
 require 'sinatra/contrib'
 require 'sinatra/activerecord'
-require 'sinatra/assetpack'
 
 require 'chronic_duration'
 require 'haml'
-require 'less'
+
 require 'json'
 require 'active_record'
 require 'sinatra/form_helpers'
 require 'sinatra/jsonp'
 require 'drb'
-require_relative '../lib/nixonpi/version'
+require_relative '../lib/version'
 
 $environment = ENV['RACK_ENV']
 
@@ -22,20 +21,13 @@ require_relative '../lib/blank_monkeypatch'
 require_relative '../lib/nixonpi/messaging/messaging'
 require_relative '../lib/nixonpi/hash_monkeypatch'
 
-
 REMOTE_INFO_PROXY = DRbObject.new_with_uri('druby://localhost:9001')
 DRb.start_service
 
 module NixonPi
   class WebServer < Sinatra::Base
     set :root, File.dirname(__FILE__)
-    Less.paths <<  "#{WebServer.root}/app/css"
     register Sinatra::ActiveRecordExtension
-    register Sinatra::AssetPack
-
-    enable :inline_templates
-
-    #Less.paths << File.join(WebServer.root, 'css')
 
     helpers Sinatra::FormHelpers
     helpers Sinatra::Jsonp
@@ -44,53 +36,48 @@ module NixonPi
 
     #todo always development
     set :environment => ENV['RACK_ENV'].to_sym
-    set :database, 'sqlite:///db/settings.db'
+    set :database, 'sqlite:///../db/settings.db'
     #set :lock, false #enable on threading errors
-    set :public_folder, File.join(File.dirname(__FILE__), 'app/public')
-    set :haml, { :format => :html5 }
+    set :public_folder, File.join(File.dirname(__FILE__), 'public')
+    set :haml, {:format => :html5}
     set :port, Settings['web_server'].nil? ? '8080' : Settings['web_server']['port']
 
+    #set :static, $environment == 'development' ? false : true
 
-    set :show_exceptions, false
+    #set :show_exceptions, false
+    disable :raise_errors
+    disable :show_exceptions
 
-    assets {
-
-      serve '/js', from: 'app/js' # Optional
-      serve '/css', from: 'app/css' # Optional
-      serve '/img', from: 'app/images' # Optional
-
-      ignore '*-popover.js'
-
-
-      css :styles, [
-          # '/css/bootstrap.css', # bootstrap.less
-          '/css/bootstrap-toggle-buttons.css',
-          '/css/chosen.css',
-          '/css/jquery-cron.css',
-          '/css/jquery-gentleSelect.css',
-          '/css/application.css'
-      ]
-
-
-
-      # The second parameter defines where the compressed version will be served.
-      # (Note: that parameter is optional, AssetPack will figure it out.)
-      js :app, [
-          '/js/libs/*.js',
-          '/js/bootstrap/*.js',
-          '/js/application.js'
-      ]
-      #js_compression :jsmin # Optional
-      css_compression :less
-    }
 
     not_found do
-      haml :error, layout: false, locals: {info: {title: "404", message: "Nothing found"}}
+      if request.accept? 'application/json'
+        content_type :json
+        status 404
+        halt({:success => 'false', :message => "404 - are you sure it's there?"}.to_json)
+      end
+
+      haml 'errors/not_found'.to_sym, layout: false, locals: {info: {title: "404 - are you sure it's there?", message: "Nothing found!"}}
+    end
+
+    error Bunny::TCPConnectionFailed do
+      if request.accept? 'application/json'
+        content_type :json
+
+        halt({:success => 'false', :message => "Make sure your RabbitMQ server is up and running..."}.to_json)
+      end
+
+      haml 'errors/rabbitmq_down'.to_sym, layout: false, locals: {info: {title: "Oops - I found a dead bunny...", message: "Make sure your RabbitMQ server is up and running..."}}
     end
 
     error do
-      haml :error, layout: false, locals: {info: {title: "The bunny is dead", message: "Make sure your RabbitMQ server is up and running..."}}
+      if request.accept? 'application/json'
+        content_type :json
+
+        halt({:success => 'false', :message => e.message}.to_json)
+      end
+      haml 'errors/rabbitmq_down'.to_sym, layout: false, locals: {info: {title: "Something just went terribly wrong...", message: "Here's a funny error:#{$!.message}"}}
     end
+
 
     helpers do
       INDENT = '  ' # use 2 spaces for indentation
@@ -206,6 +193,7 @@ module NixonPi
 
     post '/lamp/?' do
       id = params[:id]
+      @params['value'] = "0" unless  @params['value']
       preprocess_post_params(:lamp, @params) do |data|
         sender.send_command("lamp#{id}".to_sym, data)
         formatted_response('json', data, "Lamps set to")
