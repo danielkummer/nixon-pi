@@ -7,7 +7,7 @@ require_relative '../animations/tube/switch_numbers_animation'
 require_relative '../animations/tube/single_fly_in_animation'
 require_relative 'handler_state_machine'
 require_relative '../logging/logging'
-require_relative '../messaging/messaging'
+require_relative '../messaging/command_receiver'
 
 
 module NixonPi

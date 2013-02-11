@@ -2,7 +2,7 @@ require 'rufus/scheduler'
 require 'singleton'
 require_relative 'logging/logging'
 require_relative 'messaging/command_listener'
-require_relative 'messaging/messaging'
+require_relative 'messaging/command_receiver'
 require_relative 'information/information_holder'
 
 module NixonPi

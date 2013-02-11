@@ -18,7 +18,7 @@ $environment = ENV['RACK_ENV']
 require_relative '../lib/nixonpi/configurations/settings'
 require_relative 'models'
 require_relative '../lib/blank_monkeypatch'
-require_relative '../lib/nixonpi/messaging/messaging'
+require_relative '../lib/nixonpi/messaging/command_sender'
 require_relative '../lib/nixonpi/hash_monkeypatch'
 
 REMOTE_INFO_PROXY = DRbObject.new_with_uri('druby://localhost:9001')

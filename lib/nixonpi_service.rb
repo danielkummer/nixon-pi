@@ -16,7 +16,7 @@ require_relative 'nixonpi/state_machines/machine_manager'
 require_relative 'nixonpi/drivers/power_driver'
 require_relative 'nixonpi/drivers/sound_driver'
 require_relative 'nixonpi/scheduler'
-require_relative 'nixonpi/messaging/messaging'
+require_relative 'nixonpi/messaging/command_receiver'
 require_relative 'nixonpi/information/information_proxy'
 require_relative 'nixonpi/information/os_info'
 require_relative 'nixonpi/information/hardware_info'
@@ -52,16 +52,22 @@ module NixonPi
       @message_distributor = NixonPi::Messaging::CommandReceiver.new
       @info_gatherer = NixonPi::InformationProxy.new
 
+      @rgb_machine = NixonPi::MultiMachineProxy.new
+      #big fat todo
+      NixonPi::MachineManager.add_state_machines(:led, 3) do |receiver, target|
+        @rgb_machine.add_state_machine(receiver)
+      end
 
-      NixonPi::MachineManager.add_state_machine(:tubes, 1) do |receiver, target|
+
+      NixonPi::MachineManager.add_state_machines(:tubes) do |receiver, target|
         @message_distributor.add_receiver(receiver, target)
         @info_gatherer.add_info_holder(receiver, target)
       end
-      NixonPi::MachineManager.add_state_machine(:bar, Settings.in13_pins.size) do |receiver, target|
+      NixonPi::MachineManager.add_state_machines(:bar, Settings.in13_pins.size) do |receiver, target|
         @message_distributor.add_receiver(receiver, target)
         @info_gatherer.add_info_holder(receiver, target)
       end
-      NixonPi::MachineManager.add_state_machine(:lamp, Settings.in1_pins.size) do |receiver, target|
+      NixonPi::MachineManager.add_state_machines(:lamp, Settings.in1_pins.size) do |receiver, target|
         @message_distributor.add_receiver(receiver, target)
         @info_gatherer.add_info_holder(receiver, target)
       end

@@ -2,7 +2,7 @@ require 'singleton'
 require_relative 'driver'
 require_relative '../configurations/settings'
 require_relative '../messaging/command_listener'
-require_relative '../messaging/messaging'
+require_relative '../messaging/command_receiver'
 require_relative '../information/information_holder'
 
 

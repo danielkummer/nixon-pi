@@ -1,6 +1,6 @@
 require_relative 'spec_helper'
 
-require_relative '../lib/nixonpi/messaging/messaging'
+require_relative '../lib/nixonpi/messaging/command_receiver'
 
 =begin
 describe NixonPi::Messaging::CommandReceiver do
