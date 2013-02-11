@@ -70,12 +70,13 @@ module NixonPi
     end
 
     error do
-      if request.accept? 'application/json'
+      if request.accept? 'text/html'
+        haml 'errors/rabbitmq_down'.to_sym, layout: false, locals: {info: {title: "Something just went terribly wrong...", message: "Here's a funny error:#{$!.message}"}}
+      else
         content_type :json
-
         halt({:success => 'false', :message => e.message}.to_json)
       end
-      haml 'errors/rabbitmq_down'.to_sym, layout: false, locals: {info: {title: "Something just went terribly wrong...", message: "Here's a funny error:#{$!.message}"}}
+
     end
 
 

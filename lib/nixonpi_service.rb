@@ -52,11 +52,13 @@ module NixonPi
       @message_distributor = NixonPi::Messaging::CommandReceiver.new
       @info_gatherer = NixonPi::InformationProxy.new
 
+=begin
       @rgb_machine = NixonPi::MultiMachineProxy.new
       #big fat todo
       NixonPi::MachineManager.add_state_machines(:led, 3) do |receiver, target|
         @rgb_machine.add_state_machine(receiver)
       end
+=end
 
 
       NixonPi::MachineManager.add_state_machines(:tubes) do |receiver, target|

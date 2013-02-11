@@ -7,6 +7,7 @@ require_relative '../factory'
 require_relative '../messaging/command_listener'
 require_relative '../../../lib/nixonpi/information/information_holder'
 require_relative '../messaging/command_receiver'
+require_relative '../messaging/command_sender'
 
 require_relative '../../../web/models'
 require 'active_record'
