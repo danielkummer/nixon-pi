@@ -14,7 +14,7 @@ require_relative 'nixonpi/state_machines/lamp_state_machine'
 require_relative 'nixonpi/animations/animation'
 require_relative 'nixonpi/state_machines/machine_manager'
 require_relative 'nixonpi/drivers/power_driver'
-require_relative 'nixonpi/drivers/speech_driver'
+require_relative 'nixonpi/drivers/sound_driver'
 require_relative 'nixonpi/scheduler'
 require_relative 'nixonpi/messaging/messaging'
 require_relative 'nixonpi/information/information_proxy'
@@ -66,7 +66,7 @@ module NixonPi
         @info_gatherer.add_info_holder(receiver, target)
       end
 
-      @message_distributor.add_receiver(SpeechDriver.new, :speech)
+      @message_distributor.add_receiver(SoundDriver.new, :sound)
       @message_distributor.add_receiver(PowerDriver.instance, :power)
       @message_distributor.add_receiver(NixonPi::Scheduler.new, :schedule)
 
@@ -92,7 +92,7 @@ module NixonPi
       end
 
       log.info "Start running..."
-      NixonPi::Messaging::CommandSender.new.send_command(:speech, {value: "power on!"})
+      NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "power on!"})
       PowerDriver.instance.power_on
       NixonPi::MachineManager.start_state_machines
       NixonPi::MachineManager.join_threads #this must be inside the main run script - else the subthreads exit

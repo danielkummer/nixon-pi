@@ -44,10 +44,8 @@ class Command < ActiveRecord::Base
           errors.add(:options, "options invalid json string: #{e.message}")
         end unless options.blank?
       when :countdown
-        unless duration = ChronicDuration.parse(value, format: :chrono)
+        unless ChronicDuration.parse(value, format: :chrono)
           errors.add(:value, "countdown format invalid - unable to parse!")
-        else
-          self.value = duration
         end
       when :meeting_ticker
         unless value =~ /\d+:\d+/

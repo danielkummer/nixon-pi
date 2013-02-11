@@ -26,7 +26,7 @@ module NixonPi
       value = command[:value].to_i
       log.debug "got power command: #{command}, applying..."
       if (0..1).member?(value)
-        NixonPi::Messaging::CommandSender.new.send_command(:speech, {value: "power #{value == 1 ? "on" : "off"}!"})
+        NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "power #{value == 1 ? "on" : "off"}!"})
         client.io_write(@power_pin, value)
         @value = value
       end

@@ -219,8 +219,8 @@ module NixonPi
     end
 
     post '/say/?' do
-      preprocess_post_params(:speech, @params) do |data|
-        sender.send_command(:speech, data)
+      preprocess_post_params(:sound, @params) do |data|
+        sender.send_command(:sound, data)
         formatted_response('json', data, "Speak ")
       end
     end

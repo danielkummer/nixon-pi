@@ -117,40 +117,37 @@ module NixonPi
         require 'chronic_duration'
 
         def enter_state
-
+          params[:value] = ChronicDuration.parse(params[:value], format: :chrono)
+          params[:target_time] = Time.now + params[:value].seconds
         end
 
         def write
           seconds_to_go = params[:value].to_i
           current_time = Time.now
 
-          if params[:target_time].nil?
-            params[:target_time] = current_time + seconds_to_go.seconds
-          end
-          target_time = params[:target_time]
-
-          next_value = target_time - current_time
-
-          if seconds_to_go > 0 and seconds_to_go != next_value
-
+          if seconds_to_go > 0
             output = ChronicDuration.output(seconds_to_go, :format => :chrono).gsub(/:/, ' ')
-            log.debug "write countdown: #{output}"
-
-            driver.write(output)
+            if output != @last_output #only write once
+              log.debug "countdown: #{output}"
+              @last_output = output
+              NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "#{seconds_to_go}"}) if seconds_to_go <= 10
+              driver.write(output)
+            end
           end
 
-          params[:value] = next_value
+          params[:value] = params[:target_time] - current_time
 
+          #todo refactor
           if current_time >= params[:target_time]
             log.debug "end of countdown"
-
+            NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "strike_12.mp3"})
             options = params[:options]
             unless options.nil?
               if options.is_a? Hash
                 options.keys.each do |k, o|
                   case k.to_sym
                     when :say
-                      NixonPi::Messaging::CommandSender.send_command(:say, {value: o})
+                      NixonPi::Messaging::CommandSender.send_command(:sound, {value: o})
                     when :state
                       handle_command(state: o)
                       return
@@ -178,7 +175,7 @@ module NixonPi
             @command_sender.send_command(:lamp5, {state: :free_value, locking: :lock, value: 1})
           else
             error_msg = "invalid input for attendees - going to last state"
-            NixonPi::Messaging::CommandSender.new.send_command(:speech, {value: error_msg})
+            NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: error_msg})
             log.error error_msg
             handle_command(state: :time)
           end

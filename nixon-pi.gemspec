@@ -23,7 +23,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'activesupport', '>= 3.2.8'
   gem.add_dependency 'settingslogic'
   gem.add_dependency 'state_machine'
-  gem.add_dependency 'festivaltts4r'
+  #gem.add_dependency 'festivaltts4r'
   gem.add_dependency 'rufus-scheduler'
   gem.add_dependency 'foreman'
   gem.add_dependency 'bunny', '~> 0.9.0.pre4'
