@@ -1,7 +1,6 @@
 require 'singleton'
 
 require_relative '../logging/logging'
-require_relative '../factory'
 require_relative '../configurations/settings'
 
 module NixonPi

@@ -1,8 +1,6 @@
 module NixonPi
   class DriverManager
-
     @@drivers = {}
-
     class << self
 
       def add_driver(identifier, instance)
