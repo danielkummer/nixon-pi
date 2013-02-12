@@ -17,7 +17,7 @@ module NixonPi
         super()
         @semaphore = Mutex.new
         @options ||= {}
-        @driver = TubeDriver.instance
+        @driver = DriverManager.driver_for(:in12a)
       end
 
       ##

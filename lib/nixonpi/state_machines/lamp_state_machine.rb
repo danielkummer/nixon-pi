@@ -1,17 +1,18 @@
 require 'state_machine'
-require_relative '../../../lib/nixonpi/drivers/lamp_driver'
+require_relative '../drivers/lamp_driver'
 require_relative 'handler_state_machine'
 require_relative '../configurations/settings'
+require_relative '../drivers/driver_manager'
 
 module NixonPi
-  class LampStateMachine < HandlerStateMachine
+  class LampStateMachine <  HandlerStateMachine
 
     register_as :lamp
     accepted_commands :state, :value, :animation_name, :options
 
     def initialize()
       super()
-      register_driver NixonPi::LampDriver
+      register_driver DriverManager.driver_for(:in1)
     end
 
     state_machine :initial => :startup do

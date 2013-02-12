@@ -1,17 +1,13 @@
-require 'singleton'
-require_relative 'driver'
 require_relative '../configurations/settings'
+require_relative 'pwm_driver'
 
 module NixonPi
   class LampDriver
     include Logging
-    include Singleton
-    include Driver
 
-    def initialize
-      #noinspection RubyResolve
-      @pin_array = Settings.in1_pins
-      log.info "Initializing lamps with pins: #{@pin_array.to_s}"
+    def initialize(ports)
+      log.info "Initializing lamps driver"
+      @pwm_driver = PwmDriver.new(ports)
     end
 
     ##
@@ -20,16 +16,16 @@ module NixonPi
     # @param [Integer] value 0 or > 1
     def write_to_lamp(number, value)
       value = value.to_i >= 1 ? 255 : 0
-      client.pwm_write(@pin_array[number], value)
+      @pwm_driver.write_to_port(number, value)
     end
 
     ##
     # Write multiple lamp values at once
     # @param [Array] value_array 0 = off, >=1 = on
     def write(value_array)
-      log.error "more values than configured lamps" and return if value_array.size > @pin_array.size
+      log.error "more values than configured lamps" and return if value_array.size > @ports.size
       value_array.map!{|x| x.to_i >= 1 ? 255 : 0 }
-      client.pwm_write_registers(start_index: @pin_array.first, values: value_array)
+      @pwm_driver.write(value_array)
     end
   end
 end

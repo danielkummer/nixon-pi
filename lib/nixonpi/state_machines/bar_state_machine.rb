@@ -1,10 +1,11 @@
 require 'state_machine'
 
-require_relative '../drivers/bar_graph_driver'
+require_relative '../drivers/pwm_driver'
 require_relative 'handler_state_machine'
 require_relative '../animations/animation'
 require_relative '../../nixonpi/animations/bar/ramp_up_down_animation'
 require_relative '../configurations/settings'
+require_relative '../drivers/driver_manager'
 
 
 module NixonPi
@@ -16,7 +17,7 @@ module NixonPi
 
     def initialize()
       super()
-      register_driver NixonPi::BarGraphDriver
+      register_driver DriverManager.driver_for(:in13)
     end
 
     state_machine :initial => :startup do
@@ -57,7 +58,7 @@ module NixonPi
         def write
           value = params[:value]
           if !value.nil? and value != params[:last_value]
-            driver.write_to_bar(bar_index, value)
+            driver.write_to_port(bar_index, value)
             params[:last_value] = value
           end
 

@@ -1,25 +1,20 @@
-require 'singleton'
-require_relative 'driver'
-require_relative '../configurations/settings'
 require_relative '../messaging/command_listener'
 require_relative '../messaging/command_receiver'
 require_relative '../information/information_holder'
-
+require_relative 'io_driver'
 
 module NixonPi
   class PowerDriver
     include Logging
-    include Singleton
-    include Driver
     include CommandListener
     include InformationHolder
 
     accepted_commands :value
 
-    def initialize
-      @power_pin = Settings.power_pin
+    def initialize(power_port)
+      @io_driver = IoDriver.new([power_port])
       @value = 0
-      log.info "Initializing power pin: #{@power_pin.to_s}"
+      log.info "Initializing power driver..."
     end
 
     def handle_command(command)
@@ -27,7 +22,7 @@ module NixonPi
       log.debug "got power command: #{command}, applying..."
       if (0..1).member?(value)
         NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "power #{value == 1 ? "on" : "off"}!"})
-        client.io_write(@power_pin, value)
+        @io_driver.write(value)
         @value = value
       end
     end
@@ -47,19 +42,12 @@ module NixonPi
 
     def power_on
       @value = 1
-      client.io_write(@power_pin, 1)
+      @io_driver.write(1)
     end
 
     def power_off
       @value = 0
-      client.io_write(@power_pin, 0)
-    end
-
-    # Currently unused..
-    def write(power_on = false)
-      write = power_on ? 1 : 0
-      client.io_write(@power_pin, write)
-      @value = write
+      @io_driver.write(0)
     end
 
     def on?

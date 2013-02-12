@@ -8,8 +8,8 @@ module NixonPi
       ##
       # Create a new instance of the specified animation type, runs an after_create hook method if defined
       # @param [Symbol] type, if type contains a suffix integer, return the base type class instance
-      # @param [Hash] options optional hash to be passed to the class instance
-      def create(type, options = {})
+      # @param [Object] options optional hash to be passed to the class instance
+      def create(type, options = nil)
         if type.match(/([a-zA-Z]+)\d+/)
           #remove the int suffix to locate the subclass
           klass = @@subclasses[$1.to_sym]
@@ -19,7 +19,7 @@ module NixonPi
 
         if klass
           #if klass.instance_method(:initialize).parameters.empty? or
-          if options.empty?
+          if options.nil?
             instance = klass.new
           else
             instance = klass.new(options)
