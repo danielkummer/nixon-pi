@@ -1,5 +1,5 @@
 require 'state_machine'
-require_relative '../../../lib/nixonpi/drivers/lamp_driver'
+require_relative '../../../lib/nixonpi/drivers/io_driver'
 require_relative 'handler_state_machine'
 require_relative '../configurations/settings'
 
@@ -11,7 +11,7 @@ module NixonPi
 
     def initialize()
       super()
-      register_driver NixonPi::LampDriver
+      register_driver NixonPi::IODriver.new(Settings.in1_pins)
     end
 
     state_machine :initial => :startup do
@@ -36,7 +36,7 @@ module NixonPi
         def write
           value = params[:value]
           if !value.nil? and value != params[:last_value]
-            driver.write_to_lamp(lamp_index, value)
+            driver.write_to_port(lamp_index, value)
             params[:last_value] = value
           end
 

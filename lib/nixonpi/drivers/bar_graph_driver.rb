@@ -9,8 +9,8 @@ module NixonPi
       client.pwm_reset
       dim_all(100)
       @bar_values = {}
-      @pin_array = Settings.in13_pins
-      log.debug "initialize nixie pwm bars #{@pin_array.to_s}"
+      @ports = Settings.in13_pins
+      log.debug "initialize nixie pwm bars #{@ports.to_s}"
     end
 
     def bar_values
@@ -24,9 +24,9 @@ module NixonPi
       if value_array.kind_of? Hash #todo hacky - refactor
         write_to_bar(value_array[:bar], value_array[:value])
       elsif value_array.kind_of? Array
-        log.error "more values than configured lamps" and return if value_array.size > @pin_array.size
+        log.error "more values than configured lamps" and return if value_array.size > @ports.size
         value_array.map! { |x| x.to_i > 255 ? 255 : x.to_i }
-        client.pwm_write_registers(start_index: @pin_array.first, values: value_array)
+        client.pwm_write_registers(start_index: @ports.first, values: value_array)
       end
     end
 
@@ -38,7 +38,7 @@ module NixonPi
     def write_to_bar(bar, value)
       @bar_values[bar.to_i] = value
       log.debug "write bar #{bar} value #{value}"
-      client.pwm_write(@pin_array[bar.to_i], value)
+      client.pwm_write(@ports[bar.to_i], value)
     end
 
     ##

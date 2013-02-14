@@ -144,7 +144,7 @@ module NixonPi
     ##
     # Get an instance of the underlying driver
     def driver
-      @driver.instance
+      @driver
     rescue
       log.error "Driver missing"
     end

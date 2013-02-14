@@ -17,9 +17,10 @@ module NixonPi
     accepted_commands :value
 
     def initialize
-      @power_pin = Settings.power_pin
+      @power_driver = IODriver.new(Settings.power_pin)
+
       @value = 0
-      log.info "Initializing power pin: #{@power_pin.to_s}"
+      log.info "Initializing power pin"
     end
 
     def handle_command(command)
