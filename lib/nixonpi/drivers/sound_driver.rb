@@ -6,6 +6,7 @@ require_relative '../messaging/command_listener'
 module NixonPi
   class SoundDriver
     include Logging
+    extend Logging
     include OSInfo
     include CommandListener
 
@@ -26,18 +27,15 @@ module NixonPi
     end
 
     def speech(text, params={})
-      text = params[:text] || self
       text = text.to_s.gsub(/_/, " ")
-      if params[:flite]
-        language = "-voice #{params[:language]}" if params[:language] #voices: #kal awb_time kal16 awb rms slt
-        language ||= ""
-        cmd = "flite #{language}\"#{text}\""
-      end
+      language = "-voice #{params[:language]}" if params[:language] #voices: #kal awb_time kal16 awb rms slt
+      language ||= ""
+      cmd = "flite -t #{language}\"#{text}\""
       self.class.execute cmd
     end
 
     def sound(filename)
-      sound = self
+      sound = filename
       file = Dir.glob("**/*.mp3").select { |v| v=~ /#{sound}/ }.first
       unless file.nil?
         cmd = "/usr/local/bin/mpg123 \"#{File.expand_path(file)}\""
