@@ -8,6 +8,7 @@ require_relative '../animations/tube/single_fly_in_animation'
 require_relative 'handler_state_machine'
 require_relative '../logging/logging'
 require_relative '../messaging/command_receiver'
+require_relative '../drivers/driver_manager'
 
 
 module NixonPi
@@ -19,7 +20,7 @@ module NixonPi
 
     def initialize()
       super()
-      register_driver NixonPi::TubeDriver
+      register_driver DriverManager.driver_for(:in12a)
     end
 
     state_machine :initial => :startup do

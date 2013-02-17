@@ -18,6 +18,8 @@ jQuery(function ($) {
             }
         });
 
+        var power_button_initialized = false;
+
         /**
          * Initialize power button
          */
@@ -25,12 +27,15 @@ jQuery(function ($) {
             $.getJSON('/information/power.json', function (data) {
                 if (data.value == 1) {
                     $('#power-toggle-button').toggleButtons('toggleState');
+                    power_button_initialized = true;
                 }
             });
 
             $('#power-toggle-button').toggleButtons({
                 onChange:function ($el, status, e) {
-                    $el.closest("form").submit();
+                    if(power_button_initialized) {
+                        $el.closest("form").submit();
+                    }
                 },
                 width:100,
                 height:30,

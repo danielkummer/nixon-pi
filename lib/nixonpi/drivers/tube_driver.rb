@@ -1,19 +1,20 @@
-require 'singleton'
-
 require_relative 'driver'
 require_relative '../configurations/settings'
 require_relative '../client/abio_card_client'
 
 module NixonPi
   class TubeDriver
-    include Singleton
     include Driver
 
     BLANK_NUM = 10
     #elementOrder 1,6,2,7,5,0,4,9,8,3
 
-    def initialize
-      init_pins
+    def initialize(data_port, clock_port, latch_port)
+      @data_pin, @clock_pin, @latch_pin = data_port, clock_port, latch_port
+      log.debug "initialize tubes with pins - data: #@data_pin, clock: #@clock_pin, latch: #@latch_pin"
+      client.io_write(@data_pin, 0)
+      client.io_write(@clock_pin, 0)
+      client.io_write(@latch_pin, 0)
     end
 
     def write_string_with_blanks(output)
@@ -107,16 +108,6 @@ module NixonPi
     end
 
     private
-
-    ##
-    # Initialize the shift register control pins
-    def init_pins
-      @data_pin, @clock_pin, @latch_pin = Settings.in12a_tubes.data_pin, Settings.in12a_tubes.clock_pin, Settings.in12a_tubes.latch_pin
-      log.debug "initialize tubes with pins - data: #@data_pin, clock: #@clock_pin, latch: #@latch_pin"
-      client.io_write(@data_pin, 0)
-      client.io_write(@clock_pin, 0)
-      client.io_write(@latch_pin, 0)
-    end
 
     ##
     # Sends a digit out to the shift register

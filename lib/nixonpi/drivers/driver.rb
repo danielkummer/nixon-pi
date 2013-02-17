@@ -7,6 +7,7 @@ module NixonPi
   module Driver
     include Logging
 
+
     def client
       @client ||= NixonPi::AbioCardClient.instance
     end
