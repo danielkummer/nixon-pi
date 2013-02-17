@@ -37,15 +37,17 @@ module NixonPi
 
       state :startup do
         def write
-          #unlucky naming - currently :state is a saved db value - if any; reason: no state transition has happened yet
+
+          NixonPi::Animations::Animation.create(:ramp_up_down, {bar: bar_index}).run("0")
+
           if params[:initial_state].nil?
             params[:goto_state] = :free_value
+            params[:value] = 0
           else
-            params[:goto_state] = params[:initial_state]
+            params[:goto_state] = params[:initial_state] #todo load initial values
           end
 
-          handle_command({state:"animation", animation_name: "ramp_up_down", options: { bar: bar_index }, last_value: 0})
-
+          handle_command(state: params[:goto_state])
         end
       end
 

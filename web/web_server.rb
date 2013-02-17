@@ -50,23 +50,23 @@ module NixonPi
 
 
     not_found do
-      if request.accept? 'application/json'
+      if request.accept? 'text/html'
+        haml 'errors/not_found'.to_sym, layout: false, locals: {info: {title: "404 - are you sure it's there?", message: "Nothing found!"}}
+      else
         content_type :json
         status 404
         halt({:success => 'false', :message => "404 - are you sure it's there?"}.to_json)
       end
-
-      haml 'errors/not_found'.to_sym, layout: false, locals: {info: {title: "404 - are you sure it's there?", message: "Nothing found!"}}
     end
 
     error Bunny::TCPConnectionFailed do
-      if request.accept? 'application/json'
+      if request.accept? 'text/html'
+        haml 'errors/rabbitmq_down'.to_sym, layout: false, locals: {info: {title: "Oops - I found a dead bunny...", message: "Make sure your RabbitMQ server is up and running..."}}
+      else
         content_type :json
-
         halt({:success => 'false', :message => "Make sure your RabbitMQ server is up and running..."}.to_json)
       end
 
-      haml 'errors/rabbitmq_down'.to_sym, layout: false, locals: {info: {title: "Oops - I found a dead bunny...", message: "Make sure your RabbitMQ server is up and running..."}}
     end
 
     error do

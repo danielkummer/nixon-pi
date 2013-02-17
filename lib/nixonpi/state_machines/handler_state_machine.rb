@@ -130,7 +130,7 @@ module NixonPi
       end
       block.call
       #todo speech is overlaying at the moment...
-      NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "Entering  #{object.state} state for #{object.registered_as_type}"})
+      NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "Entering  #{object.state} state for #{object.registered_as_type}"}) unless last_state == "startup"
       object.params[:state] = object.state
 
       begin

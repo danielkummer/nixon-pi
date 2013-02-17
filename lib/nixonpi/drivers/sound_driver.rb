@@ -44,12 +44,19 @@ module NixonPi
     end
 
     def self.execute(cmd)
-      begin
-        IO.popen(cmd)
-      rescue StandardError => err
-        log.error err.message
-        raise err
-      end
+      @last_time ||= Time.now
+      now = Time.now
+
+      #todo not good enough - silent drop of messages
+      if now >= @last_time + 5.seconds
+        begin
+          IO.popen(cmd)
+        rescue StandardError => err
+          log.error err.message
+          raise err
+        end
+      end unless @last_time.nil?
+      @last_time = now
     end
   end
 end
