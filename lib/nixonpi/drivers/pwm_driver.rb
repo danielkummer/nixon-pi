@@ -22,7 +22,8 @@ module NixonPi
     #
     def write(values)
       if values.kind_of? Hash #todo hacky - refactor
-        write_to_port(values[:bar], values[:value])
+        raise "wrong hash format, expected the keys 'port' and 'value'" unless values.has_key?(:port) and values.has_key?(:value)
+        write_to_port(values[:port], values[:value])
       elsif values.kind_of? Array
         log.error "more values than configured lamps" and return if values.size > @ports.size
         values.map! { |x| x.to_i > 255 ? 255 : x.to_i }
