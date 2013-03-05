@@ -5,9 +5,9 @@ require_relative 'nixonpi/delegators/multi_delegator'
 require_relative 'nixonpi/configurations/state_hash'
 require_relative 'nixonpi/logging/logging'
 require_relative 'nixonpi/client/abio_card_client'
-require_relative 'nixonpi/drivers/tube_driver'
+require_relative 'nixonpi/drivers/basic/tube_driver'
 require_relative 'nixonpi/drivers/lamp_driver'
-require_relative 'nixonpi/drivers/pwm_driver'
+require_relative 'nixonpi/drivers/basic/pwm_driver'
 require_relative 'nixonpi/state_machines/bar_state_machine'
 require_relative 'nixonpi/state_machines/tube_state_machine'
 require_relative 'nixonpi/state_machines/lamp_state_machine'
@@ -52,12 +52,13 @@ module NixonPi
 
       @message_distributor = NixonPi::Messaging::CommandReceiver.new
       @info_gatherer = NixonPi::InformationProxy.new
-      @driver_manager = NixonPi::DriverManager
 
-      @driver_manager.add_driver(:power, PowerDriver.new(Settings.power_pin))
-      @driver_manager.add_driver(:in1, NixonPi::LampDriver.new(Settings.in1_pins))
-      @driver_manager.add_driver(:in13, NixonPi::PwmDriver.new(Settings.in13_pins))
-      @driver_manager.add_driver(:in12a, NixonPi::TubeDriver.new(Settings.in12a_tubes.data_pin, Settings.in12a_tubes.clock_pin, Settings.in12a_tubes.latch_pin))
+
+
+      NixonPi::DriverManager.register({power: PowerDriver.new(Settings.power_pin),
+                                in1: NixonPi::LampDriver.new(Settings.in1_pins),
+                                in13: NixonPi::PwmDriver.new(Settings.in13_pins),
+                                in12a: NixonPi::TubeDriver.new(Settings.in12a_tubes.data_pin, Settings.in12a_tubes.clock_pin, Settings.in12a_tubes.latch_pin)})
 
 =begin
       @rgb_machine = NixonPi::MultiMachineProxy.new
@@ -82,12 +83,11 @@ module NixonPi
       end
 
 
-
       @message_distributor.add_receiver(SoundDriver.new, :sound)
-      @message_distributor.add_receiver(@driver_manager.driver_for(:power), :power)
+      @message_distributor.add_receiver(DriverManager.driver_for(:power), :power)
       @message_distributor.add_receiver(NixonPi::Scheduler.new, :schedule)
 
-      @info_gatherer.add_info_holder(@driver_manager.driver_for(:power), :power)
+      @info_gatherer.add_info_holder(DriverManager.driver_for(:power), :power)
       @info_gatherer.add_info_holder(HardwareInfo.new, :hardware)
       @info_gatherer.add_info_holder(NixonPi::Scheduler.new, :schedule)
       @info_gatherer.add_info_holder(@message_distributor, :commands)
@@ -110,7 +110,7 @@ module NixonPi
 
       log.info "Start running..."
       NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "power on!"})
-      @driver_manager.driver_for(:power).power_on
+      DriverManager.driver_for(:power).power_on
       NixonPi::MachineManager.start_state_machines
       NixonPi::MachineManager.join_threads #this must be inside the main run script - else the subthreads exit
     end
@@ -125,7 +125,7 @@ module NixonPi
       NixonPi::Scheduler.exit_scheduler
       @message_distributor.on_exit
       log.info "Blow the candles out..."
-      PowerDriver.instance.power_off
+      DriverManager.driver_for(:power).power_off
       log.info "Bye ;)"
       #exit(0)
       exit!

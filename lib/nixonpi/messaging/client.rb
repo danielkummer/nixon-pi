@@ -37,7 +37,6 @@ module NixonPi
       ##
       # Clean up
       def on_exit
-        direct_exchange_channel.delete
         #queues delete
         log.info "closing connection to rabbitmq..."
         client.close

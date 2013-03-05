@@ -1,5 +1,5 @@
 require_relative '../configurations/settings'
-require_relative 'pwm_driver'
+require_relative 'basic/pwm_driver'
 
 module NixonPi
   class LampDriver

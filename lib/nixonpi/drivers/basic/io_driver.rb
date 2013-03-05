@@ -1,5 +1,5 @@
-require_relative 'driver'
-require_relative '../logging/logging'
+require_relative '../driver'
+require_relative '../../logging/logging'
 
 module NixonPi
   class IoDriver

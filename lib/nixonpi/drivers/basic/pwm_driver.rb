@@ -1,4 +1,4 @@
-require_relative 'driver'
+require_relative '../driver'
 
 module NixonPi
   class PwmDriver

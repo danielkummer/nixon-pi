@@ -1,7 +1,7 @@
 require_relative '../messaging/command_listener'
 require_relative '../messaging/command_receiver'
 require_relative '../information/information_holder'
-require_relative 'io_driver'
+require_relative 'basic/io_driver'
 
 module NixonPi
   class PowerDriver

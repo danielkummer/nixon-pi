@@ -1,6 +1,6 @@
 require 'state_machine'
 
-require_relative '../drivers/pwm_driver'
+require_relative '../drivers/basic/pwm_driver'
 require_relative 'handler_state_machine'
 require_relative '../animations/animation'
 require_relative '../../nixonpi/animations/bar/ramp_up_down_animation'

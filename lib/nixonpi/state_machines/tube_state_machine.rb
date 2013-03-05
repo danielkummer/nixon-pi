@@ -1,6 +1,6 @@
 require 'state_machine'
 
-require_relative '../drivers/tube_driver'
+require_relative '../drivers/basic/tube_driver'
 require 'active_support/inflector'
 require_relative '../animations/animation'
 require_relative '../animations/tube/switch_numbers_animation'

@@ -1,6 +1,6 @@
-require_relative 'driver'
-require_relative '../configurations/settings'
-require_relative '../client/abio_card_client'
+require_relative '../driver'
+require_relative '../../configurations/settings'
+require_relative '../../client/abio_card_client'
 
 module NixonPi
   class TubeDriver
