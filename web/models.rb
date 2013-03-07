@@ -15,12 +15,13 @@ class Command < ActiveRecord::Base
   validates_presence_of :state_machine
 
 
+  #todo refactor!
   validate :valid_tubes?, :if => Proc.new { |c| c.state_machine.to_s.include? "tubes" }
   validate :valid_bar?, :if => Proc.new { |c| c.state_machine.to_s.include? "bar" }
   validate :valid_lamp?, :if => Proc.new { |c| c.state_machine.to_s.include? "lamp" }
   validate :valid_say?, :if => Proc.new { |c| c.state_machine.to_s.include? "say" }
   validate :valid_power?, :if => Proc.new { |c| c.state_machine.to_s.include? "power" }
-
+  validate :valid_rgb?, :if => Proc.new { |c| c.state_machine.to_s.include? "rgb" }
 
 
   def valid_tubes?
@@ -87,11 +88,19 @@ class Command < ActiveRecord::Base
     errors.add(:value, "Nothing to say") if value.blank?
   end
 
+  def valid_power?
+    errors.add(:value, "Invalid power value") unless (0..1).include?(value.to_i)
+  end
+
+  def valid_rgb?
+    value.gsub!(/^#/, '')
+    unless value =~ /^([a-fA-F0-9]{6})$/
+      errors.add(:value, "Invalid rgb value") unless (0..1).include?(value.to_i)
+    end
+  end
+
 end
 
-def valid_power?
-  errors.add(:value, "Invalid power value") unless (0..1).include?(value.to_i)
-end
 
 class Schedule < ActiveRecord::Base
   attr_accessible :id,

@@ -209,6 +209,15 @@ module NixonPi
       end
     end
 
+    post '/rgb/?' do
+          #todo error when no id
+          id = params[:id]
+          preprocess_post_params(:rgb, @params) do |data|
+            sender.send_command("rgb".to_sym, data)
+            formatted_response('json', data, "RGB set to")
+          end
+    end
+
     post '/scheduler/?' do
       preprocess_post_params(:scheduler, @params) do |data|
         #convert json to hash

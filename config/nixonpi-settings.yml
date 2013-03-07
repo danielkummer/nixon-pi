@@ -25,6 +25,11 @@ defaults: &defaults
     - 2
     - 3
   power_pin: 3
+  rgb_pins:
+    - 4
+    - 5
+    - 6
+  blue_led_pin: 7
 
 
 development:

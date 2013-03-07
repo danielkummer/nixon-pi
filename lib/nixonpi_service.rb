@@ -54,11 +54,16 @@ module NixonPi
       @info_gatherer = NixonPi::InformationProxy.new
 
 
+      NixonPi::DriverManager.register(
+          {
+              power: PowerDriver.new(Settings.power_pin),
+              in1: NixonPi::LampDriver.new(Settings.in1_pins),
+              in13: NixonPi::PwmDriver.new(Settings.in13_pins),
+              in12a: NixonPi::TubeDriver.new(Settings.in12a_tubes.data_pin, Settings.in12a_tubes.clock_pin, Settings.in12a_tubes.latch_pin),
+              rgb: NixonPi::PwmDriver.new(Settings.rgb_pins)
+          }
+      )
 
-      NixonPi::DriverManager.register({power: PowerDriver.new(Settings.power_pin),
-                                in1: NixonPi::LampDriver.new(Settings.in1_pins),
-                                in13: NixonPi::PwmDriver.new(Settings.in13_pins),
-                                in12a: NixonPi::TubeDriver.new(Settings.in12a_tubes.data_pin, Settings.in12a_tubes.clock_pin, Settings.in12a_tubes.latch_pin)})
 
 =begin
       @rgb_machine = NixonPi::MultiMachineProxy.new
@@ -82,6 +87,10 @@ module NixonPi
         @info_gatherer.add_info_holder(receiver, target)
       end
 
+      NixonPi::MachineManager.add_state_machines(:rgb) do |receiver, target|
+        @message_distributor.add_receiver(receiver, target)
+        @info_gatherer.add_info_holder(receiver, target)
+      end
 
       @message_distributor.add_receiver(SoundDriver.new, :sound)
       @message_distributor.add_receiver(DriverManager.driver_for(:power), :power)
