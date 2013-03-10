@@ -95,7 +95,7 @@ class Command < ActiveRecord::Base
   def valid_rgb?
     value.gsub!(/^#/, '')
     unless value =~ /^([a-fA-F0-9]{6})$/
-      errors.add(:value, "Invalid rgb value") unless (0..1).include?(value.to_i)
+      errors.add(:value, "Invalid rgb value")
     end
   end
 

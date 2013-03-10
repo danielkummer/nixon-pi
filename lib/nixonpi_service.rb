@@ -8,9 +8,11 @@ require_relative 'nixonpi/client/abio_card_client'
 require_relative 'nixonpi/drivers/basic/tube_driver'
 require_relative 'nixonpi/drivers/lamp_driver'
 require_relative 'nixonpi/drivers/basic/pwm_driver'
+require_relative 'nixonpi/drivers/background_driver'
 require_relative 'nixonpi/state_machines/bar_state_machine'
 require_relative 'nixonpi/state_machines/tube_state_machine'
 require_relative 'nixonpi/state_machines/lamp_state_machine'
+require_relative 'nixonpi/state_machines/rgb_state_machine'
 require_relative 'nixonpi/animations/animation'
 require_relative 'nixonpi/state_machines/machine_manager'
 require_relative 'nixonpi/drivers/power_driver'
@@ -60,7 +62,8 @@ module NixonPi
               in1: NixonPi::LampDriver.new(Settings.in1_pins),
               in13: NixonPi::PwmDriver.new(Settings.in13_pins),
               in12a: NixonPi::TubeDriver.new(Settings.in12a_tubes.data_pin, Settings.in12a_tubes.clock_pin, Settings.in12a_tubes.latch_pin),
-              rgb: NixonPi::PwmDriver.new(Settings.rgb_pins)
+              rgb: NixonPi::PwmDriver.new(Settings.rgb_pins),
+              background: NixonPi::BackgroundDriver.new(Settings.background_led_pin)
           }
       )
 
@@ -92,14 +95,18 @@ module NixonPi
         @info_gatherer.add_info_holder(receiver, target)
       end
 
+
+
       @message_distributor.add_receiver(SoundDriver.new, :sound)
       @message_distributor.add_receiver(DriverManager.driver_for(:power), :power)
       @message_distributor.add_receiver(NixonPi::Scheduler.new, :schedule)
+      @message_distributor.add_receiver(DriverManager.driver_for(:background), :background)
 
       @info_gatherer.add_info_holder(DriverManager.driver_for(:power), :power)
       @info_gatherer.add_info_holder(HardwareInfo.new, :hardware)
       @info_gatherer.add_info_holder(NixonPi::Scheduler.new, :schedule)
       @info_gatherer.add_info_holder(@message_distributor, :commands)
+      @info_gatherer.add_info_holder(DriverManager.driver_for(:background), :background)
 
       DRb.start_service(DRBSERVER, @info_gatherer)
     end

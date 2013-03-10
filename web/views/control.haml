@@ -49,6 +49,15 @@
                   %input{type: "checkbox", name: "initial", class: "input-medium"}
         .span6{style:"padding-top:10px;"}
 
+.row.row-divider
+  .span2
+    %h3
+      Background
+  .span9
+    %form{ action: "/background", method: "POST", class: "form-inline", style:"margin-bottom:0px;","data-remote" => true}
+      .bar-control
+        %input{:type => "range", :name => "value", :class => "range", min: "0", max: "255", value: "0"}
+
   .span4
     .well#countdown_examples
       %h3 Countdown examples
@@ -154,7 +163,15 @@
       .row
         .span12
           %input{type: "text", name: "value", class: "input-xxlarge"}
-
+.row.row-divider
+  .span2
+    %h2
+      RGB
+  .span6
+    %form{ action: "/rgb", method: "POST", class:"form", "data-remote" => true}
+      %input{type: "text", id:"color", name:"value", value:"#ffffff"}
+      %input{type: "submit", value: "GO", class: "btn"}
+    #colorpicker
 
 
 

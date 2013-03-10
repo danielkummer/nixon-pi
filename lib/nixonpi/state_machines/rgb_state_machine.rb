@@ -33,7 +33,7 @@ module NixonPi
         def write
           value = params[:value]
           if !value.nil? and value != params[:last_value]
-            driver.write()
+            driver.write(value)
             params[:last_value] = value
           end
 

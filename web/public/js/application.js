@@ -1,6 +1,13 @@
 jQuery(function ($) {
     $(document).ready(function () {
 
+        $('#colorpicker').farbtastic('#color');
+
+        $('#color').on('change', function() {
+            $(this).closest("form").submit();
+        });
+
+
 
         $.getJSON('/state.json', function (data) {
 

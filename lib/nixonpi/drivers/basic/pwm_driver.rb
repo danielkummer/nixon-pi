@@ -32,7 +32,7 @@ module NixonPi
     end
 
     ##
-    # Write a percent value to a IN-13 bargraph
+    # Write a value to a pwm port
     #
     # @param [Integer] port
     # @param [Integer] value

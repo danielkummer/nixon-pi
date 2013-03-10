@@ -75,7 +75,7 @@ module NixonPi
       # @param [CommandListener] receiver
       def add_receiver(receiver, command)
         command = command.to_sym
-        raise "Receiver must include the receiver module" unless receiver.is_a?(CommandListener)
+        raise "Receiver #{receiver.class} must include the receiver module" unless receiver.is_a?(CommandListener)
         if @receivers[command].nil?
           @receivers[command] = [receiver]
         else

@@ -209,14 +209,21 @@ module NixonPi
       end
     end
 
-    post '/rgb/?' do
-          #todo error when no id
-          id = params[:id]
-          preprocess_post_params(:rgb, @params) do |data|
-            sender.send_command("rgb".to_sym, data)
-            formatted_response('json', data, "RGB set to")
-          end
+    post '/rgb' do
+      #todo error when no id
+      preprocess_post_params(:rgb, @params) do |data|
+        sender.send_command("rgb".to_sym, data)
+        formatted_response('json', data, "RGB set to")
+      end
     end
+
+    post '/background' do
+      preprocess_post_params(:background, @params) do |data|
+        sender.send_command("background".to_sym, data)
+        formatted_response('json', data, "Background set to")
+      end
+    end
+
 
     post '/scheduler/?' do
       preprocess_post_params(:scheduler, @params) do |data|
