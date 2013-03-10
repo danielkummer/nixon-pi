@@ -1,11 +1,11 @@
 require 'state_machine'
 require_relative '../drivers/lamp_driver'
-require_relative 'handler_state_machine'
+require_relative 'base_state_machine'
 require_relative '../configurations/settings'
 require_relative '../drivers/driver_manager'
 
 module NixonPi
-  class LampStateMachine <  HandlerStateMachine
+  class LampStateMachine <  BaseStateMachine
 
     register_as :lamp
     accepted_commands :state, :value, :animation_name, :options
@@ -15,40 +15,20 @@ module NixonPi
       register_driver DriverManager.driver_for(:in1)
     end
 
-    state_machine :initial => :startup do
+    state_machine do
 
-      around_transition do |object, transition, block|
-        HandlerStateMachine.handle_around_transition(object, transition, block)
-      end
-
-      event :free_value do
-        transition all => :free_value
-      end
-
-      event :animation do
-        transition all => :animation
-      end
-
-      event :run_test do
-        transition all => :run_test
-      end
 
       state :free_value do
         def write
           value = params[:value]
           if !value.nil? and value != params[:last_value]
-            driver.write_to_lamp(lamp_index, value)
+            @driver.write_to_lamp(lamp_index, value)
             params[:last_value] = value
           end
 
         end
       end
 
-      state :animation do
-        def write
-          raise NotImplementedError
-        end
-      end
 
       state :startup do
         def write
@@ -68,11 +48,6 @@ module NixonPi
         end
       end
 
-      state :run_test do
-        def write
-          raise NotImplementedError
-        end
-      end
     end
 
     def lamp_index

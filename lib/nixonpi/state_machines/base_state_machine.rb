@@ -14,7 +14,7 @@ require 'active_record'
 
 
 module NixonPi
-  class HandlerStateMachine
+  class BaseStateMachine
     include Logging
     include Factory
     include CommandListener
@@ -28,6 +28,30 @@ module NixonPi
     def initialize()
       super() # NOTE: This *must* be called, otherwise states won't get initialized
       reload_state()
+    end
+
+    state_machine :initial => :startup do
+
+      around_transition do |object, transition, block|
+        BaseStateMachine.handle_around_transition(object, transition, block)
+      end
+
+      event(:free_value) { transition all => :free_value }
+      event(:animation) { transition all => :animation }
+      event(:free_value) { transition all => :free_value }
+      event(:animation) { transition all => :animation }
+
+      state :animation do
+        def write
+          name, options = params[:animation_name], params[:options]
+          options ||= {}
+          start_value = params[:last_value]
+          NixonPi::Animations::Animation.create(name.to_sym, options).run(start_value)
+
+          handle_command(state: params[:goto_state])
+        end
+      end
+
     end
 
     def reload_state
@@ -63,25 +87,16 @@ module NixonPi
     end
 
     def handle_info_request(about)
-      ret = Hash.new
       case about.to_sym
         when :params
-          ret = get_params.clone
+          Hash.new(Marshal.load(Marshal.dump(@state_parameters)))
         when :commands
-          ret = {commands: self.class.available_commands.clone}
+          Hash.new({commands: self.class.available_commands.clone})
         else
           log.error "No information about #{about}"
+          Hash.new
       end
-      ret
     end
-
-
-    ##
-    # Get the state parameters for the registered state machine
-    def get_params
-      @state_parameters
-    end
-
 
     ##
     # Get the current state parameters from the global class state hash, lazy initialized
@@ -101,11 +116,9 @@ module NixonPi
     # Lazy initialize state hash if not already existing
     def initialize_state
       @state_parameters = StateHash.new
-
       self.class.available_commands.each do |cmd|
         @state_parameters[cmd] = nil
       end
-
       @state_parameters
     end
 
@@ -122,7 +135,6 @@ module NixonPi
     # @param [block] block
     def self.handle_around_transition(object, transition, block)
       object.params[:goto_state] = object.state if object.params[:goto_state].nil? and !object.state.nil?
-
       last_state = object.state
       begin
         object.leave_state
@@ -132,7 +144,6 @@ module NixonPi
       #todo speech is overlaying at the moment...
       NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "Entering  #{object.state} state for #{object.registered_as_type}"}) unless last_state == "startup"
       object.params[:state] = object.state
-
       begin
         object.enter_state if object.respond_to?(:enter_state)
       rescue NoMethodError => e
@@ -140,15 +151,6 @@ module NixonPi
       object.log.debug "TRANSITION:  #{last_state} --#{transition.event}--> #{object.state}"
       object.log.debug "new state: #{object.state}"
     end
-
-    ##
-    # Get an instance of the underlying driver
-    def driver
-      @driver
-    rescue
-      log.error "Driver missing"
-    end
-
 
   end
 end

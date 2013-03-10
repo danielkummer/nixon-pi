@@ -5,14 +5,14 @@ require 'active_support/inflector'
 require_relative '../animations/animation'
 require_relative '../animations/tube/switch_numbers_animation'
 require_relative '../animations/tube/single_fly_in_animation'
-require_relative 'handler_state_machine'
+require_relative 'base_state_machine'
 require_relative '../logging/logging'
 require_relative '../messaging/command_receiver'
 require_relative '../drivers/driver_manager'
 
 
 module NixonPi
-  class TubeStateMachine < HandlerStateMachine
+  class TubeStateMachine < BaseStateMachine
     include Logging
 
     register_as :tubes
@@ -23,31 +23,11 @@ module NixonPi
       register_driver DriverManager.driver_for(:in12a)
     end
 
-    state_machine :initial => :startup do
+    state_machine do
 
-
-      around_transition do |object, transition, block|
-        HandlerStateMachine.handle_around_transition(object, transition, block)
-      end
-
-      event :free_value do
-        transition all => :free_value
-      end
-
-      event :time do
-        transition all => :time
-      end
-
-      event :animation do
-        transition all => :animation
-      end
-
-      event :countdown do
-        transition all => :countdown
-      end
-      event :meeting_ticker do
-        transition all => :meeting_ticker
-      end
+      event(:time) { transition all => :time }
+      event(:countdown) {transition all => :countdown}
+      event(:meeting_ticker) { transition all => :meeting_ticker }
 
       state :startup do
         def write
@@ -83,9 +63,9 @@ module NixonPi
           elsif now.hour == 0 and now.hour != params[:last_time].hour
             NixonPi::Animations::Animation.create(:single_fly_in).run(formatted_time)
           elsif now.min % 15 == 0 and now.sec <= 10
-            driver.write(formatted_date.rjust(tubes_count, ' '))
+            @driver.write(formatted_date.rjust(tubes_count, ' '))
           else
-            driver.write(formatted_time.rjust(tubes_count, ' '))
+            @driver.write(formatted_time.rjust(tubes_count, ' '))
           end
 
           params[:last_value] = formatted_time
@@ -97,19 +77,8 @@ module NixonPi
       state :free_value do
         def write
           value = params[:value]
-          driver.write(value)
+          @driver.write(value)
           params[:last_value] = value
-        end
-      end
-
-      state :animation do
-        def write
-          name, options = params[:animation_name], params[:options]
-          options ||= {}
-          start_value = params[:last_value]
-          NixonPi::Animations::Animation.create(name.to_sym, options).run(start_value)
-
-          handle_command(state: params[:goto_state])
         end
       end
 
@@ -132,7 +101,7 @@ module NixonPi
               log.debug "countdown: #{output}"
               @last_output = output
               NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "#{seconds_to_go}"}) if seconds_to_go <= 10
-              driver.write(output)
+              @driver.write(output)
             end
           end
 
@@ -192,7 +161,7 @@ module NixonPi
           per_second_burn = @hourly_rate.to_i * @attendees.to_i / 3600
           elapsed_seconds = Time.now - @meeting_start
           cost = per_second_burn * elapsed_seconds
-          driver.write(cost.round(2).to_s.gsub(/\./, " "))
+          @driver.write(cost.round(2).to_s.gsub(/\./, " "))
         end
       end
     end

@@ -30,13 +30,15 @@ module NixonPi
       # Get the path to the configuration file, create the file in the users home directory if it doesn't exist or is outdated
       def path_to_config
         gem_path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "config", "nixonpi-settings.yml"))
+=begin
         home_path = File.join(Dir.home, "nixonpi-settings.yml")
 
         if ENV['RACK_ENV'] == 'development' or FileUtils.uptodate?(gem_path, %w(home_path))
           FileUtils.cp(gem_path, home_path) unless File.exists?(home_path)
         end
-
         home_path
+=end
+        gem_path
       end
 
       ##

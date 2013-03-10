@@ -26,10 +26,10 @@ defaults: &defaults
     - 3
   power_pin: 3
   rgb_pins:
-    - 4
-    - 5
+    - 8
     - 6
-  background_led_pin: 7
+    - 7
+  background_led_pin: 5
 
 
 development:

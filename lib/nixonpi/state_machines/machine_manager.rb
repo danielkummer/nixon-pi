@@ -1,4 +1,4 @@
-require_relative 'handler_state_machine'
+require_relative 'base_state_machine'
 require_relative '../logging/logging'
 require_relative '../messaging/command_receiver'
 
@@ -30,7 +30,7 @@ module NixonPi
           suffix = instances_count == 1 ? "" : i.to_s
           key = "#{name}#{suffix}".to_sym
           log.debug "adding state machine instance for #{name} under #{key}"
-          instance = NixonPi::HandlerStateMachine.create(key)
+          instance = NixonPi::BaseStateMachine.create(key)
           @@state_machines[key] = instance
           if block_given?
             yield instance, key

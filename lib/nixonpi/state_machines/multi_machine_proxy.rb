@@ -1,4 +1,4 @@
-require_relative 'handler_state_machine'
+require_relative 'base_state_machine'
 require_relative '../logging/logging'
 require_relative '../messaging/command_receiver'
 require_relative '../messaging/command_listener'
