@@ -23,7 +23,6 @@ class Command < ActiveRecord::Base
   validate :valid_power?, :if => Proc.new { |c| c.state_machine.to_s.include? "power" }
   validate :valid_rgb?, :if => Proc.new { |c| c.state_machine.to_s.include? "rgb" }
 
-
   def valid_tubes?
     case self.state.to_sym
       when :free_value

@@ -3,10 +3,11 @@ jQuery(function ($) {
 
         $('#colorpicker').farbtastic('#color');
 
-        $('#color').on('change', function() {
+        $.pnotify.defaults.delay = 1500;
+
+        $('#color').on('change', function () {
             $(this).closest("form").submit();
         });
-
 
 
         $.getJSON('/state.json', function (data) {
@@ -40,7 +41,7 @@ jQuery(function ($) {
 
             $('#power-toggle-button').toggleButtons({
                 onChange:function ($el, status, e) {
-                    if(power_button_initialized) {
+                    if (power_button_initialized) {
                         $el.closest("form").submit();
                     }
                 },
@@ -156,11 +157,13 @@ jQuery(function ($) {
                     var value = res['value']
                     var text = res['message'] + " : " + value;
 
-                    var $alert = $("<div class='alert alert-success fade in'><button data-dismiss='alert' class='close' type='button'>×</button>" + text + "</div>")
-                    $('#alert-container').append($alert);
-                    window.setTimeout(function () {
-                        $alert.alert('close');
-                    }, 2000);
+                    $.pnotify({
+                        text:text,
+                        type:'success',
+                        icon: 'icon-success',
+                        nonblock:true,
+                        nonblock_opacity:.2
+                    });
                 },
                 error:function (res, textStatus, errorMsg) {
                     var response_json = jQuery.parseJSON(res.responseText),
@@ -174,9 +177,13 @@ jQuery(function ($) {
                     for (i in messages) {
                         text += messages[i] + "<br/>";
                     }
-
-                    var $alert = $("<div class='alert alert-error fade in'><button data-dismiss='alert' class='close' type='button'>×</button>" + text + "</div>")
-                    $('#alert-container').append($alert);
+                    $.pnotify({
+                        text:text,
+                        type:'error',
+                        icon: 'icon-error',
+                        nonblock:true,
+                        nonblock_opacity:.2
+                    });
                 }
             })
         });
