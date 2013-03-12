@@ -20,7 +20,7 @@ module NixonPi
       def initialize(options = {})
         super()
         @options = {sleep: 0.3, total: 3.0}.merge(options)
-        @driver = DriverManager.driver_for(:in13)
+        @driver = DriverManager.instance_for(:in13)
       end
 
       def run(start)

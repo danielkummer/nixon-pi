@@ -12,7 +12,7 @@ module NixonPi
 
     def initialize()
       super()
-      register_driver DriverManager.driver_for(:rgb)
+      register_driver DriverManager.instance_for(:rgb)
     end
 
     state_machine do

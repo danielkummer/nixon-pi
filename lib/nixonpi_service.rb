@@ -98,15 +98,15 @@ module NixonPi
 
 
       @message_distributor.add_receiver(SoundDriver.new, :sound)
-      @message_distributor.add_receiver(DriverManager.driver_for(:power), :power)
+      @message_distributor.add_receiver(DriverManager.instance_for(:power), :power)
       @message_distributor.add_receiver(NixonPi::Scheduler.new, :schedule)
-      @message_distributor.add_receiver(DriverManager.driver_for(:background), :background)
+      @message_distributor.add_receiver(DriverManager.instance_for(:background), :background)
 
-      @info_gatherer.add_info_holder(DriverManager.driver_for(:power), :power)
+      @info_gatherer.add_info_holder(DriverManager.instance_for(:power), :power)
       @info_gatherer.add_info_holder(HardwareInfo.new, :hardware)
       @info_gatherer.add_info_holder(NixonPi::Scheduler.new, :schedule)
       @info_gatherer.add_info_holder(@message_distributor, :commands)
-      @info_gatherer.add_info_holder(DriverManager.driver_for(:background), :background)
+      @info_gatherer.add_info_holder(DriverManager.instance_for(:background), :background)
 
       DRb.start_service(DRBSERVER, @info_gatherer)
     end
@@ -126,7 +126,7 @@ module NixonPi
 
       log.info "Start running..."
       NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "power on!"})
-      DriverManager.driver_for(:power).power_on
+      DriverManager.instance_for(:power).power_on
       NixonPi::MachineManager.start_state_machines
       NixonPi::MachineManager.join_threads #this must be inside the main run script - else the subthreads exit
     end
@@ -141,7 +141,7 @@ module NixonPi
       NixonPi::Scheduler.exit_scheduler
       @message_distributor.on_exit
       log.info "Blow the candles out..."
-      DriverManager.driver_for(:power).power_off
+      DriverManager.instance_for(:power).power_off
       log.info "Bye ;)"
       #exit(0)
       exit!
