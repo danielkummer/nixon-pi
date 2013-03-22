@@ -17,6 +17,7 @@ require_relative 'nixonpi/animations/animation'
 require_relative 'nixonpi/state_machines/machine_manager'
 require_relative 'nixonpi/drivers/power_driver'
 require_relative 'nixonpi/drivers/sound_driver'
+require_relative 'nixonpi/drivers/rgb_driver'
 require_relative 'nixonpi/scheduler'
 require_relative 'nixonpi/messaging/command_receiver'
 require_relative 'nixonpi/information/information_proxy'
@@ -62,7 +63,7 @@ module NixonPi
               in1: NixonPi::LampDriver.new(Settings.in1_pins),
               in13: NixonPi::PwmDriver.new(Settings.in13_pins),
               in12a: NixonPi::TubeDriver.new(Settings.in12a_tubes.data_pin, Settings.in12a_tubes.clock_pin, Settings.in12a_tubes.latch_pin),
-              rgb: NixonPi::PwmDriver.new(Settings.rgb_pins),
+              rgb: NixonPi::RgbDriver.new(Settings.rgb_pins),
               background: NixonPi::BackgroundDriver.new(Settings.background_led_pin)
           }
       )

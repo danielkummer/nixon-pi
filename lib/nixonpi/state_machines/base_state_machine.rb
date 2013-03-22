@@ -80,9 +80,10 @@ module NixonPi
     def handle_command(command)
       #todo add new param -> after state to specify a transition to go to  - can't use last state because it's aready used... - maybe its not needed anymore
       log.debug "got #{self.class.to_s} command: #{command.to_s}"
-      if command[:state] and command[:state] != params[:state]
-        params.merge!(command)
-        self.fire_state_event(command[:state].to_sym)
+      current_state = params[:state]
+      params.merge!(command)
+      if command[:state]
+        self.fire_state_event(command[:state].to_sym) if command[:state] != current_state
       end
     end
 

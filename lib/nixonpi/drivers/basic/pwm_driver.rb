@@ -27,7 +27,7 @@ module NixonPi
       elsif values.kind_of? Array
         log.error "more values than configured lamps" and return if values.size > @ports.size
         values.map! { |x| x.to_i > 255 ? 255 : x.to_i }
-        client.pwm_write_registers(start_index: @ports.first, values: values)
+        client.pwm_write_registers(start_index: @ports.sort.first, values: values)
       end
     end
 
@@ -37,6 +37,7 @@ module NixonPi
     # @param [Integer] port
     # @param [Integer] value
     def write_to_port(port, value)
+      value = value.to_i
       @values[port.to_i] = value
       log.debug "write bar #{port} value #{value}"
       client.pwm_write(@ports[port.to_i], value)
