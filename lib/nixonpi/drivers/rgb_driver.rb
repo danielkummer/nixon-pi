@@ -9,7 +9,6 @@ module NixonPi
     def initialize(rgb_ports)
       raise "3 ports needed for red green and blue" unless rgb_ports.size == 3
       @io_driver = PwmDriver.new(rgb_ports)
-      @rgb_ports = rgb_ports #todo refactor
       log.info "Initializing rgb driver...\n red: #{rgb_ports[0]} green: #{rgb_ports[1]} blue: #{rgb_ports[2]}"
 
     end
@@ -30,8 +29,8 @@ module NixonPi
       end
 
       rgb = hex2int(hex_color)
-      @rgb_ports.each.with_index do |port, i|
-        @io_driver.write_to_port(port,rgb[i])
+      rgb.each.with_index do |v, i|
+        @io_driver.write_to_port(i,v)
       end
     end
 
