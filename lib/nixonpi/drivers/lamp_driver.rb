@@ -1,9 +1,11 @@
 require_relative '../configurations/settings'
 require_relative 'basic/pwm_driver'
+require_relative 'driver'
 
 module NixonPi
   class LampDriver
     include Logging
+    include Driver #todo doesn't need to be a driver
 
     def initialize(ports)
       log.info "Initializing lamps driver"

@@ -2,12 +2,14 @@ require_relative '../messaging/command_listener'
 require_relative '../messaging/command_receiver'
 require_relative '../information/information_holder'
 require_relative 'basic/pwm_driver'
+require_relative 'driver'
 
 module NixonPi
   class BackgroundDriver
     include Logging
     include CommandListener
     include InformationHolder
+    include Driver #todo doesn't need to be a driver
 
     accepted_commands :value
 

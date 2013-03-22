@@ -34,7 +34,7 @@ module NixonPi
           elapsed = time_diff_milli(start, Time.now)
           value = ease_in_out_quad(elapsed, 0, 255, total_time)
           animation_value = value.ceil
-          write({bar: bar, value: animation_value}, index)
+          write({port: bar, value: animation_value}, index)
           index += 1
           sleep sleep_step
         end

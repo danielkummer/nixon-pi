@@ -8,6 +8,7 @@ module NixonPi
     include Logging
     include CommandListener
     include InformationHolder
+    include Driver #todo doesn't need to be a driver
 
     accepted_commands :value
 
