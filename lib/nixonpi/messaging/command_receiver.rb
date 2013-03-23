@@ -105,7 +105,7 @@ module NixonPi
         if about.to_sym == :receivers
           ret = {receivers: @receivers.keys}
         else
-          log.error "no information about #{about} found"
+          log.error "no information about '#{about}' found"
         end
         ret
       end

@@ -88,15 +88,17 @@ module NixonPi
     end
 
     def handle_info_request(about)
+      result = Hash.new
       case about.to_sym
         when :params
-          Hash.new(Marshal.load(Marshal.dump(@state_parameters)))
+          result = Marshal.load(Marshal.dump(@state_parameters))
         when :commands
-          Hash.new({commands: self.class.available_commands.clone})
+          commands = Marshal.load(Marshal.dump(self.class.available_commands))
+          result[:commands] =  commands
         else
           log.error "No information about #{about}"
-          Hash.new
       end
+      result
     end
 
     ##

@@ -20,7 +20,7 @@ module NixonPi
       CommandSender.new.send_command(@queue, @command)
       #todo unlock queue
       #CommandQueue.unlock(@queue) if @lock
-      Schedule.delete(@id)
+      Schedule.delete(@id) if job.is_a?(Rufus::Scheduler::InJob) or job.is_a?(Rufus::Scheduler::AtJob)
     end
   end
 
@@ -30,7 +30,7 @@ module NixonPi
     include CommandListener
     include InformationHolder
 
-    accepted_commands :method, :timing, :queue, :command, :time, :id
+    accepted_commands :method, :timing, :queue, :command, :time, :id, :delete
 
     def initialize
       @@scheduler ||= Rufus::Scheduler.start_new
@@ -68,18 +68,25 @@ module NixonPi
 
 
     def handle_command(command)
-      log.info "got schedule command: #{command}, applying..."
-      id, method, timing, queue = command[:id], command[:method], command[:timing], command[:queue]
 
-      new_commands = Hash.new
-      command[:command].each do |k, v|
-        new_commands[k.to_sym] = v
+      if command.has_key?(:delete)
+        id = command[:id]
+        log.info "deleting schedule with id: #{id}"
+        unschedule(id)
+      else
+        log.info "got schedule command: #{command}, applying..."
+        id, method, timing, queue = command[:id], command[:method], command[:timing], command[:queue]
+
+        new_commands = Hash.new
+        command[:command].each do |k, v|
+          new_commands[k.to_sym] = v
+        end
+
+        command[:command] = new_commands
+
+        locked = command[:lock] ? true : false
+        schedule(id, method, timing, queue, command[:command], locked)
       end
-
-      command[:command] = new_commands
-
-      locked = command[:lock] ? true : false
-      schedule(id, method, timing, queue, command[:command], locked)
     end
 
     def self.exit_scheduler
@@ -104,45 +111,45 @@ module NixonPi
     # @param [Symbol] queue Name of the queue -> command receiver
     # @param [Hash] command Hash of command parameters
     def schedule(id, method, timing, queue, command, lock = false)
-      if %w(power tubes bars lamps).include?(queue)
-        log.debug "schedule command #{command}, #{method} #{timing} for #{queue}"
-        #if %w"in at".include?(method) or lock
-        if lock
-          log.debug "locking state machine..."
 
-          #todo lock queue
-          #CommandQueue.lock(queue)
-        end
+      log.debug "schedule command #{command}, #{method} #{timing} for #{queue}"
+      #if %w"in at".include?(method) or lock
+      if lock
+        log.debug "locking state machine..."
+        #todo lock queue
+        #CommandQueue.lock(queue)
+      end
 
-        #todo test if block works
-        job = case method.to_sym
-                when :in
-                  @@scheduler.in "#{timing}", CommandJob.new(id, queue, command, lock), :mutex => "#{queue}"
-                when :at
-                  @@scheduler.at "#{timing}", CommandJob.new(id, queue, command, lock), :mutex => "#{queue}"
-                when :every
-                  @@scheduler.every "#{timing}", CommandJob.new(id, queue, command, lock), :mutex => "#{queue}"
-                when :cron
-                  @@scheduler.cron "#{timing}", CommandJob.new(id, queue, command, lock), :mutex => "#{queue}"
-                else
-                  false
-              end
+      #todo test if block works
+      job = case method.to_sym
+              when :in
+                @@scheduler.in "#{timing}", CommandJob.new(id, queue, command, lock), :mutex => "#{queue}"
+              when :at
+                @@scheduler.at "#{timing}", CommandJob.new(id, queue, command, lock), :mutex => "#{queue}"
+              when :every
+                @@scheduler.every "#{timing}", CommandJob.new(id, queue, command, lock), :mutex => "#{queue}"
+              when :cron
+                @@scheduler.cron "#{timing}", CommandJob.new(id, queue, command, lock), :mutex => "#{queue}"
+              else
+                false
+            end
 
 
-        @@jobs[id.to_s.to_sym] = job
+      @@jobs[id.to_s.to_sym] = job
+      true
+    end
+
+    def unschedule(id)
+      @@jobs[id.to_s.to_sym].unschedule unless @@jobs[id.to_s.to_sym].nil?
+    end
+
+    #unused
+    def unschedule_all
+      @@jobs.each do |j|
+        j.unschedule
       end
     end
   end
 
-  def unschedule(id)
-    @@jobs[id.to_sym].unschedule unless @@jobs[id.to_sym].nil?
-  end
-
-  #unused
-  def unschedule_all
-    @@jobs.each do |j|
-      j.unschedule
-    end
-  end
 
 end

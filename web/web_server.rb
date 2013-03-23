@@ -142,10 +142,10 @@ module NixonPi
       formatted_response('json', data, "Options for command #{target}")
     end
 
-    get '/targets.:format?' do
+    get '/receivers.:format?' do
       #get all available targets for commands
-      data = get_data_for(:commands, :targets)
-      formatted_response('json', data, "available command targets")
+      data = get_data_for(:commands, :receivers)
+      formatted_response('json', data, "available command receivers")
     end
 
     get '/information/:target/?.:format?' do
@@ -228,9 +228,9 @@ module NixonPi
     post '/scheduler/?' do
       preprocess_post_params(:scheduler, @params) do |data|
         #convert json to hash
-        data[:command] = JSON.parse(data[:command])
+        data[:command] = JSON.parse(data[:command].gsub!(/^\[/, '{').gsub!(/\]$/, '}'))
         sender.send_command(:schedule, data)
-        formatted_response('json', data, "Bars set to")
+        formatted_response('json', data, "Command scheduled")
       end
     end
 
@@ -255,10 +255,13 @@ module NixonPi
 
     delete '/schedule/:id/?' do |id|
       schedule = Schedule.find_by_id(id)
-      data = Hash.new
       if schedule
+        data = Hash.new
+        data[:delete] = true
+        data[:id] = schedule.id
+        sender.send_command(:schedule, data)
         schedule.destroy
-        set_message!(data, "Schedule deleted", false)
+        set_message!(data, "Schedule removed", false)
       else
         set_message!(data, "Schedule not fount", false)
       end
@@ -342,9 +345,11 @@ module NixonPi
     # @param [Hash] data
     # @param [String] respond_message
     def formatted_response(format, data, respond_message = "")
+      data ||= Hash.new
       data[:message] ||= []
       data[:success] = true unless data.has_key?(:success)
       data[:message] << respond_message unless respond_message.empty?
+
 
       case format.to_sym
         when :json
@@ -383,8 +388,8 @@ module NixonPi
           else
             data = REMOTE_INFO_PROXY.get_info_from(target.to_sym, about)
         end
-      rescue Exception => e
-        set_message!(data, "Options for #{target} not found , #{e.message}", false)
+      rescue Exception
+        set_message!(data, "Options for #{target} not found! #{$!.message}", false)
       end
       data
     end

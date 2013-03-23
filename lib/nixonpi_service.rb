@@ -103,6 +103,7 @@ module NixonPi
       @message_distributor.add_receiver(NixonPi::Scheduler.new, :schedule)
       @message_distributor.add_receiver(DriverManager.instance_for(:background), :background)
 
+      @info_gatherer.add_info_holder(SoundDriver.new, :sound)
       @info_gatherer.add_info_holder(DriverManager.instance_for(:power), :power)
       @info_gatherer.add_info_holder(HardwareInfo.new, :hardware)
       @info_gatherer.add_info_holder(NixonPi::Scheduler.new, :schedule)

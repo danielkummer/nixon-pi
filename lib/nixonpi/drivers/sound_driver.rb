@@ -1,6 +1,7 @@
 require_relative '../logging/logging'
 require_relative '../information/os_info'
 require_relative '../messaging/command_listener'
+require_relative '../information/information_holder'
 
 
 module NixonPi
@@ -9,6 +10,7 @@ module NixonPi
     extend Logging
     include OSInfo
     include CommandListener
+    include InformationHolder
 
     accepted_commands :value
 
@@ -25,6 +27,17 @@ module NixonPi
           value.include?(".mp3") ? sound(value) : speech(value)
       end
     end
+
+    def handle_info_request(about)
+          ret = Hash.new
+          case about.to_sym
+            when :commands
+              ret = {commands: self.class.available_commands}
+            else
+              log.error "No information about #{about}"
+          end
+          ret
+        end
 
     def speech(text, params={})
       text = text.to_s.gsub(/_/, " ")

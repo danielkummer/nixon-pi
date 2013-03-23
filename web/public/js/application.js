@@ -1,7 +1,9 @@
 jQuery(function ($) {
     $(document).ready(function () {
 
-        $('#colorpicker').farbtastic('#color');
+        if ($('#colorpicker').length === 1) {
+            $('#colorpicker').farbtastic('#color');
+        }
 
         $.pnotify.defaults.delay = 1500;
 
@@ -160,7 +162,7 @@ jQuery(function ($) {
                     $.pnotify({
                         text:text,
                         type:'success',
-                        icon: 'icon-success',
+                        icon:'icon-success',
                         nonblock:true,
                         nonblock_opacity:.2
                     });
@@ -180,7 +182,7 @@ jQuery(function ($) {
                     $.pnotify({
                         text:text,
                         type:'error',
-                        icon: 'icon-error',
+                        icon:'icon-error',
                         nonblock:true,
                         nonblock_opacity:.2
                     });
@@ -239,19 +241,22 @@ jQuery(function ($) {
         }
 
         //todo
-        if ($('#scheduler').length === 1) {
-
-            $.getJSON('targets.json', function (data) {
+        if ($('#receivers').length >= 1) {
+            $.getJSON('receivers.json', function (data) {
                 delete data.success;
                 delete data.message;
-                var targets = data.targets;
+                var targets = data.receivers;
 
-                var $options = $('#target');
+                var $options = $('#receivers');
                 $.each(targets, function () {
                     $options.append($("<option />").val(this.toString()).text(this.toString()));
                     $options.trigger("liszt:updated")
                 });
             });
+        }
+
+        if ($('#scheduler').length === 1) {
+
 
             $("#method").chosen().change(function (event) {
                 var newValue = $(event.target).val(),
@@ -273,7 +278,7 @@ jQuery(function ($) {
                 $('#time').val(result);
             });
 
-            $("#target").chosen().change(function (event) {
+            $("#receivers").chosen().change(function (event) {
                 var target = $(event.target).val();
 
                 $.getJSON('command/' + target.toLowerCase() + '.json', function (data) {

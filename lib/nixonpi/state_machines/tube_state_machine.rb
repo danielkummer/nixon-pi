@@ -16,7 +16,7 @@ module NixonPi
     include Logging
 
     register_as :tubes
-    accepted_commands :state, :value, :time_format, :animation_name, :options, :initial_mode
+    accepted_commands :state, :value, :animation_name, :options, :initial_mode
 
     def initialize()
       super()
@@ -46,7 +46,7 @@ module NixonPi
       state :time do
         def write
           tubes_count = Settings.in12a_tubes.count
-          format = params[:time_format]
+          format = params[:value]
           if format.nil? or format.size > tubes_count
             format = Settings.default_time_format
           end

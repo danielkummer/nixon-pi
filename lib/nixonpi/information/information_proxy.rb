@@ -43,7 +43,7 @@ module NixonPi
           if receiver.respond_to?(:handle_info_request)
             data = receiver.handle_info_request(about)
             data.delete_if { |k, v| v.nil? }
-            ret << data.clone #clone data to prevent rdb thread dump error (not working?)
+            ret << data
           else
             log.error "Listener for #{target} doesn't have the receive method!"
           end
