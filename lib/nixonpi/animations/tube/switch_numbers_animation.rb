@@ -13,7 +13,8 @@ module NixonPi
       # * duration - number of turnarounds, default 5
       # * sleep - sleep duration in seconds, default 0.3
       def initialize(options = {})
-        @options = {duration: 5, sleep: 0.3}.merge(options)
+        @options = {duration: 5, sleep: 0.3}
+        @options.merge(options) if options.is_a?(Hash)
         super()
       end
 

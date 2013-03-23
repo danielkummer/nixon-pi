@@ -48,16 +48,6 @@
                 .controls
                   %input{type: "checkbox", name: "initial", class: "input-medium"}
         .span6{style:"padding-top:10px;"}
-
-.row.row-divider
-  .span2
-    %h3
-      Background
-  .span9
-    %form{ action: "/background", method: "POST", class: "form-inline", style:"margin-bottom:0px;","data-remote" => true}
-      .bar-control
-        %input{:type => "range", :name => "value", :class => "range", min: "0", max: "255", value: "0"}
-
   .span4
     .well#countdown_examples
       %h3 Countdown examples
@@ -73,6 +63,15 @@
         %li 47 yrs 6 mos and 4d
         %li two hours and twenty minutes
         %li 3 weeks and 2 days
+.row.row-divider
+  .span2
+    %h3
+      Background
+  .span9
+    %form{ action: "/background", method: "POST", class: "form-inline", style:"margin-bottom:0px;","data-remote" => true}
+      .bar-control
+        %input{:type => "range", :name => "value", :class => "range", min: "0", max: "255", value: "0"}
+
 
     /= format_command_values(@tubes)
 

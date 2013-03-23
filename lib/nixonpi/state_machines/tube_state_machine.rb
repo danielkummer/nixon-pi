@@ -26,7 +26,7 @@ module NixonPi
     state_machine do
 
       event(:time) { transition all => :time }
-      event(:countdown) {transition all => :countdown}
+      event(:countdown) { transition all => :countdown }
       event(:meeting_ticker) { transition all => :meeting_ticker }
 
       state :startup do
@@ -44,17 +44,19 @@ module NixonPi
       end
 
       state :time do
-        def write
-          tubes_count = Settings.in12a_tubes.count
-          format = params[:value]
-          if format.nil? or format.size > tubes_count
-            format = Settings.default_time_format
-          end
+        def enter_state
+          @format = params[:value]
+          @tubes_count = Settings.in12a_tubes.count
+          @format = nil unless @format.is_a?(String)
+          @format = Settings.default_time_format if @format.nil? or @format.size > @tubes_count
+        end
 
+
+        def write
           now = Time.now
           params[:last_time] = now if params[:last_time].nil?
 
-          formatted_time = now.strftime(format)
+          formatted_time = now.strftime(@format)
           formatted_date = now.strftime(Settings.default_date_format)
 
 
@@ -63,9 +65,9 @@ module NixonPi
           elsif now.hour == 0 and now.hour != params[:last_time].hour
             NixonPi::Animations::Animation.create(:single_fly_in).run(formatted_time)
           elsif now.min % 15 == 0 and now.sec <= 10
-            @driver.write(formatted_date.rjust(tubes_count, ' '))
+            @driver.write(formatted_date.rjust(@tubes_count, ' '))
           else
-            @driver.write(formatted_time.rjust(tubes_count, ' '))
+            @driver.write(formatted_time.rjust(@tubes_count, ' '))
           end
 
           params[:last_value] = formatted_time
