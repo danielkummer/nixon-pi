@@ -1,7 +1,7 @@
 require_relative '../animation'
 require_relative '../easing'
 require_relative '../../configurations/settings'
-require_relative '../../drivers/driver_manager'
+require_relative '../../drivers/hardware_driver_factory'
 
 ##
 # This animation increments every number by one, the number of turnarounds can be specified
@@ -20,7 +20,7 @@ module NixonPi
       def initialize(options = {})
         super()
         @options = {sleep: 0.3, total: 3.0}.merge(options)
-        @driver = DriverManager.instance_for(:in13)
+        @driver = HardwareDriverFactory.instance_for(:in13)
       end
 
       def run(start)

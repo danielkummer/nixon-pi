@@ -5,7 +5,7 @@ require_relative 'base_state_machine'
 require_relative '../animations/animation'
 require_relative '../../nixonpi/animations/bar/ramp_up_down_animation'
 require_relative '../configurations/settings'
-require_relative '../drivers/driver_manager'
+require_relative '../drivers/hardware_driver_factory'
 
 
 module NixonPi
@@ -17,7 +17,7 @@ module NixonPi
 
     def initialize()
       super()
-      register_driver DriverManager.instance_for(:in13)
+      register_driver HardwareDriverFactory.instance_for(:in13)
     end
 
     state_machine do

@@ -1,16 +1,16 @@
 require_relative 'driver'
 module NixonPi
-  class DriverManager
+  class HardwareDriverFactory
     @@drivers = {}
 
     class << self
       undef_method :new
 
       def register(options = {})
-        options.each_value do |d|
-          raise "invalid driver found, driver #{d.class.name} must implement Driver module" unless d.is_a?(Driver)
-        end
-
+        #has also proxies at the moment - workaround?
+        #options.each_value do |d|
+        #  raise "invalid driver found, driver #{d.class.name} must implement Driver module" unless d.is_a?(Driver)
+        #end
         @@drivers.merge!(options)
       end
 

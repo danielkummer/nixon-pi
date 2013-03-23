@@ -1,11 +1,11 @@
-require_relative '../logging/logging'
-require_relative '../information/os_info'
-require_relative '../messaging/command_listener'
-require_relative '../information/information_holder'
+require_relative '../../logging/logging'
+require_relative '../../information/os_info'
+require_relative '../../messaging/command_listener'
+require_relative '../../information/information_holder'
 
 
 module NixonPi
-  class SoundDriver
+  class SoundProxy
     include Logging
     extend Logging
     include OSInfo

@@ -1,10 +1,9 @@
-require_relative 'basic/pwm_driver'
-require_relative 'driver'
+require_relative '../basic/pwm_driver'
+require_relative '../driver'
 
 module NixonPi
-  class RgbDriver
+  class RgbProxy
     include Logging
-    include Driver #todo doesn't need to be a driver
 
     def initialize(rgb_ports)
       raise "3 ports needed for red green and blue" unless rgb_ports.size == 3

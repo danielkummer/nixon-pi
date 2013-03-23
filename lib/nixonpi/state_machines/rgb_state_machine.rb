@@ -1,8 +1,8 @@
 require 'state_machine'
-require_relative '../drivers/lamp_driver'
+require_relative '../drivers/proxies/lamp_proxy'
 require_relative 'base_state_machine'
 require_relative '../configurations/settings'
-require_relative '../drivers/driver_manager'
+require_relative '../drivers/hardware_driver_factory'
 
 module NixonPi
   class RgbStateMachine <  BaseStateMachine
@@ -12,7 +12,7 @@ module NixonPi
 
     def initialize()
       super()
-      register_driver DriverManager.instance_for(:rgb)
+      register_driver HardwareDriverFactory.instance_for(:rgb)
     end
 
     state_machine do

@@ -1,14 +1,13 @@
-require_relative '../messaging/command_listener'
-require_relative '../messaging/command_receiver'
-require_relative '../information/information_holder'
-require_relative 'basic/io_driver'
+require_relative '../../messaging/command_listener'
+require_relative '../../messaging/command_receiver'
+require_relative '../../information/information_holder'
+require_relative '../basic/io_driver'
 
 module NixonPi
-  class PowerDriver
+  class PowerProxy
     include Logging
     include CommandListener
     include InformationHolder
-    include Driver #todo doesn't need to be a driver
 
     accepted_commands :value
 
