@@ -20,7 +20,7 @@ module NixonPi
       def initialize(options = {})
         super()
         @options = {sleep: 0.3, total: 3.0}.merge(options)
-        @driver = get_injected(:in13_tubes)
+        @driver = get_injected(:in13_driver)
       end
 
       def run(start)

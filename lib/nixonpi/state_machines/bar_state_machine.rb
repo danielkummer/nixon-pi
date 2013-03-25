@@ -17,7 +17,7 @@ module NixonPi
 
     def initialize()
       super()
-      register_driver get_injected(:in13_tubes)
+      register_driver get_injected(:in13_driver)
     end
 
     state_machine do

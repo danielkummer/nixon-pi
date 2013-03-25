@@ -14,7 +14,7 @@ module NixonPi
         super()
         @semaphore = Mutex.new
         @options ||= {}
-        @driver = get_injected(:in12a)
+        @driver = get_injected(:in12a_driver)
       end
 
       ##

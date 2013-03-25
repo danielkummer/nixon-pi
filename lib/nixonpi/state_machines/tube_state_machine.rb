@@ -20,7 +20,7 @@ module NixonPi
 
     def initialize()
       super()
-      register_driver get_injected(:in12a)
+      register_driver get_injected(:in12a_driver)
     end
 
     state_machine do

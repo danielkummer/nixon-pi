@@ -38,10 +38,9 @@ module NixonPi
 
     ActiveRecord::Base.logger = Logger.new(STDERR)
 
-
-    register :in1_tubes, NixonPi::LampProxy, ports: Settings.in1_pins
-    register :in13_tubes, NixonPi::PwmDriver, ports: Settings.in13_pins
-    register :in12a, NixonPi::TubeDriver, data: Settings.in12a_tubes.data_pin, clock: Settings.in12a_tubes.clock_pin, latch: Settings.in12a_tubes.latch_pin
+    register :in1_proxy, NixonPi::LampProxy, ports: Settings.in1_pins
+    register :in13_driver, NixonPi::PwmDriver, ports: Settings.in13_pins
+    register :in12a_driver, NixonPi::TubeDriver, data: Settings.in12a_tubes.data_pin, clock: Settings.in12a_tubes.clock_pin, latch: Settings.in12a_tubes.latch_pin
     register :power, NixonPi::PowerProxy, port: Settings.power_pin
     register :rgb_proxy, NixonPi::RgbProxy, ports: Settings.rgb_pins
     register :background, NixonPi::BackgroundProxy, port: Settings.background_led_pin
