@@ -11,8 +11,8 @@ module NixonPi
 
     accepted_commands :value
 
-    def initialize(power_port)
-      @io_driver = IoDriver.new([power_port])
+    def initialize(options = {port: nil})
+      @io_driver = IoDriver.new([options[:port]])
       @value = 0
       log.info "Initializing power driver..."
     end

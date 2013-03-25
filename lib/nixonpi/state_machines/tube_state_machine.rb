@@ -8,19 +8,19 @@ require_relative '../animations/tube/single_fly_in_animation'
 require_relative 'base_state_machine'
 require_relative '../logging/logging'
 require_relative '../messaging/command_receiver'
-require_relative '../drivers/hardware_driver_factory'
+require_relative '../../dependency'
 
 
 module NixonPi
   class TubeStateMachine < BaseStateMachine
     include Logging
 
-    register_as :tubes
+    register :tubes, self
     accepted_commands :state, :value, :animation_name, :options, :initial_mode
 
     def initialize()
       super()
-      register_driver HardwareDriverFactory.instance_for(:in12a)
+      register_driver get_injected(:in12a)
     end
 
     state_machine do
@@ -31,7 +31,7 @@ module NixonPi
 
       state :startup do
         def write
-          NixonPi::Animations::Animation.create(:single_fly_in).run("000123456789")
+          get_injected(:single_fly_in).run("000123456789")
 
           if params[:initial_state].nil?
             params[:goto_state] = :time
@@ -61,9 +61,9 @@ module NixonPi
 
 
           if now.min == 0 and now.min != params[:last_time].min
-            NixonPi::Animations::Animation.create(:single_fly_in).run(formatted_time)
+            get_injected(:single_fly_in).run(formatted_time)
           elsif now.hour == 0 and now.hour != params[:last_time].hour
-            NixonPi::Animations::Animation.create(:single_fly_in).run(formatted_time)
+            get_injected(:single_fly_in).run(formatted_time)
           elsif now.min % 15 == 0 and now.sec <= 10
             @driver.write(formatted_date.rjust(@tubes_count, ' '))
           else

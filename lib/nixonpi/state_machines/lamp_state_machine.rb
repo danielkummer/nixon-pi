@@ -2,22 +2,20 @@ require 'state_machine'
 require_relative '../drivers/proxies/lamp_proxy'
 require_relative 'base_state_machine'
 require_relative '../configurations/settings'
-require_relative '../drivers/hardware_driver_factory'
+require_relative '../../dependency'
 
 module NixonPi
   class LampStateMachine <  BaseStateMachine
 
-    register_as :lamp
+    register :lamp, self
     accepted_commands :state, :value, :animation_name, :options
 
     def initialize()
       super()
-      register_driver HardwareDriverFactory.instance_for(:in1)
+      register_driver get_injected(:in1_tubes)
     end
 
     state_machine do
-
-
       state :free_value do
         def write
           value = params[:value]

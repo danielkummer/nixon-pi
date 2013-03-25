@@ -1,15 +1,12 @@
 require 'thread'
 require_relative '../logging/logging'
 require_relative '../drivers/basic/tube_driver'
-require_relative '../factory'
-#useage
-#Animation.create(:switch_numbers).run
+require_relative '../../dependency'
 
 module NixonPi
   module Animations
     class Animation
       include Logging
-      include Factory
 
       attr_accessor :thread
 
@@ -17,7 +14,7 @@ module NixonPi
         super()
         @semaphore = Mutex.new
         @options ||= {}
-        @driver = HardwareDriverFactory.instance_for(:in12a)
+        @driver = get_injected(:in12a)
       end
 
       ##

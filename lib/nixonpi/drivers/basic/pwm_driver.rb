@@ -4,11 +4,11 @@ module NixonPi
   class PwmDriver
     include Driver
 
-    def initialize(ports)
+    def initialize(options = {ports: nil})
       client.pwm_reset
       dim_all(100)
       @values = {}
-      @ports = ports
+      @ports = options[:ports]
       log.debug "initialize pwm ports #{@ports.to_s}"
     end
 

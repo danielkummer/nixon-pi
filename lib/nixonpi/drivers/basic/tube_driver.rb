@@ -9,8 +9,8 @@ module NixonPi
     BLANK_NUM = 10
     #elementOrder 1,6,2,7,5,0,4,9,8,3
 
-    def initialize(data_port, clock_port, latch_port)
-      @data_pin, @clock_pin, @latch_pin = data_port, clock_port, latch_port
+    def initialize(options = {data: nil, clock: nil, latch: nil})
+      @data_pin, @clock_pin, @latch_pin = options[:data], options[:clock], options[:latch]
       log.debug "initialize tubes with pins - data: #@data_pin, clock: #@clock_pin, latch: #@latch_pin"
       client.io_write(@data_pin, 0)
       client.io_write(@clock_pin, 0)

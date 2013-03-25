@@ -6,7 +6,7 @@ module NixonPi
   module Animations
     class SwitchNumbersAnimation < Animation
 
-      register_as :switch_numbers
+      register :switch_numbers, self
 
       ##
       # @param [Hash] options

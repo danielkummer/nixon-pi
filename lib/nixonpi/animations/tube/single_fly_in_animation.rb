@@ -8,7 +8,7 @@ module NixonPi
   module Animations
     class SingleFlyInAnimation < Animation
 
-      register_as :single_fly_in
+      register :single_fly_in, self
 
       def initialize(options = {})
         @options = {sleep: 0.05}

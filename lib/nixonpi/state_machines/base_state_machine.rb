@@ -10,13 +10,13 @@ require_relative '../messaging/command_receiver'
 require_relative '../messaging/command_sender'
 
 require_relative '../../../web/models'
+require_relative '../../dependency'
 require 'active_record'
 
 
 module NixonPi
   class BaseStateMachine
     include Logging
-    include Factory
     include CommandListener
     include InformationHolder
 
@@ -46,7 +46,7 @@ module NixonPi
           name, options = params[:animation_name], params[:options]
           options ||= {}
           start_value = params[:last_value]
-          NixonPi::Animations::Animation.create(name.to_sym, options).run(start_value)
+          get_injected(name.to_sym, options).run(start_value)
 
           handle_command(state: params[:goto_state])
         end

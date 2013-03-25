@@ -53,6 +53,11 @@ namespace :bundle do
   end
 end
 
+#sudo bluepill <start|stop|restart|unmonitor> <process_or_group_name>
+namespace :bluepill do
+
+end
+
 namespace :foreman do
   desc "Export the Procfile to Ubuntu's upstart scripts"
   task :export, :roles => :app do
@@ -61,6 +66,10 @@ namespace :foreman do
     run "cd #{release_path} && rvmsudo bundle exec foreman export bluepill ./config " +
             "-f ./Procfile.production -a #{application} -u #{user} -l #{shared_path}/log"
   end
+
+
+
+=begin
   desc " Start the application services "
   task :start, :roles => :app do
     sudo " start #{application}"
@@ -80,6 +89,7 @@ namespace :foreman do
   task :logs, :roles => :app do
     run "cd #{current_path}/log && cat #{ENV["PROCESS"]}.log"
   end
+=end
 
 end
 

@@ -23,7 +23,7 @@ require_relative 'nixonpi/messaging/command_receiver'
 require_relative 'nixonpi/information/information_proxy'
 require_relative 'nixonpi/information/os_info'
 require_relative 'nixonpi/information/hardware_info'
-require_relative 'nixonpi/drivers/hardware_driver_factory'
+require_relative 'dependency'
 require 'thread'
 require 'active_record'
 
@@ -38,6 +38,14 @@ module NixonPi
 
     ActiveRecord::Base.logger = Logger.new(STDERR)
 
+
+    register :in1_tubes, NixonPi::LampProxy, ports: Settings.in1_pins
+    register :in13_tubes, NixonPi::PwmDriver, ports: Settings.in13_pins
+    register :in12a, NixonPi::TubeDriver, data: Settings.in12a_tubes.data_pin, clock: Settings.in12a_tubes.clock_pin, latch: Settings.in12a_tubes.latch_pin
+    register :power, NixonPi::PowerProxy, port: Settings.power_pin
+    register :rgb_proxy, NixonPi::RgbProxy, ports: Settings.rgb_pins
+    register :background, NixonPi::BackgroundProxy, port: Settings.background_led_pin
+
     def initialize
       log.info "Initializing Nixon-Pi service.."
       log.info "Environment: #{$environment}"
@@ -50,17 +58,6 @@ module NixonPi
           Process.kill 9, Process.pid
         end
       end
-
-      NixonPi::HardwareDriverFactory.register(
-          {
-              in1: NixonPi::LampProxy.new(Settings.in1_pins),
-              in13: NixonPi::PwmDriver.new(Settings.in13_pins),
-              in12a: NixonPi::TubeDriver.new(Settings.in12a_tubes.data_pin, Settings.in12a_tubes.clock_pin, Settings.in12a_tubes.latch_pin),
-              power: PowerProxy.new(Settings.power_pin),
-              rgb: NixonPi::RgbProxy.new(Settings.rgb_pins),
-              background: NixonPi::BackgroundProxy.new(Settings.background_led_pin)
-          }
-      )
 
       @message_distributor = NixonPi::Messaging::CommandReceiver.new
       @info_gatherer = NixonPi::InformationProxy.new
@@ -86,15 +83,15 @@ module NixonPi
 
       #todo can this somehow be injected?
       @message_distributor.add_receiver(SoundProxy.new, :sound)
-      @message_distributor.add_receiver(HardwareDriverFactory.instance_for(:power), :power)
+      @message_distributor.add_receiver(get_injected(:power), :power)
       @message_distributor.add_receiver(NixonPi::Scheduler.new, :schedule)
-      @message_distributor.add_receiver(HardwareDriverFactory.instance_for(:background), :background)
+      @message_distributor.add_receiver(get_injected(:background), :background)
 
       @info_gatherer.add_info_holder(SoundProxy.new, :sound)
-      @info_gatherer.add_info_holder(HardwareDriverFactory.instance_for(:power), :power)
+      @info_gatherer.add_info_holder(get_injected(:power), :power)
       @info_gatherer.add_info_holder(HardwareInfo.new, :hardware)
       @info_gatherer.add_info_holder(NixonPi::Scheduler.new, :schedule)
-      @info_gatherer.add_info_holder(HardwareDriverFactory.instance_for(:background), :background)
+      @info_gatherer.add_info_holder(get_injected(:background), :background)
       @info_gatherer.add_info_holder(@message_distributor, :commands)
 
       DRb.start_service(DRBSERVER, @info_gatherer)
@@ -115,7 +112,7 @@ module NixonPi
 
       log.info "Start running..."
       NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "power on!"})
-      HardwareDriverFactory.instance_for(:power).power_on
+      get_injected(:power).power_on
       NixonPi::MachineManager.start_state_machines
       NixonPi::MachineManager.join_threads #this must be inside the main run script - else the subthreads exit
     end

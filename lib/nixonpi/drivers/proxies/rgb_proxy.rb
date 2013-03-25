@@ -5,11 +5,11 @@ module NixonPi
   class RgbProxy
     include Logging
 
-    def initialize(rgb_ports)
-      raise "3 ports needed for red green and blue" unless rgb_ports.size == 3
-      @io_driver = PwmDriver.new(rgb_ports)
+    def initialize(options = {ports: nil})
+      raise "3 ports needed for red green and blue" unless options[:ports].size == 3
+      @io_driver = PwmDriver.new(options)
+      rgb_ports = options[:ports]
       log.info "Initializing rgb driver...\n red: #{rgb_ports[0]} green: #{rgb_ports[1]} blue: #{rgb_ports[2]}"
-
     end
 
     ##

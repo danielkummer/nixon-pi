@@ -17,6 +17,7 @@ module NixonPi
           klass = @@subclasses[type.to_sym]
         end
 
+        begin
         if klass
           #if klass.instance_method(:initialize).parameters.empty? or
           if options.nil?
@@ -29,6 +30,12 @@ module NixonPi
         else
           raise "Bad type: #{type}"
         end
+        rescue Exception
+          log.error "Error in DI: #{$!.message}"
+        ensure
+          raise "Object instanciation error"
+        end
+
       end
 
       ##

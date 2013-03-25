@@ -2,17 +2,17 @@ require 'state_machine'
 require_relative '../drivers/proxies/lamp_proxy'
 require_relative 'base_state_machine'
 require_relative '../configurations/settings'
-require_relative '../drivers/hardware_driver_factory'
+require_relative '../../dependency'
 
 module NixonPi
   class RgbStateMachine <  BaseStateMachine
 
-    register_as :rgb
+    register :rgb, self
     accepted_commands :state, :value, :animation_name, :options
 
     def initialize()
       super()
-      register_driver HardwareDriverFactory.instance_for(:rgb)
+      register_driver get_injected(:rgb_proxy)
     end
 
     state_machine do

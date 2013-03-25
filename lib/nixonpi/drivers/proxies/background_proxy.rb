@@ -12,8 +12,8 @@ module NixonPi
 
     accepted_commands :value
 
-    def initialize(led_port)
-      @pwm_driver = PwmDriver.new([led_port])
+    def initialize(options = {port: nil})
+      @pwm_driver = PwmDriver.new(options)
       log.info "Initializing background driver..."
       @value = 0
     end

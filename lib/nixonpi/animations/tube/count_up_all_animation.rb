@@ -8,7 +8,7 @@ module NixonPi
   module Animations
     class CountFromToAnimation < Animation
 
-      register_as :count_from_to
+      register :count_from_to, self
 
       def initialize(options = {sleep: 0.3, single_digit: true})
         @options = options

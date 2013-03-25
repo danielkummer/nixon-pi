@@ -4,7 +4,7 @@ module NixonPi
   module Animation
     class RgbAnimation < Animation
 
-      register_as :rgb
+      register :rgb, self
 
 
       def fade(from_hex, to_hex, sleep = 10)

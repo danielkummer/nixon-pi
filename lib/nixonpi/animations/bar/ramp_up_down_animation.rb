@@ -1,7 +1,7 @@
 require_relative '../animation'
 require_relative '../easing'
 require_relative '../../configurations/settings'
-require_relative '../../drivers/hardware_driver_factory'
+require_relative '../../../dependency'
 
 ##
 # This animation increments every number by one, the number of turnarounds can be specified
@@ -11,7 +11,7 @@ module NixonPi
     class RampUpDownAnimation < Animation
       include Easing
 
-      register_as :ramp_up_down
+      register :ramp_up_down, self
 
       ##
       # @param [Hash] options
@@ -20,7 +20,7 @@ module NixonPi
       def initialize(options = {})
         super()
         @options = {sleep: 0.3, total: 3.0}.merge(options)
-        @driver = HardwareDriverFactory.instance_for(:in13)
+        @driver = get_injected(:in13_tubes)
       end
 
       def run(start)

@@ -5,26 +5,26 @@ require_relative 'base_state_machine'
 require_relative '../animations/animation'
 require_relative '../../nixonpi/animations/bar/ramp_up_down_animation'
 require_relative '../configurations/settings'
-require_relative '../drivers/hardware_driver_factory'
+require_relative '../../dependency'
 
 
 module NixonPi
   class BarStateMachine < BaseStateMachine
 
-    register_as :bar
+    register :bar, self
     accepted_commands :state, :value, :animation_name, :options
 
 
     def initialize()
       super()
-      register_driver HardwareDriverFactory.instance_for(:in13)
+      register_driver get_injected(:in13_tubes)
     end
 
     state_machine do
 
       state :startup do
         def write
-          NixonPi::Animations::Animation.create(:ramp_up_down, {bar: bar_index}).run("0")
+          get_injected(:ramp_up_down, {bar: bar_index}).run("0")
           if params[:initial_state].nil?
             params[:goto_state] = :free_value
             params[:value] = 0

@@ -4,7 +4,7 @@ require_relative '../lib/nixonpi/animations/tube/single_fly_in_animation'
 describe NixonPi::Animations::SingleFlyInAnimation do
 
   before :each do
-    @an = NixonPi::Animations::Animation.create(:single_fly_in, duration: 3)
+    get_injected(:single_fly_in, duration: 3)
   end
 
   it "should return a correct instance" do
