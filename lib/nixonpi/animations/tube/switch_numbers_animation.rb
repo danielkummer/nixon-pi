@@ -9,7 +9,7 @@ module NixonPi
       register :switch_numbers, self
 
       ##
-      # @param [Hash] options
+      # @param [Hash] options     &
       # * duration - number of turnarounds, default 5
       # * sleep - sleep duration in seconds, default 0.3
       def initialize(options = {})

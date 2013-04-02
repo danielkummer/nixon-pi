@@ -24,15 +24,11 @@ module NixonPi
 
       state :startup do
         def write
-          get_injected(:ramp_up_down, {bar: bar_index}).run("0")
-          if params[:initial_state].nil?
-            params[:goto_state] = :free_value
-            params[:value] = 0
-          else
-            params[:goto_state] = params[:initial_state] #todo load initial values
-          end
-
-          handle_command(state: params[:goto_state])
+           #transition over to the animation state after setting the correct values
+          goto_state = params[:initial_state].nil? ? :free_value : params[:initial_state]
+          params[:animation_name] = :single_fly_in
+          params[:options] = {bar:bar_index, goto_state: goto_state, goto_target: bar_index}
+          handle_command(state: :animation)
         end
       end
 

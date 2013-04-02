@@ -126,7 +126,7 @@ module NixonPi
       NixonPi::Scheduler.exit_scheduler
       @message_distributor.on_exit
       log.info "Blow the candles out..."
-      HardwareDriverFactory.instance_for(:power).power_off
+      get_injected(:power).power_off
       log.info "Bye ;)"
       #exit(0)
       exit!

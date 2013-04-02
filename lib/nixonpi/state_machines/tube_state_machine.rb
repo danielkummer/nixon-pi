@@ -31,16 +31,13 @@ module NixonPi
 
       state :startup do
         def write
-          get_injected(:single_fly_in).run("000123456789")
-
-          if params[:initial_state].nil?
-            params[:goto_state] = :time
-          else
-            params[:goto_state] = params[:initial_state] #todo load initial values
-          end
-
-          handle_command(state: params[:goto_state])
+          #transition over to the animation state after setting the correct values
+          goto_state = params[:initial_state].nil? ? :time : params[:initial_state]
+          params[:animation_name] = :single_fly_in
+          params[:options] = {start_value: '000123456789', goto_state: goto_state, goto_target: :tubes}
+          handle_command(state: :animation)
         end
+
       end
 
       state :time do

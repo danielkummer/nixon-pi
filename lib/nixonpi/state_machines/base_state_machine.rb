@@ -41,14 +41,21 @@ module NixonPi
       event(:free_value) { transition all => :free_value }
       event(:animation) { transition all => :animation }
 
+
       state :animation do
-        def write
+        def enter_state
           name, options = params[:animation_name], params[:options]
           options ||= {}
-          start_value = params[:last_value]
-          get_injected(name.to_sym, options).run(start_value)
+          @animation = get_injected(name.to_sym, true, options)
+          @animation.use_driver(@driver)
+        end
 
-          handle_command(state: params[:goto_state])
+        def leave_state
+          #@animation = nil
+        end
+
+        def write
+          @animation.write
         end
       end
 
@@ -94,7 +101,7 @@ module NixonPi
           result = Marshal.load(Marshal.dump(@state_parameters))
         when :commands
           commands = Marshal.load(Marshal.dump(self.class.available_commands))
-          result[:commands] =  commands
+          result[:commands] = commands
         else
           log.error "No information about #{about}"
       end

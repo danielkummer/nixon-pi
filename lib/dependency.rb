@@ -33,15 +33,17 @@ end
 # Alternatively it checks if a dependency has been registered manually and instantiates that.
 #
 # @param [Symbol] type
-# @param [Hash] args
-def get_injected(type, args = {})
+# @param [Boolean] new_instance create new instance if true
+# @param [Hash] args new_instance must be true in order to use args
+# todo refactor!!!!
+def get_injected(type, new_instance = false, args = {})
   #todo handle multi instances differently - save the instance separately and create it using the blueprint type
   if type.match(/([a-zA-Z]+)\d+$/)
     if @@class_registry.has_key?(type.to_sym)
-      reg = @@class_registry[type.to_sym]
-      return reg[:instance] if reg.has_key?(:instance)
+      reg_entry = @@class_registry[type.to_sym]
+      return reg_entry[:instance] if reg_entry.has_key?(:instance)
     end
-    if @@class_registry.has_key?($1.to_sym)
+    if @@class_registry.has_key?($1.to_sym) #create new instance if based on a sequential value e.g bar1
       original = @@class_registry[$1.to_sym]
       @@class_registry[type.to_sym] = Marshal.load(Marshal.dump(original))
     else
@@ -50,20 +52,18 @@ def get_injected(type, args = {})
   end
 
   if @@class_registry.has_key?(type.to_sym)
-    reg = @@class_registry[type.to_sym]
+    reg_entry = @@class_registry[type.to_sym]
 
-    return reg[:instance] if reg.has_key?(:instance)
-    options = reg[:args].merge(args)
+    return reg_entry[:instance] if reg_entry.has_key?(:instance) and new_instance == false
+    options = reg_entry[:args].merge(args)
 
-    if reg[:klass].instance_method(:initialize).parameters.empty?
-      klass = reg[:klass].new()
-    else
-      klass = reg[:klass].new(options)
-    end
-
+    klass = reg_entry[:klass].instance_method(:initialize).parameters.empty? ?
+        reg_entry[:klass].new() :
+        reg_entry[:klass].new(options)
 
     klass.send(:registered_as_type=, type) if klass.respond_to?(:registered_as_type=)
-    return reg[:instance] = klass
+
+    return new_instance ? klass : reg_entry[:instance] = klass
   else
     raise "could not instanciate #{type}"
   end

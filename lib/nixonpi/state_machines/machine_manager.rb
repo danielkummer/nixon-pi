@@ -42,7 +42,7 @@ module NixonPi
       ##
       # Start each state machine in a separate thread
       # @param [Float] sleep_for_sec sleep time after each loop, default is 300ms
-      def start_state_machines(sleep_for_sec = 0.1)
+      def start_state_machines(sleep_for_sec = 0.3)
         @@state_machines.each do |type, state_machine|
           log.info "Adding state machine #{state_machine.class} to the command processor as type #{type}"
           log.info "Starting state machine: #{state_machine.class}"
