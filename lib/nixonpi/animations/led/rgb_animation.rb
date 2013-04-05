@@ -7,6 +7,8 @@ module NixonPi
       register :rgb, self
 
 
+      #todo
+
       def fade(from_hex, to_hex, sleep = 10)
         from_rgb, to_rgb = hex2int(from_hex), hex2int(to_hex)
 

@@ -16,7 +16,7 @@ module NixonPi
 
     def handle_command(command)
       value = command[:value]
-      log.info "got sound command: #{command}"
+      log.debug "got sound command: #{command}"
 
       case true
         when OSInfo.mac?

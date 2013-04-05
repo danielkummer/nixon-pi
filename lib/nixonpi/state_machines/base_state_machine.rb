@@ -27,7 +27,7 @@ module NixonPi
 
     def initialize()
       super() # NOTE: This *must* be called, otherwise states won't get initialized
-      reload_state()
+      #reload_state()
     end
 
     state_machine :initial => :startup do
@@ -55,6 +55,7 @@ module NixonPi
         end
 
         def write
+          raise "Animation can't be empty!! in #{self.class.name}" if @animation.nil?
           @animation.write
         end
       end
@@ -156,10 +157,10 @@ module NixonPi
       object.params[:state] = object.state
       begin
         object.enter_state if object.respond_to?(:enter_state)
-      rescue NoMethodError => e
+      rescue NoMethodError => e;
       end
-      object.log.debug "TRANSITION:  #{last_state} --#{transition.event}--> #{object.state}"
-      object.log.debug "new state: #{object.state}"
+      #object.log.debug "TRANSITION:  #{last_state} --#{transition.event}--> #{object.state}"
+      #object.log.debug "new state: #{object.state}"
     end
 
   end

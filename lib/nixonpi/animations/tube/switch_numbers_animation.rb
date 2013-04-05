@@ -2,6 +2,8 @@ require_relative '../animation'
 ##
 # This animation increments every number by one, the number of turnarounds can be specified
 #
+
+#todo refactor!!
 module NixonPi
   module Animations
     class SwitchNumbersAnimation < Animation
@@ -10,19 +12,17 @@ module NixonPi
 
       ##
       # @param [Hash] options     &
-      # * duration - number of turnarounds, default 5
+      # * turnarounds - number of turnarounds, default 5
       # * sleep - sleep duration in seconds, default 0.3
       def initialize(options = {})
-        @options = {duration: 5, sleep: 0.3}
+        @output = Array.new
+        @options = {turnarounds: 5}
         @options.merge(options) if options.is_a?(Hash)
-        super()
-      end
 
-      def run(start)
-        duration = @options[:duration]
-        sleep_step = @options[:sleep]
-        value = start
-        duration.times.with_index do |index|
+        turnaround = @options[:turnarounds]
+        value = options[:start_value]
+
+        turnaround.times do
           value = value.each_char.collect do |x|
             if x =~ /\d/
               x.to_i + 1 % 10
@@ -30,12 +30,12 @@ module NixonPi
               x
             end
           end.join
-          log.debug "write value: #{value}"
-          write(value, index)
-          sleep sleep_step
+          @output << value
         end
-        log.debug "write value: #{value}"
-        write(start, duration + 1 )
+      end
+
+      def write
+        wrapped_write(@output.shift)
       end
     end
   end

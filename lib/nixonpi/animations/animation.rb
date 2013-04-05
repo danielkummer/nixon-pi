@@ -24,13 +24,14 @@ module NixonPi
       # leaves the state if no more values to write
       # @param [String] value  value to write
       def wrapped_write(value)
-        log.info "Write animation value: #{value}"
+        log.debug "animation value: #{value.to_s}"
         if block_given?
           yield value, index
         else
           if value.nil?
             raise "Options musn't be empty" if @options.nil?
             @send_command ||= begin
+              log.debug "Animation ended, sending transition command, target: #{@options[:goto_target]} state: #{@options[:goto_state]}"
               NixonPi::Messaging::CommandSender.new.send_command(@options[:goto_target], {state: @options[:goto_state]})
               log.debug "already sent transistion command"
             end

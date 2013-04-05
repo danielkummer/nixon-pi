@@ -1,35 +1,30 @@
 require_relative '../animation'
-##
-# This animation lets numbers fly in from left to right, one number at a time...
-# Here an example:
-# _123 -> 3___ -> _3__ -> __3_ -> ___3 -> 2__3 -> _2_3 -> __23 -> 1_23 -> _123
-#
+
 module NixonPi
   module Animations
     class CountFromToAnimation < Animation
 
       register :count_from_to, self
 
-      def initialize(options = {sleep: 0.3, single_digit: true})
-        @options = options
-        super()
-      end
+      #todo unfinished and untested
+      def initialize(options = {})
+        @options = {single_digit: true}
+        @output = Array.new
 
-      #TODO this can surely be refactored
-      def run(start)
-        sleep_step = @options[:sleep]
-        from = start
+        from = options[:start_value]
         to = from
         if @options[:single_digit]
-          from.each_char.with_index { |f, i| to[i] = (f.to_i += 1).to_s }
-
-          from.reverse.each_char.with_index do |number, index|
-            write(number, index)
-            sleep sleep_step
+          from.each_char { |f| to[i] = (f.to_i += 1).to_s }
+          from.reverse.each_char.with_index do |number|
+            @output << number
           end
         end
-
       end
+
+      def write
+        wrapped_write(@output.shift)
+      end
+
     end
   end
 end

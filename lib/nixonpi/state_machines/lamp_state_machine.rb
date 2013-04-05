@@ -3,6 +3,7 @@ require_relative '../drivers/proxies/lamp_proxy'
 require_relative 'base_state_machine'
 require_relative '../configurations/settings'
 require_relative '../../dependency'
+require_relative '../animations/lamp/blink_animation'
 
 module NixonPi
   class LampStateMachine <  BaseStateMachine
@@ -30,19 +31,11 @@ module NixonPi
 
       state :startup do
         def write
-          #do some startup animation stuff....
-          #todo refactor
-          params[:value] = 0
-
-=begin
-          if params[:initial_state].nil?
-            self.fire_state_event(:free_value)
-          else
-            self.fire_state_event(params[:initial_state])
-          end
-=end
-
-          handle_command(state: :free_value, value: 0)
+          #transition over to the animation state after setting the correct values
+          goto_state = params[:initial_state].nil? ? :free_value : params[:initial_state]
+          params[:animation_name] = :blink
+          params[:options] = {lamp:lamp_index, goto_state: goto_state, goto_target: "lamp#{lamp_index}".to_sym}
+          handle_command(state: :animation)
         end
       end
 

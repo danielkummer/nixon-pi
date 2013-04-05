@@ -39,7 +39,7 @@ module NixonPi
     def write_to_port(port, value)
       value = value.to_i
       @values[port.to_i] = value
-      log.debug "write bar #{port} value #{value}"
+      #log.debug "write bar #{port} value #{value}"
       client.pwm_write(@ports[port.to_i], value)
     end
 

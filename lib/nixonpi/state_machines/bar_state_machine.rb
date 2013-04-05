@@ -26,8 +26,8 @@ module NixonPi
         def write
            #transition over to the animation state after setting the correct values
           goto_state = params[:initial_state].nil? ? :free_value : params[:initial_state]
-          params[:animation_name] = :single_fly_in
-          params[:options] = {bar:bar_index, goto_state: goto_state, goto_target: bar_index}
+          params[:animation_name] = :ramp_up_down
+          params[:options] = {bar:bar_index, goto_state: goto_state, goto_target: "bar#{bar_index}".to_sym}
           handle_command(state: :animation)
         end
       end

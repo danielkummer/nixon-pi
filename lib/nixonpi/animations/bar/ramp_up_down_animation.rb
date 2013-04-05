@@ -3,9 +3,6 @@ require_relative '../easing'
 require_relative '../../configurations/settings'
 require_relative '../../../dependency'
 
-##
-# This animation increments every number by one, the number of turnarounds can be specified
-#
 module NixonPi
   module Animations
     class RampUpDownAnimation < Animation
@@ -29,8 +26,6 @@ module NixonPi
       end
 
       def write()
-        #call wrapped write
-        #this must somehow work: write({port: bar, value: animation_value}, index)
         if @elapsed < @total_time
           wrapped_write({port: @bar, value: get_current_value})
         else
@@ -39,14 +34,9 @@ module NixonPi
       end
 
       def get_current_value
-        @elapsed = time_diff_milli(start, Time.now)
+        @elapsed = time_diff_milli(@start, Time.now)
         ease_in_out_quad(@elapsed, 0, 255, @total_time).ceil
       end
-
-
-
-
-
     end
 
   end
