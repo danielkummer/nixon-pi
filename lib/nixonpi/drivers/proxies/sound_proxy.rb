@@ -1,6 +1,6 @@
 require_relative '../../logging/logging'
 require_relative '../../information/os_info'
-require_relative '../../messaging/command_listener'
+require_relative '../../messaging/commands_module'
 require_relative '../../information/information_holder'
 
 
@@ -9,12 +9,13 @@ module NixonPi
     include Logging
     extend Logging
     include OSInfo
-    include CommandListener
+    include Commands
     include InformationHolder
 
     accepted_commands :value
 
     def handle_command(command)
+      return unless can_send?
       value = command[:value]
       log.debug "got sound command: #{command}"
 
@@ -29,15 +30,15 @@ module NixonPi
     end
 
     def handle_info_request(about)
-          ret = Hash.new
-          case about.to_sym
-            when :commands
-              ret = {commands: self.class.available_commands}
-            else
-              log.error "No information about #{about}"
-          end
-          ret
-        end
+      ret = Hash.new
+      case about.to_sym
+        when :commands
+          ret = {commands: self.class.available_commands}
+        else
+          log.error "No information about #{about}"
+      end
+      ret
+    end
 
     def speech(text, params={})
       text = text.to_s.gsub(/_/, " ")
@@ -57,19 +58,19 @@ module NixonPi
     end
 
     def self.execute(cmd)
-      @last_time ||= Time.now
-      now = Time.now
+      begin
+        IO.popen(cmd)
+      rescue StandardError => err
+        log.error err.message
+        raise err
+      end
+    end
 
-      #todo not good enough - silent drop of messages
-      if now >= @last_time + 5.seconds
-        begin
-          IO.popen(cmd)
-        rescue StandardError => err
-          log.error err.message
-          raise err
-        end
-      end unless @last_time.nil?
+    def can_send?
+      now = Time.now
+      result = @last_time.nil? || now >= @last_time + 1.seconds
       @last_time = now
+      result
     end
   end
 end

@@ -36,9 +36,9 @@
                     %option{value: "switch_numbers"} switch numbers
                     %option{value: "single_fly_in"} fly in
               .control-group.tube_animation_group
-                %label.control-label{for: "options"} Options Hash
+                %label.control-label{for: "options"} Options JSON
                 .controls
-                  %input{type: "text", name: "options", class: "input-xlarge"}
+                  %textarea#tube_animation_options{name: "options", rows: "10", class:"input-xlarge"}
               .control-group.tube_time_group
                 %label.control-label{for: "time_format"} Time format
                 .controls
@@ -140,7 +140,7 @@
               .control-group
                 %label.control-label{for: "value"} Options (Hash)
                 .controls
-                  %input{type: "text", name: "options", class: "input-large"}
+                  %textarea#bar_animation_options{name: "options", rows: "10", class:"input-xlarge"}
               %input{type: "hidden", name: "state", value: "animation"}
               .control-group
                 %label.checkbox

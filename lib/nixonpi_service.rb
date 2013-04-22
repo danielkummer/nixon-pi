@@ -24,6 +24,14 @@ require_relative 'nixonpi/information/information_proxy'
 require_relative 'nixonpi/information/os_info'
 require_relative 'nixonpi/information/hardware_info'
 require_relative 'dependency'
+
+require_relative 'nixonpi/animations/tube/count_up_all_animation'
+require_relative 'nixonpi/animations/tube/switch_numbers_animation'
+require_relative 'nixonpi/animations/lamp/blink_animation'
+require_relative 'nixonpi/animations/led/rgb_animation'
+require_relative 'nixonpi/animations/tube/single_fly_in_animation'
+require_relative 'nixonpi/animations/bar/ramp_up_down_animation'
+
 require 'thread'
 require 'active_record'
 
@@ -93,6 +101,14 @@ module NixonPi
       @info_gatherer.add_info_holder(get_injected(:background), :background)
       @info_gatherer.add_info_holder(@message_distributor, :commands)
 
+      #todo how do i get this to work, they need options to function...
+=begin
+      @info_gatherer.add_info_holder(get_class(:single_fly_in), :singly_fly_in)
+      @info_gatherer.add_info_holder(get_class(:switch_numbers), :singly_fly_in)
+      @info_gatherer.add_info_holder(get_class(:rgb_animation), :singly_fly_in)
+      @info_gatherer.add_info_holder(get_class(:ramp_up_down), :ramp_up_down)
+      @info_gatherer.add_info_holder(get_class(:blink), :blink)
+=end
       DRb.start_service(DRBSERVER, @info_gatherer)
     end
 
@@ -110,8 +126,8 @@ module NixonPi
       end
 
       log.info "Start running..."
-      NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "power on!"})
-      get_injected(:power).power_on
+      NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "Hi Im Nixon pi"})
+      #get_injected(:power).power_on
       NixonPi::MachineManager.start_state_machines
       NixonPi::MachineManager.join_threads #this must be inside the main run script - else the subthreads exit
     end

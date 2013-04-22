@@ -1,12 +1,12 @@
 require_relative 'base_state_machine'
 require_relative '../logging/logging'
 require_relative '../messaging/command_receiver'
-require_relative '../messaging/command_listener'
+require_relative '../messaging/commands_module'
 
 module NixonPi
   class MultiMachineProxy
     extend Logging
-    extend CommandListener
+    extend Commands
 
     #accepted_commands :value
     # :state, :value, :animation_name, :options

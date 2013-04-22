@@ -69,3 +69,8 @@ def get_injected(type, new_instance = false, args = {})
   end
 end
 
+def get_class(type)
+  reg_entry = @@class_registry[type.to_sym]
+  reg_entry[:klass]
+end
+

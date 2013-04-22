@@ -9,27 +9,26 @@ module NixonPi
       include Easing
 
       register :ramp_up_down, self
+      accepted_commands :bar, :total_time
 
       ##
       # @param [Hash] options
       # * duration - number of turnarounds, default 5
       # * sleep - sleep duration in seconds, default 0.3
-      def initialize(options)
-
-        @options = {sleep: 0.3, total: 3.0}.merge(options)
-
-        @bar = @options[:bar]
+      def initialize(options = {})
+        super(options)
+        @options[:total_time] ||= 3.0
+        @options[:sleep] ||= 0.3
+        @total_time = @options[:total_time] * 1000.0
         @start = Time.now
-        @total_time = @options[:total] * 1000.0
         @elapsed = 0
-
       end
 
       def write()
         if @elapsed < @total_time
-          wrapped_write({port: @bar, value: get_current_value})
+          handle_output_on_tick({port: @options[:bar], value: get_current_value})
         else
-          wrapped_write(nil) #exit
+          handle_output_on_tick(nil) #exit
         end
       end
 

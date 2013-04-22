@@ -4,7 +4,7 @@ require 'active_support/inflector'
 require_relative '../logging/logging'
 require_relative '../configurations/state_hash'
 require_relative '../factory'
-require_relative '../messaging/command_listener'
+require_relative '../messaging/commands_module'
 require_relative '../../../lib/nixonpi/information/information_holder'
 require_relative '../messaging/command_receiver'
 require_relative '../messaging/command_sender'
@@ -17,7 +17,8 @@ require 'active_record'
 module NixonPi
   class BaseStateMachine
     include Logging
-    include CommandListener
+
+    include Commands
     include InformationHolder
 
     attr_accessor :registered_as_type
@@ -46,6 +47,7 @@ module NixonPi
         def enter_state
           name, options = params[:animation_name], params[:options]
           options ||= {}
+          handle_command(state: params[:last_state]) if options.empty? #leave state if options are empty!!
           @animation = get_injected(name.to_sym, true, options)
           @animation.use_driver(@driver)
         end
@@ -56,7 +58,7 @@ module NixonPi
 
         def write
           raise "Animation can't be empty!! in #{self.class.name}" if @animation.nil?
-          @animation.write
+          @animation.write unless @animation.nil?
         end
       end
 
@@ -146,21 +148,19 @@ module NixonPi
     # @param [block] block
     def self.handle_around_transition(object, transition, block)
       object.params[:goto_state] = object.state if object.params[:goto_state].nil? and !object.state.nil?
-      last_state = object.state
+      object.params[:last_state] = object.state
       begin
         object.leave_state
       rescue NoMethodError => e;
       end
       block.call
-      #todo speech is overlaying at the moment...
-      NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "Entering  #{object.state} state for #{object.registered_as_type}"}) unless last_state == "startup"
+      #NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "Entering  #{object.state} state for #{object.registered_as_type}"}) unless object.params[:last_state] == "startup"
       object.params[:state] = object.state
       begin
-        object.enter_state if object.respond_to?(:enter_state)
+        object.try(:enter_state)
       rescue NoMethodError => e;
+        #log.info "Machine #{object.to_s} with state #{object.state} doesn't have the enter_state method"
       end
-      #object.log.debug "TRANSITION:  #{last_state} --#{transition.event}--> #{object.state}"
-      #object.log.debug "new state: #{object.state}"
     end
 
   end

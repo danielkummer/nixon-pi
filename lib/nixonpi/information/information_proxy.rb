@@ -22,7 +22,7 @@ module NixonPi
     # @param [Symbol] information_target name under which the receiver listens for information requests
     def add_info_holder(receiver, information_target)
       information_target = information_target.to_sym
-      raise "Receiver must include the receiver module" unless receiver.is_a?(InformationHolder)
+      #raise "Receiver #{receiver.to_s} must include the information holder module" unless receiver.is_a?(InformationHolder)
       if @receivers[information_target].nil?
         @receivers[information_target] = Array.wrap(receiver)
       else

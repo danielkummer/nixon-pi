@@ -1,4 +1,4 @@
-require_relative '../../messaging/command_listener'
+require_relative '../../messaging/commands_module'
 require_relative '../../messaging/command_receiver'
 require_relative '../../information/information_holder'
 require_relative '../basic/io_driver'
@@ -6,7 +6,7 @@ require_relative '../basic/io_driver'
 module NixonPi
   class PowerProxy
     include Logging
-    include CommandListener
+    include Commands
     include InformationHolder
 
     accepted_commands :value

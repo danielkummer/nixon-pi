@@ -3,7 +3,7 @@ require 'singleton'
 require 'bunny'
 
 require_relative 'client'
-require_relative 'command_listener'
+require_relative 'commands_module'
 require_relative '../../nixonpi/hash_monkeypatch'
 require_relative '../information/information_holder'
 
@@ -72,10 +72,10 @@ module NixonPi
       ##
       #
       # @param [Hash] command command to listen to
-      # @param [CommandListener] receiver
+      # @param [Commands] receiver
       def add_receiver(receiver, command)
         command = command.to_sym
-        raise "Receiver #{receiver.class} must include the receiver module" unless receiver.is_a?(CommandListener)
+        raise "Receiver #{receiver.class} must include the receiver module" unless receiver.is_a?(Commands)
         if @receivers[command].nil?
           @receivers[command] = [receiver]
         else

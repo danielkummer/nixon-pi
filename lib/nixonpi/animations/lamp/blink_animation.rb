@@ -9,24 +9,24 @@ module NixonPi
     class BlinkAnimation < Animation
 
       register :blink, self
+      accepted_commands :lamp, :no_of_times
 
 
       def initialize(options)
-        @options = {times: 5}
-        @options.merge!(options)
-        @output = Array.new
-        @times = @options[:times]
+        super(options)
+        @options[:no_of_times] ||=  5
+        @no_of_times = @options[:no_of_times]
         @value = 1
       end
 
 
       def write
-        if @times >= 0
-          wrapped_write({lamp: @options[:lamp], value:@value})
+        if @no_of_times >= 0
+          handle_output_on_tick({lamp: @options[:lamp], value:@value})
           @value = @value == 1 ? 0 : 1
-          @times = @times - 1
+          @no_of_times = @no_of_times - 1
         else
-          wrapped_write(nil)
+          handle_output_on_tick(nil)
         end
       end
 

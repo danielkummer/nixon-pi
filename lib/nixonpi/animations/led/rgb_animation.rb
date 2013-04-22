@@ -1,11 +1,18 @@
 require_relative '../animation'
 
 module NixonPi
-  module Animation
+  module Animations
     class RgbAnimation < Animation
 
-      register :rgb, self
+      register :rgb_animation, self
+      accepted_commands :mode, :colors
 
+      ###todo
+
+      def initialize(options = {})
+        super(options)
+
+      end
 
       #todo
 

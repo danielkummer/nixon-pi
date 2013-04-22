@@ -1,12 +1,5 @@
 module NixonPi
-  module CommandListener
-
-    ##
-    # Process a command received from the command processor
-    # @param [Hash] command
-    def handle_command(command)
-      raise NotImplementedError
-    end
+  module Commands
 
     module ClassMethods
       @@accepted_commands = {}

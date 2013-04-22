@@ -37,12 +37,7 @@ class Command < ActiveRecord::Base
           errors.add(:value, "not a valid time format string") unless value =~ /^(\s*%[a-zA-Z]+)+\s*$/
         end
       when :animation
-        errors.add(:animation_name, "animation name can't be blank!") if animation_name.blank?
-        begin
-          JSON.parse(options)
-        rescue JSON::ParserError => e
-          errors.add(:options, "options invalid json string: #{e.message}")
-        end unless options.blank?
+        validate_animation
       when :countdown
         unless ChronicDuration.parse(value, format: :chrono)
           errors.add(:value, "countdown format invalid - unable to parse!")
@@ -62,15 +57,21 @@ class Command < ActiveRecord::Base
         errors.add(:value, "#{state_machine} has invalid value: #{value}") unless (0..255).include?(value.to_i)
       #todo duplicate code - remove
       when :animation
-        errors.add(:animation_name, "animation name can't be blank!") if animation_name.blank?
-        begin
-          JSON.parse(options)
-        rescue JSON::ParserError => e
-          errors.add(:options, "options invalid json string: #{e.message}")
-        end unless options.blank?
+        validate_animation
       else
         errors.add(:state, "unsupported state")
     end
+  end
+
+  def validate_animation
+    errors.add(:animation_name, "animation name can't be blank!") if animation_name.blank?
+    begin
+      option_hash = HashWithIndifferentAccess.new(JSON.parse(options))
+      errors.add(:options, "options must include a start_value key") if !option_hash.has_key?(:start_value) or option_hash[:start_value].to_s == ''
+
+    rescue JSON::ParserError => e
+      errors.add(:options, "options invalid json string: #{e.message}")
+    end unless options.blank?
   end
 
   def valid_lamp?

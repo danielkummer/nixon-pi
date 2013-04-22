@@ -9,18 +9,17 @@ module NixonPi
     class SwitchNumbersAnimation < Animation
 
       register :switch_numbers, self
+      accepted_commands :start_value, :turnarounds
 
       ##
       # @param [Hash] options     &
       # * turnarounds - number of turnarounds, default 5
       # * sleep - sleep duration in seconds, default 0.3
       def initialize(options = {})
-        @output = Array.new
-        @options = {turnarounds: 5}
-        @options.merge(options) if options.is_a?(Hash)
-
+        super(options)
         turnaround = @options[:turnarounds]
-        value = options[:start_value]
+        turnaround ||= 5
+        value = @options[:start_value]
 
         turnaround.times do
           value = value.each_char.collect do |x|
@@ -35,7 +34,7 @@ module NixonPi
       end
 
       def write
-        wrapped_write(@output.shift)
+        handle_output_on_tick(@output.shift)
       end
     end
   end

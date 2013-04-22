@@ -1,7 +1,7 @@
 require 'rufus/scheduler'
 require 'singleton'
 require_relative 'logging/logging'
-require_relative 'messaging/command_listener'
+require_relative 'messaging/commands_module'
 require_relative 'messaging/command_receiver'
 require_relative 'information/information_holder'
 
@@ -27,7 +27,7 @@ module NixonPi
 
   class Scheduler
     include Logging
-    include CommandListener
+    include Commands
     include InformationHolder
 
     accepted_commands :method, :timing, :queue, :command, :time, :id, :delete

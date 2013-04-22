@@ -7,15 +7,16 @@ require_relative '../animation'
 module NixonPi
   module Animations
     class SingleFlyInAnimation < Animation
+      include Commands
 
       register :single_fly_in, self
+      accepted_commands :start_value
 
 
-      def initialize(options)
-        @options = options
-        @output = Array.new
+      def initialize(options = {})
+        super(options)
 
-        value = options[:start_value]
+        value = @options[:start_value]
         original_length = value.length
         pad_times = original_length
         first_number_position = value.index(/\d/)
@@ -40,7 +41,7 @@ module NixonPi
       end
 
       def write
-        wrapped_write(@output.shift)
+        handle_output_on_tick(@output.shift)
       end
 
     end
