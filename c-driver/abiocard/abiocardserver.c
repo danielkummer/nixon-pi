@@ -1402,6 +1402,15 @@ int  main (int argc, char *argv[])
                 {
                     // Invalid character received
                     rcv_cmd_error = 1;
+
+                    //read EOF - error quitting program
+                    if(c == -1) {
+#ifndef DISABLE_ABIOCARD
+                         // De-initialise the AbioCard driver
+                         abiocard_deinit();
+#endif
+                         return 0;
+                    }
                 }
             }
             if (snd_rsp_si > 0)
