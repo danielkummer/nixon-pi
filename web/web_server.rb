@@ -228,7 +228,9 @@ module NixonPi
     post '/scheduler/?' do
       preprocess_post_params(:scheduler, @params) do |data|
         #convert json to hash
-        data[:command] = JSON.parse(data[:command].gsub!(/^\[/, '{').gsub!(/\]$/, '}'))
+        command = data[:command]
+        command = JSON.parse(command.gsub(/^\[/, '{').gsub!(/\]$/, '}')) unless command.is_a?(Hash)
+        data[:command] = command
         sender.send_command(:schedule, data)
         formatted_response('json', data, "Command scheduled")
       end
@@ -277,6 +279,13 @@ module NixonPi
     def preprocess_post_params(target, params)
       data = params.string_key_to_sym
       data[:state_machine] = target.to_sym
+
+      #find possible json strings values and convert to hash
+      data.each do |k,v|
+        if v.to_s.starts_with?("{")
+          data[k] = JSON.parse(v)
+        end
+      end
 
       record = get_or_create_record_for(data)
 
@@ -386,9 +395,9 @@ module NixonPi
               data[:lamps] << REMOTE_INFO_PROXY.get_info_from(lamp.to_sym, about)
             end
           else
-            data = REMOTE_INFO_PROXY.get_info_from(target.to_sym, about)
+            data[target.to_sym] = REMOTE_INFO_PROXY.get_info_from(target.to_sym, about)
         end
-      rescue Exception
+      rescue Exception => e
         set_message!(data, "Options for #{target} not found! #{$!.message}", false)
       end
       data

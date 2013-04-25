@@ -45,7 +45,7 @@ module NixonPi
           @format = params[:value]
           @tubes_count = Settings.in12a_tubes.count
           @format = nil unless @format.is_a?(String)
-          @format = Settings.default_time_format if @format.nil? or @format.size > @tubes_count
+          @format = Settings.default_time_format if @format.nil? or @format.size > @tubes_count or @format.strip.empty?
         end
 
 
@@ -58,9 +58,13 @@ module NixonPi
 
 
           if now.min == 0 and now.min != params[:last_time].min
-            get_injected(:single_fly_in).run(formatted_time)
+            params[:animation_name] = :single_fly_in
+            params[:options] = {start_value: formatted_time, goto_state: :time, goto_target: :tubes}
+            handle_command(state: :animation)
           elsif now.hour == 0 and now.hour != params[:last_time].hour
-            get_injected(:single_fly_in).run(formatted_time)
+            params[:animation_name] = :single_fly_in
+            params[:options] = {start_value: formatted_time, goto_state: :time, goto_target: :tubes}
+            handle_command(state: :animation)
           elsif now.min % 15 == 0 and now.sec <= 10
             @driver.write(formatted_date.rjust(@tubes_count, ' '))
           else
@@ -88,6 +92,7 @@ module NixonPi
         def enter_state
           params[:value] = ChronicDuration.parse(params[:value], format: :chrono)
           params[:target_time] = Time.now + params[:value].seconds
+          params[:goto_state] = :time unless %w(time free_value meeting_ticker).include? params[:goto_state].to_s
         end
 
         def write

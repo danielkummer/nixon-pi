@@ -10,7 +10,7 @@ module NixonPi
       include Commands
 
       register :single_fly_in, self
-      accepted_commands :start_value
+      accepted_commands :start_value, :goto_state, :goto_target
 
 
       def initialize(options = {})

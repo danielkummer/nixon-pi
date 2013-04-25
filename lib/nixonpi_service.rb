@@ -102,13 +102,13 @@ module NixonPi
       @info_gatherer.add_info_holder(@message_distributor, :commands)
 
       #todo how do i get this to work, they need options to function...
-=begin
-      @info_gatherer.add_info_holder(get_class(:single_fly_in), :singly_fly_in)
-      @info_gatherer.add_info_holder(get_class(:switch_numbers), :singly_fly_in)
-      @info_gatherer.add_info_holder(get_class(:rgb_animation), :singly_fly_in)
+
+      @info_gatherer.add_info_holder(get_class(:single_fly_in), :single_fly_in)
+      @info_gatherer.add_info_holder(get_class(:switch_numbers), :switch_numbers)
+      @info_gatherer.add_info_holder(get_class(:rgb_animation), :rgb_animation)
       @info_gatherer.add_info_holder(get_class(:ramp_up_down), :ramp_up_down)
       @info_gatherer.add_info_holder(get_class(:blink), :blink)
-=end
+
       DRb.start_service(DRBSERVER, @info_gatherer)
     end
 

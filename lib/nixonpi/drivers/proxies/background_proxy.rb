@@ -13,7 +13,7 @@ module NixonPi
     accepted_commands :value
 
     def initialize(options = {port: nil})
-      @pwm_driver = PwmDriver.new(options)
+      @pwm_driver = PwmDriver.new({ports: [options[:port]]})
       log.info "Initializing background driver..."
       @value = 0
     end

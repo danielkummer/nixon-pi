@@ -65,13 +65,12 @@ class Command < ActiveRecord::Base
 
   def validate_animation
     errors.add(:animation_name, "animation name can't be blank!") if animation_name.blank?
-    begin
-      option_hash = HashWithIndifferentAccess.new(JSON.parse(options))
-      errors.add(:options, "options must include a start_value key") if !option_hash.has_key?(:start_value) or option_hash[:start_value].to_s == ''
+    errors.add(:animation_name, "options can't be blank!") if options.blank?
 
-    rescue JSON::ParserError => e
-      errors.add(:options, "options invalid json string: #{e.message}")
-    end unless options.blank?
+    option_hash = HashWithIndifferentAccess.new(options)
+    errors.add(:options, "options must include a start_value key") if !option_hash.has_key?(:start_value) or option_hash[:start_value].to_s == ''
+    errors.add(:options, "options must include a goto_state key") if !option_hash.has_key?(:goto_state) or option_hash[:goto_state].to_s == ''
+    errors.add(:options, "options must include a goto_target key") if !option_hash.has_key?(:goto_target) or option_hash[:goto_target].to_s == ''
   end
 
   def valid_lamp?

@@ -28,7 +28,7 @@ module NixonPi
 
     def initialize()
       super() # NOTE: This *must* be called, otherwise states won't get initialized
-      #reload_state()
+              #reload_state()
     end
 
     state_machine :initial => :startup do
@@ -47,6 +47,9 @@ module NixonPi
         def enter_state
           name, options = params[:animation_name], params[:options]
           options ||= {}
+          if params[:value] and !params[:value].strip.empty?
+            options["start_value"] = params[:value]
+          end
           handle_command(state: params[:last_state]) if options.empty? #leave state if options are empty!!
           @animation = get_injected(name.to_sym, true, options)
           @animation.use_driver(@driver)
@@ -101,7 +104,15 @@ module NixonPi
       result = Hash.new
       case about.to_sym
         when :params
-          result = Marshal.load(Marshal.dump(@state_parameters))
+          begin
+            result = Hash.new
+            @state_parameters.each do |k,v|
+              result[k] = v
+            end
+            result
+          rescue
+            log.error "error: unable to dump state parameters!"
+          end
         when :commands
           commands = Marshal.load(Marshal.dump(self.class.available_commands))
           result[:commands] = commands

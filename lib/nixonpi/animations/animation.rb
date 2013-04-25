@@ -5,11 +5,13 @@ require_relative '../../dependency'
 require_relative '../messaging/command_sender'
 require_relative '../messaging/commands_module'
 require_relative '../information/information_holder'
+require 'active_support/hash_with_indifferent_access'
 
 module NixonPi
   module Animations
     class Animation
       include Logging
+      extend Logging
       include Commands
       include InformationHolder
 
@@ -17,7 +19,7 @@ module NixonPi
 
       def initialize(options = {})
         raise "options must be a hash" unless options.is_a?(Hash)
-        @options = self.class.defaults.merge(options)
+        @options = HashWithIndifferentAccess.new(self.class.defaults.merge(options))
         @output = Array.new
       end
 
@@ -30,7 +32,6 @@ module NixonPi
       # leaves the state if no more values to write
       # @param [String] value  value to write
       def handle_output_on_tick(value)
-        log.debug "animation value: #{value.to_s}"
         if block_given?
           yield value, index
         else
@@ -42,6 +43,7 @@ module NixonPi
               log.debug "already sent transistion command"
             end
           else
+            log.debug "animation value: #{value.to_s}"
             @driver.write(value)
           end
 
@@ -57,8 +59,8 @@ module NixonPi
       def self.handle_info_request(about)
         ret = {}
         case about.to_sym
-          when :options
-            ret = self.class.defaults
+          when :params #animation options, but called 'params' for consistency
+            ret = defaults()
           else
             log.error "No information about #{about}"
         end

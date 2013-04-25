@@ -42,7 +42,7 @@ module NixonPi
         @receivers[target].each do |receiver|
           if receiver.respond_to?(:handle_info_request)
             data = receiver.handle_info_request(about)
-            data.delete_if { |k, v| v.nil? }
+            #data.delete_if { |k, v| v.nil? } #check - do i really need to delete nil keys?
             ret << data
           else
             log.error "Listener for #{target} doesn't have the receive method!"
@@ -50,7 +50,7 @@ module NixonPi
         end
       end
       ret = ret[0] if ret.size == 1 #array to single if only one element
-      ret
+      Marshal.load(Marshal.dump(ret))
     end
   end
 end

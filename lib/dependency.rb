@@ -13,7 +13,7 @@ end
 # @param [Object] klass
 # @param [Hash] constuctor_args
 def register(as_type, klass, constuctor_args = {})
-  raise "Registry key #{as_type} already taken - please use another one because all subclass keys are shared" if @@class_registry.has_key?(as_type.to_sym)
+  raise "Registry key #{as_type} already taken - please use a different one because all subclass keys are shared" if @@class_registry.has_key?(as_type.to_sym)
   @@class_registry[as_type.to_sym] = {klass: klass, args: constuctor_args}
 end
 
@@ -45,7 +45,11 @@ def get_injected(type, new_instance = false, args = {})
     end
     if @@class_registry.has_key?($1.to_sym) #create new instance if based on a sequential value e.g bar1
       original = @@class_registry[$1.to_sym]
-      @@class_registry[type.to_sym] = Marshal.load(Marshal.dump(original))
+      begin
+        @@class_registry[type.to_sym] = Marshal.load(Marshal.dump(original))
+      rescue Exception => e
+        raise("error on #{original}: #{e.message}")
+      end
     else
       raise "no base configuration found for instance type #{type}"
     end
@@ -65,7 +69,7 @@ def get_injected(type, new_instance = false, args = {})
 
     return new_instance ? klass : reg_entry[:instance] = klass
   else
-    raise "could not instanciate #{type}"
+    raise "could not instantiate #{type}"
   end
 end
 
