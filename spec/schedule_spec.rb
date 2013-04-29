@@ -13,7 +13,7 @@ describe Schedule do
   it "should validate the presence of the required attributes" do
     @sched = Schedule.new
     @sched.valid?.should be false
-    @sched.should have(1).error_on(:queue)
+    @sched.should have(1).error_on(:target)
     @sched.should have(1).error_on(:method)
     @sched.should have(1).error_on(:timing)
     @sched.should have(1).error_on(:command)
@@ -23,7 +23,7 @@ describe Schedule do
   context "in" do
 
     before :each do
-      @sched = Schedule.new(method: :in, queue: :target, command: "some command")
+      @sched = Schedule.new(method: :in, target: :target, command: "some command")
     end
 
     it "should validate a rufus parseable time string" do
@@ -41,7 +41,7 @@ describe Schedule do
 
   context "every" do
     before :each do
-      @sched = Schedule.new(method: :every, queue: :target, command: "some command")
+      @sched = Schedule.new(method: :every, target: :target, command: "some command")
     end
 
     it "should validate a rufus parseable time string" do
@@ -59,7 +59,7 @@ describe Schedule do
   context "at" do
 
     before :each do
-      @sched = Schedule.new(method: :at, queue: :target, command: "some command")
+      @sched = Schedule.new(method: :at, target: :target, command: "some command")
     end
 
     it "should validate a rufus parseable time string" do

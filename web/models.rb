@@ -6,22 +6,22 @@ require_relative '../lib/nixonpi/configurations/settings'
 
 class Command < ActiveRecord::Base
 
-  attr_accessible :state_machine,
+  attr_accessible :target,
                   :state,
                   :value,
                   :animation_name,
                   :options
 
-  validates_presence_of :state_machine
+  validates_presence_of :target
 
 
   #todo refactor!
-  validate :valid_tubes?, :if => Proc.new { |c| c.state_machine.to_s.include? "tubes" }
-  validate :valid_bar?, :if => Proc.new { |c| c.state_machine.to_s.include? "bar" }
-  validate :valid_lamp?, :if => Proc.new { |c| c.state_machine.to_s.include? "lamp" }
-  validate :valid_say?, :if => Proc.new { |c| c.state_machine.to_s.include? "say" }
-  validate :valid_power?, :if => Proc.new { |c| c.state_machine.to_s.include? "power" }
-  validate :valid_rgb?, :if => Proc.new { |c| c.state_machine.to_s.include? "rgb" }
+  validate :valid_tubes?, :if => Proc.new { |c| c.target.to_s.include? "tubes" }
+  validate :valid_bar?, :if => Proc.new { |c| c.target.to_s.include? "bar" }
+  validate :valid_lamp?, :if => Proc.new { |c| c.target.to_s.include? "lamp" }
+  validate :valid_say?, :if => Proc.new { |c| c.target.to_s.include? "say" }
+  validate :valid_power?, :if => Proc.new { |c| c.target.to_s.include? "power" }
+  validate :valid_rgb?, :if => Proc.new { |c| c.target.to_s.include? "rgb" }
 
   def valid_tubes?
     case self.state.to_sym
@@ -105,11 +105,11 @@ class Schedule < ActiveRecord::Base
   attr_accessible :id,
                   :method,
                   :timing,
-                  :queue,
+                  :target,
                   :command,
                   :lock
 
-  validates_presence_of :queue, :method, :timing, :command
+  validates_presence_of :target, :method, :timing, :command
 
   validate :valid_schedule?
 

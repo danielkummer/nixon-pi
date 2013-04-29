@@ -26,7 +26,7 @@ module NixonPi
               handle_command_for(receiver, data)
             }
           else
-            log.error("no hanlder for content type: #{metadata[:content_type]}")
+            log.error("no handler for content type: #{metadata[:content_type]}")
           end
         end
       end

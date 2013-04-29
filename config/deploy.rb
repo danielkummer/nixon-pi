@@ -1,16 +1,11 @@
 set :application, "nixon-pi"
-#set :repository, "git@github.com:danielkummer/nixon-pi.git"
-#set :scm_username, "daniel.kummer@gmail.com"
 set :scm, :none
 set :repository, "."
-#set :local_repository, "."
 
 server 'nixonpi', :app, :web, :db
 
 set :deploy_to, "/home/pi/nixon-pi"
-#set :git_shallow_clone, 1
 set :deploy_via, :copy
-#set :copy_strategy, :export
 set :branch, $1 if `git branch` =~ /\* (\S+)\s/m
 
 set :copy_local_tar, "/usr/bin/gnutar" if `uname` =~ /Darwin/
@@ -43,8 +38,6 @@ after 'deploy:update', 'bundle:install'
 after 'deploy:update', 'deploy:link_db'
 after 'deploy:update', 'foreman:export'
 after 'deploy:update', 'deploy:link_init'
-#after 'deploy:update', 'foreman:restart' #TODO restart bluepill recipe using bash script
-
 
 namespace :bundle do
   desc "Installs the application dependencies"
@@ -53,44 +46,12 @@ namespace :bundle do
   end
 end
 
-#sudo bluepill <start|stop|restart|unmonitor> <process_or_group_name>
-namespace :bluepill do
-
-end
-
 namespace :foreman do
   desc "Export the Procfile to Ubuntu's upstart scripts"
   task :export, :roles => :app do
-    #run "cd #{release_path} && rvmsudo bundle exec foreman export upstart /etc/init " +
-    #        "-f ./Procfile.production -a #{application} -u #{user} -l #{shared_path}/log"
     run "cd #{release_path} && rvmsudo bundle exec foreman export bluepill ./config " +
             "-f ./Procfile.production -a #{application} -u #{user} -l #{shared_path}/log"
   end
-
-
-
-=begin
-  desc " Start the application services "
-  task :start, :roles => :app do
-    sudo " start #{application}"
-  end
-
-  desc "Stop the application services"
-  task :stop, :roles => :app do
-    sudo "stop #{application}"
-  end
-
-  desc "Restart the application services"
-  task :restart, :roles => :app do
-    run "sudo start #{application} || sudo restart #{application}"
-  end
-
-  desc "Display logs for a certain process - arg example: PROCESS=web-1"
-  task :logs, :roles => :app do
-    run "cd #{current_path}/log && cat #{ENV["PROCESS"]}.log"
-  end
-=end
-
 end
 
 

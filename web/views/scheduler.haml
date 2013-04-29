@@ -24,7 +24,7 @@
         %label.control-label
           %i.icon-screenshot.icon-large
         .controls
-          %select#receivers{name: "queue", class: "chzn-select", "data-placeholder" => "Select receiver", style:"width:300px;"}
+          %select#receivers{name: "target", class: "chzn-select", "data-placeholder" => "Select receiver", style:"width:300px;"}
             %option
       .control-group
         %label.control-label
@@ -73,7 +73,7 @@
           %tr
             %td=s.method
             %td=s.timing
-            %td=s.queue
+            %td=s.target
             %td=s.command
             %td=s.lock
             %td

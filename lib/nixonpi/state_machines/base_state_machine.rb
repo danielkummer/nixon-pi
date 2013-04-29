@@ -69,7 +69,7 @@ module NixonPi
 
     def reload_state
       ActiveRecord::Base.establish_connection("sqlite3:///db/settings.db")
-      options = Command.find(:first, conditions: ["state_machine = ?", self.registered_as_type])
+      options = Command.find(:first, conditions: ["target LIKE ?", self.registered_as_type])
       ActiveRecord::Base.connection.close
       if options
         log.debug "db setting loaded for #{self.registered_as_type} => #{options.to_s} "

@@ -120,13 +120,13 @@ module NixonPi
 # GET REQUESTS
 ###
     get '/' do
-      sender.client #trigger 500 error
+      sender.client #trigger 500 error if rabbitmq is down
 
       @no_of_bars = Settings.in13_pins.size
       @no_of_lamps = Settings.in1_pins.size
-      %w(tubes bar0 bar1 bar2 bar3).each do |state_machine|
-        initial = Command.find(:first, conditions: ["state_machine = ?", state_machine]) || Command.new(state_machine: state_machine)
-        instance_variable_set("@#{state_machine}", initial)
+      %w(tubes bar0 bar1 bar2 bar3 lamp1 lamp2 lamp3 lamp4 lamp5 background rgb ).each do |target|
+        initial = Command.find(:first, conditions: ["target LIKE ?", target]) || Command.new(target: target)
+        instance_variable_set("@#{target}", initial)
       end
       haml :control, format: :html5
     end
@@ -318,8 +318,10 @@ module NixonPi
     def get_or_create_record_for(data)
       case data[:state_machine].to_sym
         when :scheduler
+          data.delete(:state_machine)
           Schedule.new(data) #schedules are always newly created - you can only delete existing ones
         else
+          data.delete(:state_machine)
           get_or_create_command(data)
       end
     end
@@ -328,7 +330,7 @@ module NixonPi
     # Get a command object or create one, also do some minor value adjustments
     # @param [Hash] data
     def get_or_create_command(data)
-      case data[:state_machine].to_sym
+      case data[:target].to_sym
         when :tubes
           data[:value] = data[:value].to_s.rjust(12, " ") unless data[:value].nil?
           if data[:state].to_sym == :time
@@ -341,7 +343,7 @@ module NixonPi
       end
       command = nil
       if params[:initial]
-        initial = Command.find(:first, conditions: ["state_machine = ?", data[:state_machine].to_s])
+        initial = Command.find(:first, conditions: ["target = ?", data[:target].to_s])
         command = initial if initial.update_attributes(data)
       end
       command ||= Command.new(data)
@@ -358,7 +360,6 @@ module NixonPi
       data[:message] ||= []
       data[:success] = true unless data.has_key?(:success)
       data[:message] << respond_message unless respond_message.empty?
-
 
       case format.to_sym
         when :json
