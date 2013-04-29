@@ -267,6 +267,7 @@ module NixonPi
     ##
     # Close the connection
     def exit
+      connection.cmd("QU")
       connection.close
     end
 

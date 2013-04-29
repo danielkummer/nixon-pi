@@ -68,6 +68,8 @@ namespace :deploy do
   task :link_init do
     run "sudo rm -f /etc/init.d/#{application}"
     run "sudo ln -s #{latest_release}/config/bluepill-init.sh /etc/init.d/#{application}"
+    run "sudo chmod 777 /etc/init.d/#{application}"
+    run "sudo chmod 777 /var/run" #to create bluepill directory on start
   end
 
   task :restart do

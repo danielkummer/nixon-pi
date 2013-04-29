@@ -142,6 +142,7 @@ module NixonPi
       NixonPi::Scheduler.exit_scheduler
       @message_distributor.on_exit
       log.info "Blow the candles out..."
+      NixonPi::AbioCardClient.instance.
       get_injected(:power).power_off
       log.info "Bye ;)"
       #exit(0)
