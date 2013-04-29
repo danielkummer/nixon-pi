@@ -1,4 +1,4 @@
-require_relative '../../logging/logging'
+$require_relative '../../logging/logging'
 require_relative '../../information/os_info'
 require_relative '../../messaging/commands_module'
 require_relative '../../information/information_holder'
@@ -59,7 +59,10 @@ module NixonPi
 
     def self.execute(cmd)
       begin
-        IO.popen(cmd)
+        pid = fork do
+          IO.popen(cmd)
+        end
+        Process.detach(pid)
       rescue StandardError => err
         log.error err.message
         raise err
