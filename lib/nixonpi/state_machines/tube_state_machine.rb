@@ -101,11 +101,12 @@ module NixonPi
 
           if seconds_to_go > 0
             output = ChronicDuration.output(seconds_to_go, :format => :chrono).gsub(/:/, ' ')
+
             if output != @last_output #only write once
               log.debug "countdown: #{output}"
               @last_output = output
               NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "#{seconds_to_go}"}) if seconds_to_go <= 10
-              @driver.write(output)
+              @driver.write(output.rjust(@tubes_count, ' '))
             end
           end
 
@@ -165,7 +166,7 @@ module NixonPi
           per_second_burn = @hourly_rate.to_i * @attendees.to_i / 3600
           elapsed_seconds = Time.now - @meeting_start
           cost = per_second_burn * elapsed_seconds
-          @driver.write(cost.round(2).to_s.gsub(/\./, " "))
+          @driver.write(sprintf('%.2f', cost).gsub(/\./, " ").rjust(@tubes_count, ' '))
         end
       end
     end

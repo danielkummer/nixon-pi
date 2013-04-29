@@ -1,4 +1,4 @@
-$require_relative '../../logging/logging'
+require_relative '../../logging/logging'
 require_relative '../../information/os_info'
 require_relative '../../messaging/commands_module'
 require_relative '../../information/information_holder'
