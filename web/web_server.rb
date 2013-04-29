@@ -185,6 +185,7 @@ module NixonPi
     ###
 
     post '/tubes/?' do
+      @params[:target] = :tubes
       preprocess_post_params(:tubes, @params) do |data|
         sender.send_command(:tubes, data)
         formatted_response('json', data, "Tubes set to")
@@ -194,6 +195,7 @@ module NixonPi
     post '/lamp/?' do
       id = params[:id]
       @params['value'] = "0" unless  @params['value']
+      @params[:target] = "lamp#{id}".to_sym
       preprocess_post_params(:lamp, @params) do |data|
         sender.send_command("lamp#{id}".to_sym, data)
         formatted_response('json', data, "Lamps set to")
@@ -203,6 +205,7 @@ module NixonPi
     post '/bar/?' do
       #todo error when no id
       id = params[:id]
+      @params[:target] = "bar#{id}".to_sym
       preprocess_post_params(:bars, @params) do |data|
         sender.send_command("bar#{id}".to_sym, data)
         formatted_response('json', data, "Bar #{id} set to")
@@ -211,6 +214,7 @@ module NixonPi
 
     post '/rgb' do
       #todo error when no id
+      @params[:target] = :rgb
       preprocess_post_params(:rgb, @params) do |data|
         sender.send_command("rgb".to_sym, data)
         formatted_response('json', data, "RGB set to")
@@ -218,6 +222,7 @@ module NixonPi
     end
 
     post '/background' do
+      @params[:target] = :background
       preprocess_post_params(:background, @params) do |data|
         sender.send_command("background".to_sym, data)
         formatted_response('json', data, "Background set to")
@@ -237,6 +242,7 @@ module NixonPi
     end
 
     post '/say/?' do
+      @params[:target] = :sound
       preprocess_post_params(:sound, @params) do |data|
         sender.send_command(:sound, data)
         formatted_response('json', data, "Speak ")
@@ -245,6 +251,7 @@ module NixonPi
 
     post '/power/?', :provides => [:json] do
       @params[:value] = 0 if @params.empty?
+      @params[:target] = :power
       preprocess_post_params(:power, @params) do |data|
         sender.send_command(:power, data)
         formatted_response('json', data, "Power set to")
