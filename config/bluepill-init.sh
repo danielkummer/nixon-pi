@@ -27,7 +27,7 @@ fi
 USER=pi
 RACK_ENV=production
 APP_ROOT=/home/pi/$name/current
-BLUEPILL_CONFIG=config/${RACK_ENV}.pill
+BLUEPILL_CONFIG=config/${name}.pill
 test -f /etc/default/$name && . /etc/default/$name
 CMD="sudo -i -u $USER -- sh -c 'cd $APP_ROOT && bluepill"
  
