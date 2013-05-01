@@ -71,20 +71,20 @@ module NixonPi
 
       NixonPi::MachineManager.add_state_machines(:tubes) do |receiver, target|
         @message_distributor.add_receiver(receiver, target)
-        @info_gatherer.add_info_holder(receiver, target)
+        @info_gatherer.add_target(receiver, target)
       end
       NixonPi::MachineManager.add_state_machines(:bar, Settings.in13_pins.size) do |receiver, target|
         @message_distributor.add_receiver(receiver, target)
-        @info_gatherer.add_info_holder(receiver, target)
+        @info_gatherer.add_target(receiver, target)
       end
       NixonPi::MachineManager.add_state_machines(:lamp, Settings.in1_pins.size) do |receiver, target|
         @message_distributor.add_receiver(receiver, target)
-        @info_gatherer.add_info_holder(receiver, target)
+        @info_gatherer.add_target(receiver, target)
       end
 
       NixonPi::MachineManager.add_state_machines(:rgb) do |receiver, target|
         @message_distributor.add_receiver(receiver, target)
-        @info_gatherer.add_info_holder(receiver, target)
+        @info_gatherer.add_target(receiver, target)
       end
 
 
@@ -94,20 +94,18 @@ module NixonPi
       @message_distributor.add_receiver(NixonPi::Scheduler.new, :schedule)
       @message_distributor.add_receiver(get_injected(:background), :background)
 
-      @info_gatherer.add_info_holder(SoundProxy.new, :sound)
-      @info_gatherer.add_info_holder(get_injected(:power), :power)
-      @info_gatherer.add_info_holder(HardwareInfo.new, :hardware)
-      @info_gatherer.add_info_holder(NixonPi::Scheduler.new, :schedule)
-      @info_gatherer.add_info_holder(get_injected(:background), :background)
-      @info_gatherer.add_info_holder(@message_distributor, :commands)
+      @info_gatherer.add_target(SoundProxy.new, :sound)
+      @info_gatherer.add_target(get_injected(:power), :power)
+      @info_gatherer.add_target(HardwareInfo.new, :hardware)
+      @info_gatherer.add_target(NixonPi::Scheduler.new, :schedule)
+      @info_gatherer.add_target(get_injected(:background), :background)
+      @info_gatherer.add_target(@message_distributor, :commands)
 
-      #todo how do i get this to work, they need options to function...
-
-      @info_gatherer.add_info_holder(get_class(:single_fly_in), :single_fly_in)
-      @info_gatherer.add_info_holder(get_class(:switch_numbers), :switch_numbers)
-      @info_gatherer.add_info_holder(get_class(:rgb_animation), :rgb_animation)
-      @info_gatherer.add_info_holder(get_class(:ramp_up_down), :ramp_up_down)
-      @info_gatherer.add_info_holder(get_class(:blink), :blink)
+      @info_gatherer.add_target(get_class(:single_fly_in), :single_fly_in)
+      @info_gatherer.add_target(get_class(:switch_numbers), :switch_numbers)
+      @info_gatherer.add_target(get_class(:rgb_animation), :rgb_animation)
+      @info_gatherer.add_target(get_class(:ramp_up_down), :ramp_up_down)
+      @info_gatherer.add_target(get_class(:blink), :blink)
 
       DRb.start_service(DRBSERVER, @info_gatherer)
     end
@@ -115,19 +113,15 @@ module NixonPi
     ##
     # Run service run
     def run!
-      # Become a daemon
-      #Daemons.daemonize if $environment == 'production'
-
       [:INT, :TERM].each do |sig|
         trap(sig) do
-          #todo finish all threads
           quit!()
         end
       end
-
-      log.info "Start running..."
       NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "Hi Im Nixon pi"})
-      #get_injected(:power).power_on
+
+      get_injected(:power).power_on
+
       NixonPi::MachineManager.start_state_machines
       NixonPi::MachineManager.join_threads #this must be inside the main run script - else the subthreads exit
     end
@@ -142,10 +136,8 @@ module NixonPi
       NixonPi::Scheduler.exit_scheduler
       @message_distributor.on_exit
       log.info "Blow the candles out..."
-      NixonPi::AbioCardClient.instance.
       get_injected(:power).power_off
       log.info "Bye ;)"
-      #exit(0)
       exit!
     end
   end

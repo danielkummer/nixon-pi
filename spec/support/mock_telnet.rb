@@ -4,6 +4,10 @@ require_relative '../../lib/nixonpi/logging/logging'
 class MockTelnet
   include NixonPi::Logging
 
+  def close
+    log.debug "Closing connection"
+  end
+
   def cmd(string)
     #enable for more debug output..
     #STDERR.puts "telnet mock: " << string.to_s

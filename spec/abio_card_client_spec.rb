@@ -68,7 +68,7 @@ describe NixonPi::AbioCardClient do
 
   it "should write to pwm registers" do
     @client.pwm_write(0, 124)
-    $last_cmd.should eq "PW00107C000000000000000000000000000000"
+    $last_cmd.should eq "PW00017C"
   end
 
   it "should reset all pwm registers" do
@@ -84,7 +84,7 @@ describe NixonPi::AbioCardClient do
   end
 
   it "should read from all pwm registers" do
-    expected = Array.new(17, 255) #0..15 pwm, 16 global pwm
+    expected = Array.new(16, 255) #0..15 pwm, 16 global pwm
     actual = @client.send(:pwm_read_registers)
     actual.should eq expected
   end

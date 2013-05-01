@@ -15,7 +15,6 @@ module NixonPi
     accepted_commands :value
 
     def handle_command(command)
-      return unless can_send?
       value = command[:value]
       log.debug "got sound command: #{command}"
 
@@ -40,6 +39,7 @@ module NixonPi
       ret
     end
 
+    private
     def speech(text, params={})
       text = text.to_s.gsub(/_/, " ")
       language = "-voice #{params[:language]}" if params[:language] #voices: #kal awb_time kal16 awb rms slt
@@ -67,13 +67,6 @@ module NixonPi
         log.error err.message
         raise err
       end
-    end
-
-    def can_send?
-      now = Time.now
-      result = @last_time.nil? || now >= @last_time + 1.seconds
-      @last_time = now
-      result
     end
   end
 end

@@ -20,7 +20,7 @@ module NixonPi
     end
 
     # Close io connections
-    def exit
+    def close
       @stdin.puts("QU")
       @stdin.close
       @stdout.close

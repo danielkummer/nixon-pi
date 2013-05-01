@@ -37,7 +37,9 @@ end
 # @param [Hash] args new_instance must be true in order to use args
 # todo refactor!!!!
 def get_injected(type, new_instance = false, args = {})
+
   #todo handle multi instances differently - save the instance separately and create it using the blueprint type
+
   if type.match(/([a-zA-Z]+)\d+$/)
     if @@class_registry.has_key?(type.to_sym)
       reg_entry = @@class_registry[type.to_sym]
