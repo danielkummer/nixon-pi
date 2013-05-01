@@ -351,7 +351,7 @@ module NixonPi
       command = nil
       if params[:initial]
         initial = Command.find(:first, conditions: ["target = ?", data[:target].to_s])
-        command = initial if initial.update_attributes(data)
+        command = initial if !initial.nil? and initial.update_attributes(data)
       end
       command ||= Command.new(data)
       command

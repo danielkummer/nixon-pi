@@ -3,8 +3,12 @@ require 'active_model/validations'
 require 'chronic_duration'
 require_relative '../lib/blank_monkeypatch'
 require_relative '../lib/nixonpi/configurations/settings'
+require_relative 'validators/command_validator'
 
 class Command < ActiveRecord::Base
+  include ActiveModel::Validations
+  include ActiveModel::MassAssignmentSecurity
+
 
   attr_accessible :target,
                   :state,
@@ -13,91 +17,13 @@ class Command < ActiveRecord::Base
                   :options
 
   validates_presence_of :target
+  validates_with CommandValidator
 
-
-  #todo refactor!
-  validate :valid_tubes?, :if => Proc.new { |c| c.target.to_s.include? "tubes" }
-  validate :valid_bar?, :if => Proc.new { |c| c.target.to_s.include? "bar" }
-  validate :valid_lamp?, :if => Proc.new { |c| c.target.to_s.include? "lamp" }
-  validate :valid_say?, :if => Proc.new { |c| c.target.to_s.include? "say" }
-  validate :valid_power?, :if => Proc.new { |c| c.target.to_s.include? "power" }
-  validate :valid_rgb?, :if => Proc.new { |c| c.target.to_s.include? "rgb" }
-
-  def valid_tubes?
-    case self.state.to_sym
-      when :free_value
-        unless value =~ /\A(\s*\d*)+\s*\Z/
-          errors.add(:value, "only numbers and whitespaces are allowed")
-        end
-        unless value.size <= NixonPi::Settings.in12a_tubes.count
-          errors.add(:value, "length exceeds number of tubes (#{NixonPi::Settings.in12a_tubes.count})")
-        end
-      when :time
-        unless value.blank?
-          errors.add(:value, "not a valid time format string") unless value =~ /^(\s*%[a-zA-Z]+)+\s*$/
-        end
-      when :animation
-        validate_animation
-      when :countdown
-        unless ChronicDuration.parse(value, format: :chrono)
-          errors.add(:value, "countdown format invalid - unable to parse!")
-        end
-      when :meeting_ticker
-        unless value =~ /\d+:\d+/
-          errors.add(:value, "enter in the form of attendees:hourly_rate")
-        end
-      else
-        errors.add(:state, "unsupported state")
+  def assign_attributes(values, options = {})
+    sanitize_for_mass_assignment(values, options[:as]).each do |k, v|
+      send("#{k}=", v)
     end
   end
-
-  def valid_bar?
-    case self.state.to_sym
-      when :free_value
-        errors.add(:value, "#{state_machine} has invalid value: #{value}") unless (0..255).include?(value.to_i)
-      #todo duplicate code - remove
-      when :animation
-        validate_animation
-      else
-        errors.add(:state, "unsupported state")
-    end
-  end
-
-  def validate_animation
-    errors.add(:animation_name, "animation name can't be blank!") if animation_name.blank?
-    errors.add(:animation_name, "options can't be blank!") if options.blank?
-
-    option_hash = HashWithIndifferentAccess.new(options)
-    errors.add(:options, "options must include a start_value key") if !option_hash.has_key?(:start_value) or option_hash[:start_value].to_s == ''
-    errors.add(:options, "options must include a goto_state key") if !option_hash.has_key?(:goto_state) or option_hash[:goto_state].to_s == ''
-    errors.add(:options, "options must include a goto_target key") if !option_hash.has_key?(:goto_target) or option_hash[:goto_target].to_s == ''
-  end
-
-  def valid_lamp?
-    case self.state.to_sym
-      when :free_value
-        errors.add(:value, "bars invalid") unless (0..1).include?(value.to_i)
-      else
-        errors.add(:state, "unsupported state")
-    end
-
-  end
-
-  def valid_say?
-    errors.add(:value, "Nothing to say") if value.blank?
-  end
-
-  def valid_power?
-    errors.add(:value, "Invalid power value") unless (0..1).include?(value.to_i)
-  end
-
-  def valid_rgb?
-    value.gsub!(/^#/, '')
-    unless value =~ /^([a-fA-F0-9]{6})$/
-      errors.add(:value, "Invalid rgb value")
-    end
-  end
-
 end
 
 

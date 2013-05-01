@@ -6,6 +6,7 @@ require_relative 'client'
 require_relative 'commands_module'
 require_relative '../../nixonpi/hash_monkeypatch'
 require_relative '../information/information_holder'
+require_relative '../../../web/models'
 
 module NixonPi
   module Messaging
@@ -19,11 +20,19 @@ module NixonPi
         @incomming_commands_queue = client.queue("", exclusive: false, auto_delete: true).bind(direct_exchange_channel, routing_key: "nixonpi.command")
         @incomming_commands_queue.subscribe(consumer_tag: "command_consumer") do |delivery_info, metadata, data|
           if metadata[:content_type] == 'application/json'
-            data = JSON.parse(data).string_key_to_sym
+            #todo handle parse exception
+            begin
+              data_hash = JSON.parse(data).string_key_to_sym
+            rescue Exception => e
+              log.error(e.message)
+            end
+
+
             receiver = metadata.type
             handle_access(receiver) {
-              handle_lock(receiver, data[:lock])
-              handle_command_for(receiver, data)
+              handle_lock(receiver, data_hash[:lock])
+
+              handle_command_for(receiver, data_hash)
             }
           else
             log.error("no handler for content type: #{metadata[:content_type]}")
@@ -41,7 +50,7 @@ module NixonPi
           when :lock
             lock(receiver)
           when
-            unlock(receiver)
+          unlock(receiver)
         end
       end
 
@@ -86,18 +95,27 @@ module NixonPi
 
       ##
       # Internal command handler
-      # @param [Symbol] receiver
+      # @param [Symbol] target
       # @param [Hash] data
-      def handle_command_for(receiver, data)
-        receiver = receiver.to_sym
-        @receivers[receiver].each do |receiver|
+      def handle_command_for(target, data)
+        target = target.to_sym
+        @receivers[target].each do |receiver|
           if receiver.respond_to?(:handle_command)
-            data.delete_if { |k, v| !receiver.class.available_commands.include?(k) or v.nil? }
-            receiver.handle_command(data)
+            #todo validate data here!!
+            #todo what about scheduler?
+            model_data = data.clone
+            model_data[:target] = target
+            validator_model = target == :schedule ? Schedule.new(model_data) : Command.new(model_data)
+            if validator_model.valid?
+              data.delete_if { |k, v| !receiver.class.available_commands.include?(k) or v.nil? }
+              receiver.handle_command(data)
+            else
+              log.error("invalid command received: #{data.to_s}, errors: #{validator_model.errors.full_messages.join("\n")}")
+            end
           else
             log.error "Listener for #{receiver} doesn't have the handle_command method!"
           end
-        end if @receivers.has_key?(receiver)
+        end if @receivers.has_key?(target)
       end
 
       def handle_info_request(about)
