@@ -105,6 +105,7 @@ module NixonPi
             #todo what about scheduler?
             model_data = data.clone
             model_data[:target] = target
+            model_data.delete(:id)
             validator_model = target == :schedule ? Schedule.new(model_data) : Command.new(model_data)
             if validator_model.valid?
               data.delete_if { |k, v| !receiver.class.available_commands.include?(k) or v.nil? }
