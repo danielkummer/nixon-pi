@@ -5,8 +5,6 @@ defaults: &defaults
     port: 5678
   default_time_format: "%H%M%S"
   default_date_format: "%d  %m  %Y"
-  web_server:
-    port: 3000
   in12a_tubes:
     data_pin:  2
     clock_pin: 1
@@ -39,11 +37,33 @@ test:
   <<: *defaults
 
 production:
-  <<: *defaults
-  log_level: ERROR
+  log_level: INFO
   telnet_server:
       host: localhost
       port: 5678
-  web_server:
-    port: 80
+  default_time_format: "%H%M%S"
+  default_date_format: "%d  %m  %Y"
+  in12a_tubes:
+    data_pin:  2
+    clock_pin: 1
+    latch_pin: 0
+    count: 12
+    write_blanks: true
+  in1_pins:
+    - 8
+    - 9
+    - 10
+    - 11
+    - 12
+  in13_pins:
+    - 0
+    - 1
+    - 2
+    - 3
+  power_pin: 3
+  rgb_pins:
+    - 7
+    - 5
+    - 6
+  background_led_pin: 4
 

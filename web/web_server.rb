@@ -40,7 +40,8 @@ module NixonPi
     #set :lock, false #enable on threading errors
     set :public_folder, File.join(File.dirname(__FILE__), 'public')
     set :haml, {:format => :html5}
-    set :port, Settings['web_server'].nil? ? '8080' : Settings['web_server']['port']
+
+    #set :port, Settings['web_server'].nil? ? '8080' : Settings['web_server']['port']
 
     #set :static, $environment == 'development' ? false : true
 

@@ -15,6 +15,8 @@ require "rvm/capistrano" # Load RVM's capistrano plugin.
 
 set :rvm_ruby_string, '1.9.3@global' # Or: :rvm_ruby_string, ENV['GEM_HOME'].gsub(/.*\//,"") # Read from local system
 set :rvm_type, :system
+set :rvm_path, '/usr/local/rvm'
+
 
 after "deploy:restart", "deploy:cleanup"
 
@@ -49,8 +51,10 @@ end
 namespace :foreman do
   desc "Export the Procfile to Ubuntu's upstart scripts"
   task :export, :roles => :app do
+    #run "cd #{release_path} && rvmsudo bundle exec foreman export bluepill ./config " +
+    #        "-f ./Procfile.production -a #{application} -u #{user} -l #{shared_path}/log"
     run "cd #{release_path} && rvmsudo bundle exec foreman export bluepill ./config " +
-            "-f ./Procfile.production -a #{application} -u #{user} -l #{shared_path}/log"
+            "-f ./Procfile.production -a #{application} -u root -l #{shared_path}/log"
   end
 end
 
