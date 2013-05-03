@@ -5,6 +5,8 @@ require_relative '../lib/blank_monkeypatch'
 require_relative '../lib/nixonpi/configurations/settings'
 require_relative 'validators/command_validator'
 
+ActiveRecord::Base.logger = nil
+
 class Command < ActiveRecord::Base
   include ActiveModel::Validations
   include ActiveModel::MassAssignmentSecurity

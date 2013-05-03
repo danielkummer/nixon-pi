@@ -1,19 +1,18 @@
-#!/bin/sh
-# based on http://jonkinney.com/articles/2010/02/01/bluepill-init-script-for-monitoring-delayed-job-on-linux-opensuse/
- 
+#! /bin/sh
 ### BEGIN INIT INFO
 # Provides: bluepill
-# Required-Start:    $local_fs $remote_fs $network $syslog $time
+# Required-Start:    $all
 # Required-Stop:     $local_fs $remote_fs $network $syslog
-# Should-Start:      postgresql mysql
-# Should-Stop:       postgresql mysql
 # Default-Start: 2 3 4 5
 # Default-Stop: 0 1 6
 # Short-Description: bluepill daemon, providing process monitoring
 # Description: bluepill is a monitoring tool. More info at http://github.com/arya/bluepill.
 ### END INIT INFO
+
+# based on http://jonkinney.com/articles/2010/02/01/bluepill-init-script-for-monitoring-delayed-job-on-linux-opensuse/
+
 set -e
- 
+
 . /lib/lsb/init-functions
 name=$(basename $0)
 real_name=$(basename $(readlink "$0" || echo "$0"))
@@ -24,7 +23,7 @@ if [ "$name" = "$real_name" ]; then
 fi
  
 # here comes default config
-USER=pi
+USER=root
 RACK_ENV=production
 APP_ROOT=/home/pi/$name/current
 BLUEPILL_CONFIG=config/${name}.pill

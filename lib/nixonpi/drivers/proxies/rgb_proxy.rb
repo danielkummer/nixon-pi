@@ -22,11 +22,7 @@ module NixonPi
 
     def write(hex_color)
       hex_color = hex_color.to_s
-      if hex_color.length < 6
-        log.error "wrong color supplied: #{hex_color}, setting to 000000"
-        hex_color = '000000'
-      end
-
+      hex_color = '000000' if hex_color.length < 6
       rgb = hex2int(hex_color)
       rgb.each.with_index do |v, i|
         @io_driver.write_to_port(i,v)
