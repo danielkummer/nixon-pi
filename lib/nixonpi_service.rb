@@ -56,7 +56,6 @@ module NixonPi
     def initialize
       log.info "Initializing Nixon-Pi service.."
       log.info "Environment: #{$environment}"
-      #system "cd #{File.dirname(__FILE__)} && rake db:migrate"
       ActiveRecord::Base.establish_connection("sqlite3:///db/settings.db")
       ActiveRecord::Migrator.up("/db/migrate")
 
@@ -87,17 +86,15 @@ module NixonPi
         @info_gatherer.add_target(receiver, target)
       end
 
-
-      #todo can this somehow be injected?
       @message_distributor.add_receiver(SoundProxy.new, :sound)
       @message_distributor.add_receiver(get_injected(:power), :power)
       @message_distributor.add_receiver(NixonPi::Scheduler.new, :schedule)
       @message_distributor.add_receiver(get_injected(:background), :background)
 
-      @info_gatherer.add_target(SoundProxy.new, :sound)
-      @info_gatherer.add_target(get_injected(:power), :power)
       @info_gatherer.add_target(HardwareInfo.new, :hardware)
+      @info_gatherer.add_target(SoundProxy.new, :sound)
       @info_gatherer.add_target(NixonPi::Scheduler.new, :schedule)
+      @info_gatherer.add_target(get_injected(:power), :power)
       @info_gatherer.add_target(get_injected(:background), :background)
       @info_gatherer.add_target(@message_distributor, :commands)
 
@@ -120,16 +117,16 @@ module NixonPi
       end
       NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "Hi Im Nixon pi"})
 
-      NixonPi::Messaging::CommandSender.new.send_command(:lamp0, {state: :free_value, locking: :lock, value: 0})
-      NixonPi::Messaging::CommandSender.new.send_command(:lamp1, {state: :free_value, locking: :lock, value: 0})
-      NixonPi::Messaging::CommandSender.new.send_command(:lamp2, {state: :free_value, locking: :lock, value: 0})
-      NixonPi::Messaging::CommandSender.new.send_command(:lamp3, {state: :free_value, locking: :lock, value: 0})
-      NixonPi::Messaging::CommandSender.new.send_command(:lamp4, {state: :free_value, locking: :lock, value: 0})
+      NixonPi::Messaging::CommandSender.new.send_command(:lamp0, {state: :free_value, value: 0})
+      NixonPi::Messaging::CommandSender.new.send_command(:lamp1, {state: :free_value, value: 0})
+      NixonPi::Messaging::CommandSender.new.send_command(:lamp2, {state: :free_value, value: 0})
+      NixonPi::Messaging::CommandSender.new.send_command(:lamp3, {state: :free_value, value: 0})
+      NixonPi::Messaging::CommandSender.new.send_command(:lamp4, {state: :free_value, value: 0})
 
       get_injected(:power).power_on
 
       NixonPi::MachineManager.start_state_machines
-      NixonPi::MachineManager.join_threads #this must be inside the main run script - else the subthreads exit
+      NixonPi::MachineManager.join_threads          #this must be inside the main run script - else the subthreads exit
     end
 
     ##

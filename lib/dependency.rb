@@ -69,7 +69,7 @@ def get_injected(type, new_instance = false, args = {})
 
     klass.send(:registered_as_type=, type) if klass.respond_to?(:registered_as_type=)
 
-    return new_instance ? klass : reg_entry[:instance] = klass
+    new_instance ? klass : reg_entry[:instance] = klass
   else
     raise "could not instantiate #{type}"
   end

@@ -1,11 +1,11 @@
 require 'state_machine'
-
-require_relative '../drivers/basic/tube_driver'
 require 'active_support/inflector'
+
+require_relative 'base_state_machine'
+require_relative '../drivers/basic/tube_driver'
 require_relative '../animations/animation'
 require_relative '../animations/tube/switch_numbers_animation'
 require_relative '../animations/tube/single_fly_in_animation'
-require_relative 'base_state_machine'
 require_relative '../logging/logging'
 require_relative '../messaging/command_receiver'
 require_relative '../../dependency'
@@ -63,6 +63,9 @@ module NixonPi
           formatted_time = now.strftime(@format)
           formatted_date = now.strftime(Settings.default_date_format)
 
+          if now.hour == 12
+            NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "strike_12.mp3"})
+          end
 
           if now.min == 0 and now.min != params[:last_time].min
             params[:animation_name] = :single_fly_in
@@ -81,6 +84,11 @@ module NixonPi
           params[:last_value] = formatted_time
           params[:last_time] = now
 
+        end
+
+        def leave_state
+          NixonPi::Messaging::CommandSender.new.send_command(:lamp3, {state: :free_value, value: 0})
+          NixonPi::Messaging::CommandSender.new.send_command(:lamp4, {state: :free_value, value: 0})
         end
       end
 

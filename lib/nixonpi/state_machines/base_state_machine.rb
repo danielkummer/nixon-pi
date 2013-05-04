@@ -105,7 +105,7 @@ module NixonPi
         when :params
           begin
             result = Hash.new
-            @state_parameters.each do |k,v|
+            @state_parameters.each do |k, v|
               result[k] = v
             end
             result
@@ -169,7 +169,6 @@ module NixonPi
       begin
         object.try(:enter_state)
       rescue NoMethodError => e;
-        #log.info "Machine #{object.to_s} with state #{object.state} doesn't have the enter_state method"
       end
     end
 

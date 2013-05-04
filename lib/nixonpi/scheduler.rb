@@ -17,7 +17,7 @@ module NixonPi
 
     def call(job)
       log.info "Job called#{job.to_s} "
-      log.error "Error in job #{job.to_s}, queue: #{queue}, command: #{@command}" if @target.nil? or @command.nil?
+      log.error "Error in job #{job.to_s}, queue: #{queue}, command: #@command" if @target.nil? or @command.nil?
       CommandSender.new.send_command(@target, @command)
       #todo unlock queue
       #CommandQueue.unlock(@queue) if @lock

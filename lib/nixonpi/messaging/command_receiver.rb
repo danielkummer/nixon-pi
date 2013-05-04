@@ -49,8 +49,8 @@ module NixonPi
         case lock.to_sym
           when :lock
             lock(receiver)
-          when
-          unlock(receiver)
+          else
+            unlock(receiver)
         end
       end
 

@@ -21,11 +21,14 @@ module NixonPi
     end
 
     state_machine do
-
       state :startup do
         def write
            #transition over to the animation state after setting the correct values
           goto_state = params[:initial_state].nil? ? :free_value : params[:initial_state]
+          if goto_state == :free_value
+            params[:value] = 0 #reset to 0 after animation
+          end
+
           params[:animation_name] = :ramp_up_down
           params[:options] = {bar:bar_index, goto_state: goto_state, goto_target: "bar#{bar_index}".to_sym}
           handle_command(state: :animation)
@@ -39,7 +42,6 @@ module NixonPi
             @driver.write_to_port(bar_index, value)
             params[:last_value] = value
           end
-
         end
       end
     end
@@ -48,7 +50,5 @@ module NixonPi
       registered_as_type.to_s.match(/bar(\d+)/)[1]
       $1.to_i
     end
-
   end
-
 end

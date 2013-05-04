@@ -8,7 +8,7 @@ module NixonPi
 
     def initialize(ports)
       @ports = ports
-      log.debug "Initialized io driver for ports #{@ports}"
+      log.debug "Initialized io driver for ports #@ports"
     end
 
     def write(value, port = nil)
