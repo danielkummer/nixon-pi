@@ -29,7 +29,7 @@ module NixonPi
       unless Settings['telnet_server'].nil?
         @host, @port = Settings.telnet_server.host, Settings.telnet_server.port
       end
-      @io_register, @mutex = Array.new(NUMBER_OF_IO_PORTS, 0), Mutex.new
+      @io_register, @@mutex = Array.new(NUMBER_OF_IO_PORTS, 0), Mutex.new
     end
 
     ##
@@ -210,12 +210,12 @@ module NixonPi
     ##
     # Connect to abiocard telnet server
     def connection
-      @mutex.synchronize {
+      @@mutex.synchronize do
         retryable do
           @conn ||= connection_for($environment)
         end
         @conn
-      }
+      end
     end
 
     ##

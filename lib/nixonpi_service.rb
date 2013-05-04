@@ -120,6 +120,12 @@ module NixonPi
       end
       NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "Hi Im Nixon pi"})
 
+      NixonPi::Messaging::CommandSender.new.send_command(:lamp0, {state: :free_value, locking: :lock, value: 0})
+      NixonPi::Messaging::CommandSender.new.send_command(:lamp1, {state: :free_value, locking: :lock, value: 0})
+      NixonPi::Messaging::CommandSender.new.send_command(:lamp2, {state: :free_value, locking: :lock, value: 0})
+      NixonPi::Messaging::CommandSender.new.send_command(:lamp3, {state: :free_value, locking: :lock, value: 0})
+      NixonPi::Messaging::CommandSender.new.send_command(:lamp4, {state: :free_value, locking: :lock, value: 0})
+
       get_injected(:power).power_on
 
       NixonPi::MachineManager.start_state_machines
