@@ -37,7 +37,7 @@ test:
   <<: *defaults
 
 production:
-  log_level: DEBUG
+  log_level: INFO
   telnet_server:
       host: localhost
       port: 5678

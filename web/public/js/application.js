@@ -1,13 +1,13 @@
 jQuery(function ($) {
     $(document).ready(function () {
 
-        var error_message = function(message) {
+        var error_message = function (message) {
             $.pnotify({
-                text: message,
-                type: 'error',
-                icon: 'icon-error',
-                nonblock: true,
-                nonblock_opacity: .2
+                text:message,
+                type:'error',
+                icon:'icon-error',
+                nonblock:true,
+                nonblock_opacity:.2
             });
         }
 
@@ -48,32 +48,32 @@ jQuery(function ($) {
                 if (data.value == 1) {
                     $('#power-toggle-button').toggleButtons('toggleState');
                 }
-                if(data.success == false) {
+                if (data.success == false) {
                     error_message(data.message);
                 }
                 power_button_initialized = true;
             });
 
             $('#power-toggle-button').toggleButtons({
-                onChange: function ($el, status, e) {
+                onChange:function ($el, status, e) {
                     if (power_button_initialized) {
                         $el.closest("form").submit();
                     }
                 },
-                width: 100,
-                height: 30,
-                font: {
-                    'font-size': '20px'
+                width:100,
+                height:30,
+                font:{
+                    'font-size':'20px'
                 },
-                animated: true,
-                transitionspeed: 0.5, // Accepted values float or "percent" [ 1, 0.5, "150%" ]
-                label: {
-                    enabled: "I",
-                    disabled: "0"
+                animated:true,
+                transitionspeed:0.5, // Accepted values float or "percent" [ 1, 0.5, "150%" ]
+                label:{
+                    enabled:"I",
+                    disabled:"0"
                 },
-                style: {
-                    enabled: "success",
-                    disabled: "danger"
+                style:{
+                    enabled:"success",
+                    disabled:"danger"
                 }
             });
         }
@@ -87,7 +87,7 @@ jQuery(function ($) {
                 if (data.value && data.value.length > 0) {
                     $('#tubes').val(data.value);
                 }
-                if(data.success == false) {
+                if (data.success == false) {
                     error_message(data.message);
                 }
             });
@@ -99,7 +99,7 @@ jQuery(function ($) {
         if ($('#lamps').length === 1) {
             $.getJSON('/information/lamps.json', function (data) {
                 var lamps = data.lamps;
-                if(data.success == false) {
+                if (data.success == false) {
                     error_message(data.message);
                 }
                 for (var i = 0, ii = lamps.length; i < ii; i++) {
@@ -108,7 +108,7 @@ jQuery(function ($) {
 
 
                     if (state == "free_value") {
-                        var checked = !(value == 0),
+                        var checked = !(value == "0"),
                             $el = $('#lamp_' + i);
 
                         if (checked) {
@@ -142,7 +142,7 @@ jQuery(function ($) {
         if ($(':range').length > 0) {
             $.getJSON('/information/bars.json ', function (data) {
 
-                if(data.success == false) {
+                if (data.success == false) {
                     error_message(data.message);
                 }
 
@@ -154,14 +154,14 @@ jQuery(function ($) {
                         bar_num = bars[i].options.bar;
 
                     if (state == "free_value") {
-                        $(':range').eq(bar_num).data('rangeinput').setValue(value);
+                        $(':range').eq(bar_num + 1).data('rangeinput').setValue(value);
                     }
                 }
             });
 
 
             $(":range").rangeinput({
-                progress: true
+                progress:true
             });
 
             $(":range").change(function (event, value) {
@@ -175,23 +175,23 @@ jQuery(function ($) {
             e.preventDefault();
             self = $(this);
             $.ajax({
-                url: self.attr('action'),
-                data: self.serializeArray(),
-                type: self.attr('method'),
-                dataType: 'json',
-                success: function (res) {
+                url:self.attr('action'),
+                data:self.serializeArray(),
+                type:self.attr('method'),
+                dataType:'json',
+                success:function (res) {
                     var value = res['value']
                     var text = res['message'] + " : " + value;
 
                     $.pnotify({
-                        text: text,
-                        type: 'success',
-                        icon: 'icon-success',
-                        nonblock: true,
-                        nonblock_opacity: .2
+                        text:text,
+                        type:'success',
+                        icon:'icon-success',
+                        nonblock:true,
+                        nonblock_opacity:.2
                     });
                 },
-                error: function (res, textStatus, errorMsg) {
+                error:function (res, textStatus, errorMsg) {
                     var response_json = jQuery.parseJSON(res.responseText),
                         messages = response_json.message,
                         text = "";
@@ -204,11 +204,11 @@ jQuery(function ($) {
                         text += messages[i] + "<br/>";
                     }
                     $.pnotify({
-                        text: text,
-                        type: 'error',
-                        icon: 'icon-error',
-                        nonblock: true,
-                        nonblock_opacity: .2
+                        text:text,
+                        type:'error',
+                        icon:'icon-error',
+                        nonblock:true,
+                        nonblock_opacity:.2
                     });
                 }
             })
@@ -216,35 +216,35 @@ jQuery(function ($) {
 
 
         var states = {
-            'free_value': function () {
+            'free_value':function () {
                 $('#tubes').val("");
                 $(".tube_animation_group").hide();
                 $('.tube_time_group').hide();
                 $("#countdown_examples").hide();
             },
 
-            'animation': function () {
+            'animation':function () {
                 $('#tubes').val("");
                 $(".tube_animation_group").show();
                 $('.tube_time_group').hide();
                 $("#countdown_examples").hide();
             },
 
-            'time': function () {
+            'time':function () {
                 $('.tube_time_group').show();
                 $("#tubes").val("");
                 $(".tube_animation_group").hide();
                 $("#countdown_examples").hide();
             },
 
-            'countdown': function () {
+            'countdown':function () {
                 $(".tube_animation_group").hide();
                 $('.tube_time_group').hide();
                 $("#countdown_examples").show();
 
             },
 
-            'meeting_ticker': function () {
+            'meeting_ticker':function () {
                 $('#tubes').val("attendees:hourly_rate")
                 $(".tube_animation_group").hide();
                 $('.tube_time_group').hide();
@@ -295,9 +295,9 @@ jQuery(function ($) {
             $("#method").chosen().change(function (event) {
                 var newValue = $(event.target).val(),
                     scheduler_times = {
-                        'in': '1h2m3s',
-                        'at': new Date().toUTCString(),
-                        'every': '10s'
+                        'in':'1h2m3s',
+                        'at':new Date().toUTCString(),
+                        'every':'10s'
                     },
                     result;
 
@@ -327,8 +327,8 @@ jQuery(function ($) {
                     }
                     var commands_hash = {};
 
-                    $.each(commands, function(index, value) {
-                        if(value == 'options') {
+                    $.each(commands, function (index, value) {
+                        if (value == 'options') {
                             commands_hash[value] = {}
                         } else {
                             commands_hash[value] = ''
@@ -340,7 +340,7 @@ jQuery(function ($) {
             });
 
             $("#cron").cron({
-                onChange: function () {
+                onChange:function () {
                     $("#time").val($(this).cron("value"));
                 }
             });
@@ -352,7 +352,7 @@ jQuery(function ($) {
             $(".delete-schedule").click(function () {
                 var $this = $(this);
                 var id = $this.data('id');
-                $.post('/schedule/' + id, {_method: 'delete'},function (result_data) {
+                $.post('/schedule/' + id, {_method:'delete'},function (result_data) {
                     $($this).closest("tr").remove();
                 }).error(function () {
                         console.log("Error trying to DELETE");
