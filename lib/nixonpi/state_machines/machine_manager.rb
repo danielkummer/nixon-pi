@@ -42,7 +42,7 @@ module NixonPi
       ##
       # Start each state machine in a separate thread
       # @param [Float] sleep_for_sec sleep time after each loop
-      def start_state_machines(sleep_for_sec = 0.12)
+      def start_state_machines(sleep_for_sec = 0.1)
         @@state_machines.each do |type, state_machine|
           log.debug "Starting state machine: #{state_machine.class}"
           @@threads << Thread.new do

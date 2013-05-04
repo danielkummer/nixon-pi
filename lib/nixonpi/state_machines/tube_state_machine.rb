@@ -51,8 +51,7 @@ module NixonPi
           NixonPi::Messaging::CommandSender.new.send_command(:lamp1, {state: :free_value, value: 0})
           NixonPi::Messaging::CommandSender.new.send_command(:lamp2, {state: :free_value, value: 0})
           NixonPi::Messaging::CommandSender.new.send_command(:lamp3, {state: :free_value, value: 1})
-          NixonPi::Messaging::CommandSender.new.send_command(:lamp4, {state: :free_value, value: 1})
-          #NixonPi::Messaging::CommandSender.new.send_command(:lamp4, {state: :blink})
+          NixonPi::Messaging::CommandSender.new.send_command(:lamp4, {state: :blink})
         end
 
 
