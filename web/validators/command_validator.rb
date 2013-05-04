@@ -12,7 +12,9 @@ class CommandValidator < ActiveModel::Validator
       when /lamp/
         case record.state
           when /free_value/
-            record.errors.add(:value, "bars invalid") unless (0..1).include?(record.value.to_i)
+            record.errors.add(:value, "lamp value invalid") unless (0..1).include?(record.value.to_i)
+          when /blink/
+            #no errors
           else
             record.errors.add(:state, "unsupported state")
         end

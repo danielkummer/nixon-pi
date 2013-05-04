@@ -28,6 +28,25 @@ module NixonPi
         end
       end
 
+      state :blink do
+        def enter_state
+          @last_blink_time = Time.now
+          @blink_value = 0
+        end
+
+        def write
+          current_blink_time = Time.now
+          @blink_value = (@blink_value == 0 ? 1 : 0) if (current_blink_time - @last_blink_time > 1)
+          @driver.write_to_lamp(lamp_index, @blink_value)
+          @last_blink_time = current_blink_time
+        end
+
+        def leave_state
+          @driver.write_to_lamp(lamp_index, 0)
+        end
+
+      end
+
 
       state :startup do
         def write

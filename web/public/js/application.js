@@ -108,7 +108,7 @@ jQuery(function ($) {
 
 
                     if (state == "free_value") {
-                        var checked = !(value == "0"),
+                        var checked = (value == "1"),
                             $el = $('#lamp_' + i);
 
                         if (checked) {
