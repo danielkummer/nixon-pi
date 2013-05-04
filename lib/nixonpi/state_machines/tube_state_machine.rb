@@ -46,8 +46,12 @@ module NixonPi
           @tubes_count = Settings.in12a_tubes.count
           @format = nil unless @format.is_a?(String)
           @format = Settings.default_time_format if @format.nil? or @format.size > @tubes_count or @format.strip.empty?
-          NixonPi::Messaging::CommandSender.new.send_command(:lamp4, {state: :blink, locking: :lock})
+
+          NixonPi::Messaging::CommandSender.new.send_command(:lamp0, {state: :free_value, locking: :lock, value: 0})
+          NixonPi::Messaging::CommandSender.new.send_command(:lamp1, {state: :free_value, locking: :lock, value: 0})
+          NixonPi::Messaging::CommandSender.new.send_command(:lamp2, {state: :free_value, locking: :lock, value: 0})
           NixonPi::Messaging::CommandSender.new.send_command(:lamp3, {state: :free_value, locking: :lock, value: 1})
+          NixonPi::Messaging::CommandSender.new.send_command(:lamp4, {state: :free_value, locking: :lock, value: 1})
         end
 
 

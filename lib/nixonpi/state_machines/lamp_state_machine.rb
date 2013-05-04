@@ -31,6 +31,7 @@ module NixonPi
         end
       end
 
+      #todo the blink state conflicts with the normal clock mode - concurrency error in io driver?
       state :blink do
         def enter_state
           @last_blink_time = Time.now
