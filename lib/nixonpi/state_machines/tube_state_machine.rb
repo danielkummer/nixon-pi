@@ -46,8 +46,8 @@ module NixonPi
           @tubes_count = Settings.in12a_tubes.count
           @format = nil unless @format.is_a?(String)
           @format = Settings.default_time_format if @format.nil? or @format.size > @tubes_count or @format.strip.empty?
-          @command_sender.send_command(:lamp5, {state: :blink, locking: :lock})
-          @command_sender.send_command(:lamp4, {state: :free_value, locking: :lock, value: 1})
+          NixonPi::Messaging::CommandSender.new.send_command(:lamp4, {state: :blink, locking: :lock})
+          NixonPi::Messaging::CommandSender.new.send_command(:lamp3, {state: :free_value, locking: :lock, value: 1})
         end
 
 
@@ -149,7 +149,7 @@ module NixonPi
           if $1 and $2
             @meeting_start = Time.now
             @attendees, @hourly_rate = $1, $2
-            @command_sender.send_command(:lamp5, {state: :free_value, locking: :lock, value: 1})
+            NixonPi::Messaging::CommandSender.new.send_command(:lamp5, {state: :free_value, locking: :lock, value: 1})
           else
             error_msg = "invalid input for attendees - going to last state"
             NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: error_msg})
@@ -161,7 +161,7 @@ module NixonPi
 
         def leave_state
           #unlock lamps
-          @command_sender.send_command(:lamp5, {state: :free_value, locking: :unlock, value: 0})
+          NixonPi::Messaging::CommandSender.new.send_command(:lamp5, {state: :free_value, locking: :unlock, value: 0})
         end
 
         def write

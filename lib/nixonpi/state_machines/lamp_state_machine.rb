@@ -17,6 +17,9 @@ module NixonPi
     end
 
     state_machine do
+
+      event(:blink) { transition all => :blink }
+
       state :free_value do
         def write
           value = params[:value]

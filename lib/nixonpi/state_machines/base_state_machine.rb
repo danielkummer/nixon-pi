@@ -24,7 +24,6 @@ module NixonPi
     attr_accessor :registered_as_type
 
     @state_parameters = {}
-    @command_sender = NixonPi::Messaging::CommandSender.new
 
     def initialize()
       super() # NOTE: This *must* be called, otherwise states won't get initialized
