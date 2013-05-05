@@ -1,8 +1,8 @@
 .row.row-divider
   .span2
-    %h2 Scheduler
+    %h3 Scheduler
   .span6
-    %form{ action: "/scheduler", method: "POST", class: "form-horizontal", "data-remote" => true}
+    %form#scheduler{ action: "/scheduler", method: "POST", class: "form-horizontal", "data-remote" => true}
       %input{type: "hidden", name: "initial", value: "1"}
       .control-group
         %label.control-label
@@ -24,20 +24,20 @@
         %label.control-label
           %i.icon-screenshot.icon-large
         .controls
-          %select#target{name: "queue", class: "chzn-select", "data-placeholder" => "Select Target", style:"width:300px;"}
+          %select#receivers{name: "target", class: "chzn-select", "data-placeholder" => "Select receiver", style:"width:300px;"}
             %option
       .control-group
         %label.control-label
           %i.icon-edit.icon-large
         .controls
           %textarea#command{name: "command", rows: "10", class:"input-xlarge"}
-      .control-group
-        %label.control-label
-          %i.icon-lock.icon-large
-        .controls
-          %label.checkbox
-            %input{type: "checkbox", name: "lock", class: "input-medium"}
-            Lock target
+      /.control-group
+      /  %label.control-label
+      /    %i.icon-lock.icon-large
+      /  .controls
+      /    %label.checkbox
+      /      %input{type: "checkbox", name: "lock", class: "input-medium"}
+      /      Lock target
       .control-group
         .controls
           %button{type: "submit",class:"btn btn-success"}
@@ -73,7 +73,7 @@
           %tr
             %td=s.method
             %td=s.timing
-            %td=s.queue
+            %td=s.target
             %td=s.command
             %td=s.lock
             %td

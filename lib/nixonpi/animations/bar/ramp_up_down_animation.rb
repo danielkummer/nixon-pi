@@ -1,45 +1,41 @@
 require_relative '../animation'
 require_relative '../easing'
 require_relative '../../configurations/settings'
+require_relative '../../../dependency'
 
-##
-# This animation increments every number by one, the number of turnarounds can be specified
-#
 module NixonPi
   module Animations
     class RampUpDownAnimation < Animation
       include Easing
 
-      register_as :ramp_up_down
+      register :ramp_up_down, self
+      accepted_commands :bar, :total_time
 
       ##
       # @param [Hash] options
       # * duration - number of turnarounds, default 5
       # * sleep - sleep duration in seconds, default 0.3
       def initialize(options = {})
-        super()
-        @options = {sleep: 0.3, total: 3.0}.merge(options)
-        @driver = BarGraphDriver.instance
+        super(options)
+        @options[:total_time] ||= 3.0
+        @options[:sleep] ||= 0.3
+        @total_time = @options[:total_time] * 1000.0
+        @start = Time.now
+        @elapsed = 0
       end
 
-      def run(start)
-        bar = @options[:bar]
-        sleep_step = @options[:sleep]
-        start = Time.now
-        total_time = @options[:total] * 1000.0
-        index = 0
-        elapsed = 0
-        while elapsed < total_time do
-          elapsed = time_diff_milli(start, Time.now)
-          value = ease_in_out_quad(elapsed, 0, 255, total_time)
-          animation_value = value.ceil
-          write({bar: bar, value: animation_value}, index)
-          index += 1
-          sleep sleep_step
+      def write()
+        if @elapsed < @total_time
+          handle_output_on_tick({port: @options[:bar], value: get_current_value})
+        else
+          handle_output_on_tick(nil) #exit
         end
       end
 
-
+      def get_current_value
+        @elapsed = time_diff_milli(@start, Time.now)
+        ease_in_out_quad(@elapsed, 0, 255, @total_time).ceil
+      end
     end
 
   end

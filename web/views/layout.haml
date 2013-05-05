@@ -6,27 +6,34 @@
     %meta{:content => "", :name => "author"}
     %meta{:content => "width=device-width, initial-scale=1, maximum-scale=1", :name => "viewport"}
 
-    %link{:href => "/css/chosen.css", :rel => "stylesheet"}
-    - if settings.development?
-      %link{:href => "/less/style.less", :rel => "stylesheet/less"}
-      %script{:src => "/js/libs/less-1.3.1.min.js", :type => "text/javascript"}
-      %script{:src => "/js/libs/less-1.3.1.min.js", :type => "text/javascript"}
-    - if settings.production?
-      %link{:href => "/css/style.css", :rel => "stylesheet"}
-
-    %link{:href => "/css/bootstrap-toggle-buttons.css", :rel => "stylesheet"}
-    %link{:href => "/css/jquery-gentleSelect.css", :rel => "stylesheet"}
-    %link{:href => "/css/jquery-cron.css", :rel => "stylesheet"}
-
     /fonts
     %link{:href => "http://fonts.googleapis.com/css?family=Josefin+Sans:400,700", :rel => "stylesheet", :type => "text/css"}
     %link{:href => "http://fonts.googleapis.com/css?family=Lobster+Two:400,700", :rel => "stylesheet", :type => "text/css"}
     %link{:href => "http://fonts.googleapis.com/css?family=Carrois+Gothic+SC|Share+Tech+Mono|Montserrat+Subrayada:400,700|Allerta+Stencil", :rel => "stylesheet", :type => "text/css"}
 
-    /javascript
-    %script{:src => "/js/libs/jquery-1.8.3.js", :type => "text/javascript"}
-    %script{:src => "http://cdn.jquerytools.org/1.2.7/full/jquery.tools.min.js", :type => "text/javascript"}
+    %link{:href => "/css/chosen.css", :rel => "stylesheet"}
+
+    - if settings.development?
+      %link{:href => "/css/application.less", :rel => "stylesheet/less"}
+      %script{:src => "/js/libs/less-1.3.1.min.js", :type => "text/javascript"}
+    - if settings.production?
+      %link{:href => "/css/application.css", :rel => "stylesheet"}
+
+    %link{:href => "/css/bootstrap-toggle-buttons.css", :rel => "stylesheet"}
+    %link{:href => "/css/jquery-gentleSelect.css", :rel => "stylesheet"}
+    %link{:href => "/css/jquery-cron.css", :rel => "stylesheet"}
+    %link{:href => "/css/farbtastic.css", :rel => "stylesheet"}
+    %link{:href => "/css/jquery.pnotify.default.css", :rel => "stylesheet"}
+
+
+
+    %script{:src => "/js/libs/jquery-1.8.3.min.js", :type => "text/javascript"}
+    %script{:src => "/js/libs/jquery.tools.min.js", :type => "text/javascript"}
     %script{:src => "/js/libs/jquery.toggle.buttons.js", :type => "text/javascript"}
+    %script{:src => "/js/libs/chosen.jquery.min.js", :type => "text/javascript"}
+    %script{:src => "/js/libs/jquery-gentleSelect-min.js", :type => "text/javascript"}
+    %script{:src => "/js/libs/jquery-cron-min.js", :type => "text/javascript"}
+
     %script{:src => "/js/bootstrap/bootstrap-tab.js", :type => "text/javascript"}
     %script{:src => "/js/bootstrap/bootstrap-transition.js", :type => "text/javascript"}
     %script{:src => "/js/bootstrap/bootstrap-collapse.js", :type => "text/javascript"}
@@ -34,12 +41,18 @@
     %script{:src => "/js/bootstrap/bootstrap-alert.js", :type => "text/javascript"}
     %script{:src => "/js/bootstrap/bootstrap-affix.js", :type => "text/javascript"}
     %script{:src => "/js/bootstrap/bootstrap-dropdown.js", :type => "text/javascript"}
+
+    %script{:src => "/js/farbtastic/farbtastic.js", :type => "text/javascript"}
+    %script{:src => "/js/jquery.pnotify.min.js", :type => "text/javascript"}
+
     %script{:src => "/js/application.js", :type => "text/javascript"}
-    %script{:src => "/js/libs/chosen.jquery.min.js", :type => "text/javascript"}
-    %script{:src => "/js/libs/jquery-gentleSelect-min.js", :type => "text/javascript"}
-    %script{:src => "/js/libs/jquery-cron-min.js", :type => "text/javascript"}
+
     /compile:  $ lessc public/less/style.less > public/css/style.css
-    /source: http://stackoverflow.com/questions/11481203/how-to-start-using-twitter-bootstrap-and-sass-in-a-sinatra-project
+
+
+
+
+
 %body
   .navbar.navbar-fixed-bottom
     .navbar-inner
@@ -61,14 +74,24 @@
             %a{href: "http://danielkummer.github.com/nixon-pi/#api"}
               %i.icon-exchange.pull-left
               API
+          %li{style:"height:30px;"}
+            %a{href: "https://github.com/danielkummer/nixon-pi"}
+              %i.icon-github-alt.pull-left
+              Github
+
   .container
     .content
       .row
         .span3
           .hero-unit
-            %form{action: "/power", method: "post", class:""," data-remote" => "true"}
-              %label{for:"power-value", style: "float:left;padding-left:5px"}
-                %i.icon-bolt.icon-4x.pull-left
+            %h1
+              Nixon
+              %img{src:"img/nixie-tube.png", alt:"nixie-tube", height: "200px"}
+        .span2
+          .hero-unit
+            %form{action: "/power", method: "post", style:"margin-bottom:0px;","data-remote" => "true"}
+              %h2
+                %i.icon-bolt.pull-left
               #power-toggle-button.toggle-button
                 /TODO!!!!!!!!
                 /-if NixonPi::PowerDriver.instance.on?
@@ -76,19 +99,17 @@
                   %input.checkbox{:checked => "checked", id: "power-value", :name => "value", :type => "checkbox", :value => "1"}
                 -else
                   %input.checkbox{id: "power-value", :name => "value", :type => "checkbox", :value => "1"}
-        .span6
-          .hero-unit
-            %h1
-              Nixon
-              %span
-                %img{src:"img/nixie-tube.png", alt:"nixie-tube", height: "200px"}
-
+            %p
+              V:
+              = version
         .span3
           #alert-container{"data-spy"=>"affix", "data-offset-top"=>"-20"}
 
 
-      .row
-        = yield
+
+      = yield
 
   %footer.footer
+
+
 

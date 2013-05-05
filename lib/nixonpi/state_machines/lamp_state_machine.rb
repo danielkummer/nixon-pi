@@ -1,73 +1,69 @@
 require 'state_machine'
-require_relative '../../../lib/nixonpi/drivers/lamp_driver'
-require_relative 'handler_state_machine'
+require_relative '../drivers/proxies/lamp_proxy'
+require_relative 'base_state_machine'
 require_relative '../configurations/settings'
+require_relative '../../dependency'
+require_relative '../animations/lamp/blink_animation'
 
 module NixonPi
-  class LampStateMachine < HandlerStateMachine
+  class LampStateMachine < BaseStateMachine
 
-    register_as :lamp
+    register :lamp, self
     accepted_commands :state, :value, :animation_name, :options
 
     def initialize()
       super()
-      register_driver NixonPi::LampDriver
+      register_driver get_injected(:in1_proxy)
     end
 
-    state_machine :initial => :startup do
+    state_machine do
 
-      around_transition do |object, transition, block|
-        HandlerStateMachine.handle_around_transition(object, transition, block)
-      end
-
-      event :free_value do
-        transition all => :free_value
-      end
-
-      event :animation do
-        transition all => :animation
-      end
-
-      event :run_test do
-        transition all => :run_test
-      end
+      event(:blink) { transition all => :blink }
 
       state :free_value do
         def write
           value = params[:value]
           if !value.nil? and value != params[:last_value]
-            driver.write_to_lamp(lamp_index, value)
+            @driver.write_to_lamp(lamp_index, value)
             params[:last_value] = value
           end
 
         end
       end
 
-      state :animation do
-        def write
-          raise NotImplementedError
+      #todo the blink state conflicts with the normal clock mode - concurrency error in io driver?
+      state :blink do
+        def enter_state
+          @last_blink_time = Time.now
+          @blink_value = 0
         end
+
+        def write
+          current_blink_time = Time.now
+          if (current_blink_time.sec != @last_blink_time.sec)
+            @blink_value = (@blink_value == 0 ? 1 : 0)
+            @driver.write_to_lamp(lamp_index, @blink_value)
+          end
+          @last_blink_time = current_blink_time
+        end
+
+        def leave_state
+          @driver.write_to_lamp(lamp_index, 0)
+        end
+
       end
+
 
       state :startup do
         def write
-          #do some startup animation stuff....
-          #todo refactor
-          params[:value] = 0
-
-          if params[:initial_state].nil?
-            self.fire_state_event(:free_value)
-          else
-            self.fire_state_event(params[:initial_state])
-          end
+          #transition over to the animation state after setting the correct values
+          goto_state = params[:initial_state].nil? ? :free_value : params[:initial_state]
+          params[:animation_name] = :blink
+          params[:options] = {lamp: lamp_index, goto_state: goto_state, goto_target: "lamp#{lamp_index}".to_sym}
+          handle_command(state: :animation)
         end
       end
 
-      state :run_test do
-        def write
-          raise NotImplementedError
-        end
-      end
     end
 
     def lamp_index

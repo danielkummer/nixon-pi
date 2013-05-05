@@ -6,7 +6,6 @@ YAML::ENGINE.yamler= 'syck'
 ##
 # Monkeypath settingslogic
 class Settingslogic
-
   ##
   # fixes rspec to_ary error according to https://github.com/binarylogic/settingslogic/commit/d623622f7d8b184aebe9fda6c7996c4a44af5ee9
   def method_missing(name, *args, &block)
@@ -22,33 +21,16 @@ end
 
 module NixonPi
   class Settings < Settingslogic
-    namespace $environment
+    namespace ENV['RACK_ENV']
 
     class << self
-
       ##
-      # Get the path to the configuration file, create the file in the users home directory if it doesn't exist or is outdated
-      def path_to_config
-        gem_path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "config", "nixonpi-settings.yml"))
-        home_path = File.join(Dir.home, "nixonpi-settings.yml")
-
-        if $environment == 'development' or FileUtils.uptodate?(gem_path, %w(home_path))
-          FileUtils.cp(gem_path, home_path) unless File.exists?(home_path)
-        end
-
-        home_path
+      # Get the path to the configuration file
+      def config_path
+        File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "config", "nixonpi-settings.yml"))
       end
-
-      ##
-      # Save the configuration as yaml file back
-      def save
-        complete_config = YAML.load(ERB.new(File.read(path_to_config)).result).to_hash
-        complete_config[@namespace].merge!(instance)
-        File.open(path_to_config, 'w+') { |f| f.write(complete_config.to_yaml) }
-      end
-
     end
 
-    source path_to_config
+    source config_path
   end
 end

@@ -4,7 +4,7 @@ require_relative '../lib/nixonpi/animations/tube/switch_numbers_animation'
 describe NixonPi::Animations::SwitchNumbersAnimation do
 
   before :each do
-    @an = NixonPi::Animations::Animation.create(:switch_numbers, duration: 3)
+    @an = get_injected(:switch_numbers, duration: 3)
   end
 
   it "should return a correct instance" do

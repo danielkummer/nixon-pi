@@ -1,12 +1,12 @@
-require 'singleton'
-
 require_relative '../logging/logging'
-require_relative '../configurations/settings'
 
 module NixonPi
   module Driver
     include Logging
 
+    ##
+    # Returns an AbioCardClient instance
+    # @return [AbioCardClient] client instance
     def client
       @client ||= NixonPi::AbioCardClient.instance
     end

@@ -9,48 +9,41 @@ module NixonPi
   class InformationProxy
     include Logging
 
-    #include DRb::DRbUndumped
-
-
     def initialize
       @receivers = Hash.new
     end
 
     ##
     # Add object which uses the InformationHolder module
-    # @param [InformationHolder] receiver
-    # @param [Symbol] information_target name under which the receiver listens for information requests
-    def add_info_holder(receiver, information_target)
-      information_target = information_target.to_sym
-      raise "Receiver must include the receiver module" unless receiver.is_a?(InformationHolder)
-      if @receivers[information_target].nil?
-        @receivers[information_target] = Array.wrap(receiver)
+    # @param [InformationHolder] receiver_instance
+    # @param [Symbol] target name under which the receiver listens for information requests
+    def add_target(receiver_instance, target)
+      target = target.to_sym
+      if @receivers[target].nil?
+        @receivers[target] = Array.wrap(receiver_instance)
       else
-        @receivers[information_target] << receiver
+        @receivers[target] << receiver_instance
       end
-
     end
 
     ##
-    # Get information from a specied target
+    # Get information from a specified target
     # @param [Symbol] target information from whom
-    # @param [Hash] about information about what
+    # @param [Symbol] about information about what
     def get_info_from(target, about)
       target = target.to_sym
-      ret = Array.new
+      returned_info = Array.new
       if @receivers.has_key?(target)
         @receivers[target].each do |receiver|
           if receiver.respond_to?(:handle_info_request)
-            data = receiver.handle_info_request(about)
-            data.delete_if { |k, v| v.nil? }
-            ret << data.clone #clone data to prevent rdb thread dump error
+            returned_info << receiver.handle_info_request(about)
           else
             log.error "Listener for #{target} doesn't have the receive method!"
           end
         end
       end
-      ret = ret[0] if ret.size == 1 #array to single if only one element
-      ret
+      returned_info = returned_info[0] if returned_info.size == 1 #array to single if only one element
+      Marshal.load(Marshal.dump(returned_info))
     end
   end
 end

@@ -1,13 +1,13 @@
-require_relative 'handler_state_machine'
+require_relative 'base_state_machine'
 require_relative '../logging/logging'
-require_relative '../messaging/messaging'
+require_relative '../messaging/command_receiver'
 
 module NixonPi
   class MachineManager
     extend Logging
 
-    @@state_machines = {}
-    @@threads = []
+    @@state_machines = Hash.new
+    @@threads = Array.new
 
     class << self
 
@@ -22,19 +22,18 @@ module NixonPi
 
       ##
       # Add a number of state machines to the manager
-      # @param [Integer] instances_count number of instances to create, this adds a numeric suffix to the instances queue listeners (ex: lamp0, lamp1, lamp2,...)
       # @param [Symbol] name add a state machines to the manager, the machines added must have a corresponding type in the factory module (a machine registers itself using the register_as class method.)
-      def add_state_machine(name, instances_count = 1)
-
+      # @param [Integer] instances_count number of instances to create, this adds a numeric suffix to the instances queue listeners (ex: lamp0, lamp1, lamp2,...)
+      def add_state_machines(name, instances_count = 1)
         instances_count.times.with_index do |i|
-          suffix = instances_count == 1 ? "" : i.to_s
+          suffix = instances_count == 1 ? '' : i.to_s
           key = "#{name}#{suffix}".to_sym
-          log.debug "adding state machine instance for #{name} under #{key}"
-          instance = NixonPi::HandlerStateMachine.create(key)
+          instance = get_injected(key)
           @@state_machines[key] = instance
           if block_given?
             yield instance, key
           end
+          log.debug "Added state machine for #{name} under key #{key}"
         end
 
       end
@@ -42,16 +41,14 @@ module NixonPi
 
       ##
       # Start each state machine in a separate thread
-      # @param [Float] sleep_for_sec sleep time after each loop, default is 300ms
-      def start_state_machines(sleep_for_sec = 0.3)
+      # @param [Float] sleep_for_sec sleep time after each loop
+      def start_state_machines(sleep_for_sec = 0.1)
         @@state_machines.each do |type, state_machine|
-          log.info "Ading state machine #{state_machine.class} to the command processor as type #{type}"
-
-          log.info "Starting state machine: #{state_machine.class}"
+          log.debug "Starting state machine: #{state_machine.class}"
           @@threads << Thread.new do
             loop do
               state_machine.handle
-              sleep sleep_for_sec #tacted at 100ms, adjust if necessary
+              sleep sleep_for_sec
             end
           end
         end

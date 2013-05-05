@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'nixonpi/version'
+require 'version'
 
 Gem::Specification.new do |gem|
   gem.name          = "nixon-pi"
@@ -23,7 +23,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'activesupport', '>= 3.2.8'
   gem.add_dependency 'settingslogic'
   gem.add_dependency 'state_machine'
-  gem.add_dependency 'festivaltts4r'
+  #gem.add_dependency 'festivaltts4r'
   gem.add_dependency 'rufus-scheduler'
   gem.add_dependency 'foreman'
   gem.add_dependency 'bunny', '~> 0.9.0.pre4'
@@ -35,9 +35,12 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'sinatra-formhelpers'
   gem.add_dependency 'sinatra-jsonp'
   gem.add_dependency 'json'
+
   gem.add_dependency 'haml'
   gem.add_dependency 'chronic_duration'
+  gem.add_dependency 'thin'
 
+  gem.add_development_dependency 'less'
   gem.add_development_dependency 'rdoc'
   gem.add_development_dependency 'rvm-capistrano'
   gem.add_development_dependency 'rspec'
@@ -47,7 +50,6 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'simplecov-gem-adapter'
   gem.add_development_dependency 'mocha'
   gem.add_development_dependency 'ruby-graphviz'
-
   gem.add_development_dependency 'capistrano'
   gem.add_development_dependency 'railsless-deploy'
 end

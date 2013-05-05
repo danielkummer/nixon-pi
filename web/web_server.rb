@@ -1,31 +1,36 @@
-
 require 'sinatra'
 require 'sinatra/base'
 require 'sinatra/contrib'
 require 'sinatra/activerecord'
+
 require 'chronic_duration'
 require 'haml'
+
 require 'json'
 require 'active_record'
 require 'sinatra/form_helpers'
 require 'sinatra/jsonp'
 require 'drb'
+require_relative '../lib/version'
 
 $environment = ENV['RACK_ENV']
 
 require_relative '../lib/nixonpi/configurations/settings'
-require_relative 'models'
+require_relative '../db/models'
 require_relative '../lib/blank_monkeypatch'
-require_relative '../lib/nixonpi/messaging/messaging'
+require_relative '../lib/nixonpi/messaging/command_sender'
 require_relative '../lib/nixonpi/hash_monkeypatch'
-
 
 REMOTE_INFO_PROXY = DRbObject.new_with_uri('druby://localhost:9001')
 DRb.start_service
 
 module NixonPi
   class WebServer < Sinatra::Base
+
+    set :root, File.dirname(__FILE__)
+
     register Sinatra::ActiveRecordExtension
+
     helpers Sinatra::FormHelpers
     helpers Sinatra::Jsonp
 
@@ -33,21 +38,48 @@ module NixonPi
 
     #todo always development
     set :environment => ENV['RACK_ENV'].to_sym
-
-    set :database, 'sqlite:///db/settings.db'
-    #set :lock, false #enable on threading errors
-    set :root, File.dirname(__FILE__)
+    set :database, 'sqlite:///../db/settings.db'
     set :public_folder, File.join(File.dirname(__FILE__), 'public')
     set :haml, {:format => :html5}
-    set :port, Settings['web_server'].nil? ? '8080' : Settings['web_server']['port']
 
-    #error 400..510 do
-    #  'Boom'
-    #end
+    disable :raise_errors
+    disable :show_exceptions
+
+    #set :lock, false #enable on threading errors
+    #set :port, Settings['web_server'].nil? ? '8080' : Settings['web_server']['port']
+    #set :static, $environment == 'development' ? false : true
+    #set :show_exceptions, false
+
 
     not_found do
-      'This is nowhere to be found.'
+      if request.accept? 'text/html'
+        haml 'errors/not_found'.to_sym, layout: false, locals: {info: {title: "404 - are you sure it's there?", message: "Nothing found!"}}
+      else
+        content_type :json
+        status 404
+        halt({:success => 'false', :message => "404 - are you sure it's there?"}.to_json)
+      end
     end
+
+    error Bunny::TCPConnectionFailed do
+      if request.accept? 'text/html'
+        haml 'errors/rabbitmq_down'.to_sym, layout: false, locals: {info: {title: "Oops - I found a dead bunny...", message: "Make sure your RabbitMQ server is up and running..."}}
+      else
+        content_type :json
+        halt({:success => 'false', :message => "Make sure your RabbitMQ server is up and running..."}.to_json)
+      end
+
+    end
+
+    error do
+      if request.accept? 'application/json'
+        content_type :json
+
+        halt({:success => 'false', :message => e.message}.to_json)
+      end
+      haml 'errors/rabbitmq_down'.to_sym, layout: false, locals: {info: {title: "Something just went terribly wrong...", message: "Here's a funny error:#{$!.message}"}}
+    end
+
 
     helpers do
       INDENT = '  ' # use 2 spaces for indentation
@@ -77,6 +109,10 @@ module NixonPi
         Haml::Engine.new(result.join("\n")).render
       end
 
+      def version
+        NixonPi::VERSION.to_s
+      end
+
       def sender
         @sender ||= NixonPi::Messaging::CommandSender.new
       end
@@ -86,11 +122,13 @@ module NixonPi
 # GET REQUESTS
 ###
     get '/' do
+      sender.client #trigger 500 error if rabbitmq is down
+
       @no_of_bars = Settings.in13_pins.size
       @no_of_lamps = Settings.in1_pins.size
-      %w(tubes bar0 bar1 bar2 bar3).each do |state_machine|
-        initial = Command.find(:first, conditions: ["state_machine = ?", state_machine]) || Command.new(state_machine: state_machine)
-        instance_variable_set("@#{state_machine}", initial)
+      %w(tubes bar0 bar1 bar2 bar3 lamp1 lamp2 lamp3 lamp4 lamp5 background rgb ).each do |target|
+        initial = Command.find(:first, conditions: ["target LIKE ?", target]) || Command.new(target: target)
+        instance_variable_set("@#{target}", initial)
       end
       haml :control, format: :html5
     end
@@ -102,26 +140,26 @@ module NixonPi
 
     get '/command/:target.:format?' do
       target = params[:target]
-      data = get_data_for(target, :commands)
+      data = get_remote_info_from(target, :commands)
       formatted_response('json', data, "Options for command #{target}")
     end
 
-    get '/targets.:format?' do
+    get '/receivers.:format?' do
       #get all available targets for commands
-      data = get_data_for(:commands, :targets)
-      formatted_response('json', data, "available command targets")
+      data = get_remote_info_from(:commands, :receivers)
+      formatted_response('json', data, "available command receivers")
     end
 
     get '/information/:target/?.:format?' do
       target = params[:target]
       what = target == 'hardware' ? :io_card : :params
-      data = get_data_for(target, what)
+      data = get_remote_info_from(target, what)
       formatted_response(params[:format], data, "#{target} information")
     end
 
     get '/information/:target/:id.:format?' do
       target = "#{params[:target]}#{params[:id]}"
-      data = get_data_for(target, :params)
+      data = get_remote_info_from(target, :params)
       formatted_response(params[:format], data, "#{target} information")
     end
 
@@ -136,11 +174,10 @@ module NixonPi
       end
     end
 
-    #todo refactor
     get '/state.:format' do
       data = Hash.new
       data[:rabbitmq] = sender.connected?
-      data[:service] = get_data_for(:power, :params)[:value]
+      data[:service] = get_remote_info_from(:power, :params)[:value]
       formatted_response(params[:format], data, "application state")
     end
 
@@ -149,6 +186,7 @@ module NixonPi
     ###
 
     post '/tubes/?' do
+      @params[:target] = :tubes
       preprocess_post_params(:tubes, @params) do |data|
         sender.send_command(:tubes, data)
         formatted_response('json', data, "Tubes set to")
@@ -157,6 +195,8 @@ module NixonPi
 
     post '/lamp/?' do
       id = params[:id]
+      @params['value'] = "0" unless  @params['value']
+      @params[:target] = "lamp#{id}".to_sym
       preprocess_post_params(:lamp, @params) do |data|
         sender.send_command("lamp#{id}".to_sym, data)
         formatted_response('json', data, "Lamps set to")
@@ -166,30 +206,53 @@ module NixonPi
     post '/bar/?' do
       #todo error when no id
       id = params[:id]
+      @params[:target] = "bar#{id}".to_sym
       preprocess_post_params(:bars, @params) do |data|
         sender.send_command("bar#{id}".to_sym, data)
         formatted_response('json', data, "Bar #{id} set to")
       end
     end
 
+    post '/rgb' do
+      #todo error when no id
+      @params[:target] = :rgb
+      preprocess_post_params(:rgb, @params) do |data|
+        sender.send_command("rgb".to_sym, data)
+        formatted_response('json', data, "RGB set to")
+      end
+    end
+
+    post '/background' do
+      @params[:target] = :background
+      preprocess_post_params(:background, @params) do |data|
+        sender.send_command("background".to_sym, data)
+        formatted_response('json', data, "Background set to")
+      end
+    end
+
+
     post '/scheduler/?' do
       preprocess_post_params(:scheduler, @params) do |data|
         #convert json to hash
-        data[:command] = JSON.parse(data[:command])
+        command = data[:command]
+        command = JSON.parse(command.gsub(/^\[/, '{').gsub!(/\]$/, '}')) unless command.is_a?(Hash)
+        data[:command] = command
         sender.send_command(:schedule, data)
-        formatted_response('json', data, "Bars set to")
+        formatted_response('json', data, "Command scheduled")
       end
     end
 
     post '/say/?' do
-      preprocess_post_params(:speech, @params) do |data|
-        sender.send_command(:speech, data)
+      @params[:target] = :sound
+      preprocess_post_params(:sound, @params) do |data|
+        sender.send_command(:sound, data)
         formatted_response('json', data, "Speak ")
       end
     end
 
     post '/power/?', :provides => [:json] do
       @params[:value] = 0 if @params.empty?
+      @params[:target] = :power
       preprocess_post_params(:power, @params) do |data|
         sender.send_command(:power, data)
         formatted_response('json', data, "Power set to")
@@ -202,10 +265,13 @@ module NixonPi
 
     delete '/schedule/:id/?' do |id|
       schedule = Schedule.find_by_id(id)
-      data = Hash.new
       if schedule
+        data = Hash.new
+        data[:delete] = true
+        data[:id] = schedule.id
+        sender.send_command(:schedule, data)
         schedule.destroy
-        set_message!(data, "Schedule deleted", false)
+        set_message!(data, "Schedule removed", false)
       else
         set_message!(data, "Schedule not fount", false)
       end
@@ -222,6 +288,12 @@ module NixonPi
       data = params.string_key_to_sym
       data[:state_machine] = target.to_sym
 
+      #find possible json strings values and convert to hash
+      data.each do |k,v|
+        if v.to_s.starts_with?("{")
+          data[k] = JSON.parse(v)
+        end
+      end
       record = get_or_create_record_for(data)
 
       if record.valid?
@@ -233,7 +305,6 @@ module NixonPi
         status 400
         formatted_response('json', data)
       end
-
     end
 
     ##
@@ -253,8 +324,10 @@ module NixonPi
     def get_or_create_record_for(data)
       case data[:state_machine].to_sym
         when :scheduler
+          data.delete(:state_machine)
           Schedule.new(data) #schedules are always newly created - you can only delete existing ones
         else
+          data.delete(:state_machine)
           get_or_create_command(data)
       end
     end
@@ -263,7 +336,7 @@ module NixonPi
     # Get a command object or create one, also do some minor value adjustments
     # @param [Hash] data
     def get_or_create_command(data)
-      case data[:state_machine].to_sym
+      case data[:target].to_sym
         when :tubes
           data[:value] = data[:value].to_s.rjust(12, " ") unless data[:value].nil?
           if data[:state].to_sym == :time
@@ -276,8 +349,8 @@ module NixonPi
       end
       command = nil
       if params[:initial]
-        initial = Command.find(:first, conditions: ["state_machine = ?", data[:state_machine].to_s])
-        command = initial if initial.update_attributes(data)
+        initial = Command.find(:first, conditions: ["target = ?", data[:target].to_s])
+        command = initial if !initial.nil? and initial.update_attributes(data)
       end
       command ||= Command.new(data)
       command
@@ -289,6 +362,7 @@ module NixonPi
     # @param [Hash] data
     # @param [String] respond_message
     def formatted_response(format, data, respond_message = "")
+      data ||= Hash.new
       data[:message] ||= []
       data[:success] = true unless data.has_key?(:success)
       data[:message] << respond_message unless respond_message.empty?
@@ -311,7 +385,7 @@ module NixonPi
     # RPC Connection to service, get data from InformationProxy
     # @param [Symbol] target information target
     # @param [Symbol] about regested information identifier
-    def get_data_for(target, about)
+    def get_remote_info_from(target, about)
       data = Hash.new
       begin
         case target.to_sym
@@ -328,10 +402,10 @@ module NixonPi
               data[:lamps] << REMOTE_INFO_PROXY.get_info_from(lamp.to_sym, about)
             end
           else
-            data = REMOTE_INFO_PROXY.get_info_from(target.to_sym, about)
+            data[target.to_sym] = REMOTE_INFO_PROXY.get_info_from(target.to_sym, about)
         end
       rescue Exception => e
-        set_message!(data, "Options for #{target} not found , #{e.message}", false)
+        set_message!(data, "Options for #{target} not found! #{$!.message}", false)
       end
       data
     end

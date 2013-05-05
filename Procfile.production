@@ -1,3 +1,2 @@
-nixonpi: ./bin/nixon-pi -e production
-web: rackup -p 3000 web/config.ru -s thin
-rabbitmq: /etc/init.d/rabbitmq-server start
+service: ./bin/nixon-pi -e production
+web: thin start -p 80 -c web
