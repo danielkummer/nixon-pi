@@ -16,7 +16,7 @@ require_relative '../lib/version'
 $environment = ENV['RACK_ENV']
 
 require_relative '../lib/nixonpi/configurations/settings'
-require_relative 'models'
+require_relative '../db/models'
 require_relative '../lib/blank_monkeypatch'
 require_relative '../lib/nixonpi/messaging/command_sender'
 require_relative '../lib/nixonpi/hash_monkeypatch'
@@ -26,7 +26,9 @@ DRb.start_service
 
 module NixonPi
   class WebServer < Sinatra::Base
+
     set :root, File.dirname(__FILE__)
+
     register Sinatra::ActiveRecordExtension
 
     helpers Sinatra::FormHelpers
@@ -37,17 +39,16 @@ module NixonPi
     #todo always development
     set :environment => ENV['RACK_ENV'].to_sym
     set :database, 'sqlite:///../db/settings.db'
-    #set :lock, false #enable on threading errors
     set :public_folder, File.join(File.dirname(__FILE__), 'public')
     set :haml, {:format => :html5}
 
-    #set :port, Settings['web_server'].nil? ? '8080' : Settings['web_server']['port']
-
-    #set :static, $environment == 'development' ? false : true
-
-    #set :show_exceptions, false
     disable :raise_errors
     disable :show_exceptions
+
+    #set :lock, false #enable on threading errors
+    #set :port, Settings['web_server'].nil? ? '8080' : Settings['web_server']['port']
+    #set :static, $environment == 'development' ? false : true
+    #set :show_exceptions, false
 
 
     not_found do
@@ -139,26 +140,26 @@ module NixonPi
 
     get '/command/:target.:format?' do
       target = params[:target]
-      data = get_data_for(target, :commands)
+      data = get_remote_info_from(target, :commands)
       formatted_response('json', data, "Options for command #{target}")
     end
 
     get '/receivers.:format?' do
       #get all available targets for commands
-      data = get_data_for(:commands, :receivers)
+      data = get_remote_info_from(:commands, :receivers)
       formatted_response('json', data, "available command receivers")
     end
 
     get '/information/:target/?.:format?' do
       target = params[:target]
       what = target == 'hardware' ? :io_card : :params
-      data = get_data_for(target, what)
+      data = get_remote_info_from(target, what)
       formatted_response(params[:format], data, "#{target} information")
     end
 
     get '/information/:target/:id.:format?' do
       target = "#{params[:target]}#{params[:id]}"
-      data = get_data_for(target, :params)
+      data = get_remote_info_from(target, :params)
       formatted_response(params[:format], data, "#{target} information")
     end
 
@@ -173,11 +174,10 @@ module NixonPi
       end
     end
 
-    #todo refactor
     get '/state.:format' do
       data = Hash.new
       data[:rabbitmq] = sender.connected?
-      data[:service] = get_data_for(:power, :params)[:value]
+      data[:service] = get_remote_info_from(:power, :params)[:value]
       formatted_response(params[:format], data, "application state")
     end
 
@@ -294,7 +294,6 @@ module NixonPi
           data[k] = JSON.parse(v)
         end
       end
-
       record = get_or_create_record_for(data)
 
       if record.valid?
@@ -306,7 +305,6 @@ module NixonPi
         status 400
         formatted_response('json', data)
       end
-
     end
 
     ##
@@ -387,7 +385,7 @@ module NixonPi
     # RPC Connection to service, get data from InformationProxy
     # @param [Symbol] target information target
     # @param [Symbol] about regested information identifier
-    def get_data_for(target, about)
+    def get_remote_info_from(target, about)
       data = Hash.new
       begin
         case target.to_sym

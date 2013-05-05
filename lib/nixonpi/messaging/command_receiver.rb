@@ -6,7 +6,7 @@ require_relative 'client'
 require_relative 'commands_module'
 require_relative '../../nixonpi/hash_monkeypatch'
 require_relative '../information/information_holder'
-require_relative '../../../web/models'
+require_relative '../../../db/models'
 
 module NixonPi
   module Messaging

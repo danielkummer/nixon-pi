@@ -33,6 +33,7 @@ The [Raspberry Pi](http://www.raspberrypi.org/) is ideal for the project as it's
 
 A standard installation with Debian Wheezy is recommended.
 Install Ruby using the tutorial on [elinux](http://elinux.org/RPi_Ruby_on_Rails)
+Also, use the overclock to increase the processor speed, but keep it in a normal range unless you've got good cooling on the 5v power limiter/supply.
 
 Here's a condensed list of the commands:
 
@@ -173,6 +174,40 @@ The master branch contains the newest production release.
 
 --------------------------
 
+##<a id="service" name="service"></a> Capistrano deployment
+
+The easiest way to deploy nixon-pi is using the capistrano deploy script. It locally packs you application and sends it to your raspberry pi using sftp.
+
+Edit the the deploy.rb script to suit your needs. For a start, edit the target server
+
+	server 'nixonpi', :app, :web, :db
+
+or add an appropriate vhost entry.
+
+Deploy via
+
+	cap deploy:setup 	#first time	
+	cap deploy
+
+
+
+which executes the following tasks
+
+- Normal application deployment 
+- Links the database from shared/db/settings.db	to your current release
+- Exports the foreman init script to a bluepill file called nixon-pi.pill
+- Symlinks the init script bluepill-init.sh to /etc/init.d/nixon-pi
+  You can control it with the "start, stop, restart" commands
+
+I recommend you add it to your runtime configuration, after the rabbitmq server is started
+
+	#TODO add correct statement
+	update-rc.d nixonpi   
+
+The following restictions apply (at the moment):
+
+- The service must be run as root due to a limitation in the bluepill gem (no rights create directory under /var/run) 	
+
 ##<a id="service" name="service"></a> The Service
 
 A telnet based client to drive nixie tubes via rest interface
@@ -196,7 +231,7 @@ Use foreman to start and stop the service and the web application.
 
 Export start and stop scripts using either
 
-     foreman export upstart . -l .
+     rvmsudo bundle exec foreman export bluepill ./config -f ./Procfile.production -a nixon-pi -u root -l /home/pi/nixonpi/shared/log
 
 or the capistrano deploy script.     
 
@@ -267,11 +302,9 @@ All api requests can be made as either .html or .json.
 
 ## Port
 
-The web server port can be configured in the nixonpi-settings.yml file inside your home directory.
+The web server port can be configured in the Procfile.production file inside your home directory.
 
-	prodiction:
-	  web_server:
-	    port: 3000
+	web: thin start -p 80 -c web	
 
 --------------------------
 
@@ -286,11 +319,11 @@ The Tubes allow values from 0 to 9 including _ (Space) for no value.
 
 | Parameters | Values | Data Type | Description  | Required |
 | ---------- | ------ | --------- | ------------ | -------- |
-| state | time, free_value, animation, countdown, run_test | String | State of the state machine | * |
+| state | time, free_value, animation, countdown | String | State of the state machine | * |
 | value | 0-9 or _ (Space) | String | Max. length 12 | * |
 | time_format | ex: "%H%M%S" | String | only in state "time" | |
 | animation_name | single_fly_in, count_from_to, switch_numbers | String |  | |
-| options |  | JSON | Advanced options hash | |
+| options |  | JSON | Advanced options hash | hash with the following keys: start_value, goto_target, goto_state |
 | initial_mode | true, false | Boolean | Load on startup | |
 
 ### POST /lamps
@@ -300,10 +333,10 @@ The neon tubes can either be turned on or off - they're like orange LEDs.
 
 | Parameters | Values | Data Type | Description  | Required |
 | ---------- | ------ | --------- | ------------ | -------- |
-| state | free_value, animation, run_test | String |  State of the state machine  | * |
+| state | free_value, animation | String |  State of the state machine  | * |
 | values | Array of 0 or 1 | Array of Integer | Max. length 5 | * |
 | animation_name | single_fly_in, count_from_to, switch_numbers | String |  | |
-| options |  | JSON |Advanced options hash | |
+| options |  | JSON |Advanced options hash | hash with the following keys: start_value, goto_target, goto_state |
 | initial_mode | true, false | Boolean |Load on startup | |
 
 ### POST /bars
@@ -316,7 +349,7 @@ The bargraphs are a linear display to visualize a value between 0 (off) and 255 
 | state | free_value, animation | String | State of the state machine | * |
 | values | Array of 0 to 255 | Array of Integer |Max. length 4 | * |
 | animation_name | ramp_up_down | String | | |
-| options |  | JSON | Advanced options hash | |
+| options |  | JSON | Advanced options hash | hash with the following keys: start_value, goto_target, goto_state |
 | initial_mode | true, false | Boolean |Load on startup | |
 
 ### POST /say
