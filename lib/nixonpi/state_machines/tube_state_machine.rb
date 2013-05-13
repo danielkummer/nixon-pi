@@ -62,9 +62,13 @@ module NixonPi
           formatted_time = now.strftime(@format)
           formatted_date = now.strftime(Settings.default_date_format)
 
-          if now.hour == 12
-            NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "strike_12.mp3"})
+          if now.hour == 12 and now.min == 0 and now.min != params[:last_time].min
+            NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "strike_12.mp3"}) unless @gong_sent
+            @gong_sent = true
+          else
+            @gong_sent = false
           end
+
 
           if now.min == 0 and now.min != params[:last_time].min
             params[:animation_name] = :single_fly_in
