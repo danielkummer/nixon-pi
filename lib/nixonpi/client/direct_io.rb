@@ -5,7 +5,7 @@ module NixonPi
   class DirectIO
 
     def initialize
-      @stdin, @stdout, @stderr, @wait_thr = Open3.popen3("sudo #{Dir.pwd}/c-driver/abiocard/abiocardserver -cl")
+      @stdin, @stdout, @stderr, @wait_thr = Open3.popen3("sudo #{Dir.pwd}/c-driver/abiocard/abiocardserver -stdio")
       #pid = @wait_thr[:pid]
       @mutex = Mutex.new
     end
