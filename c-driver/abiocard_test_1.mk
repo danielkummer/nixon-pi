@@ -1,15 +1,16 @@
 
-TARGET     := abiocardserver
+TARGET     := abiocard_test_1
 BASE_DIR   := .
 SOURCE_DIR := $(BASE_DIR)
 BUILD_DIR  := $(BASE_DIR)/build/$(TARGET)
 BIN_DIR    := .
-CFLAGS     := -std=gnu89 -I$(SOURCE_DIR)
+CFLAGS     := -O0 -g -std=gnu89 -I$(SOURCE_DIR)
 LDFLAGS    := 
-SRCS       := $(SOURCE_DIR)/abiocardserver.c \
+SRCS       := $(SOURCE_DIR)/abiocard_test_1.c \
               $(SOURCE_DIR)/bcm2835_detect.c \
               $(SOURCE_DIR)/bsc.c \
-              $(SOURCE_DIR)/debug.c \
+              $(SOURCE_DIR)/bsc_i2cbus.c \
+              $(SOURCE_DIR)/i2cdev_i2cbus.c \
               $(SOURCE_DIR)/abiocard.c
 OBJS       := $(patsubst $(SOURCE_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
 
