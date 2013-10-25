@@ -33,9 +33,15 @@
 //
 //      * Added support for the i2c-dev interface.
 //
+//   2013-09-17  Peter S'heeren, Axiris
+//
+//      * Adapted for the reworked abiocard driver.
+//      * Added option -stdio.
+//      * Added processing of partially transmitted buffers by send().
+//
 // ----------------------------------------------------------------------------
 //
-// Copyright (c) 2012  Peter S'heeren, Axiris
+// Copyright (c) 2012-2013  Peter S'heeren, Axiris
 //
 // This source text is provided as-is without any implied or expressed
 // warranty. The authors don't accept any liability for damages that arise from
@@ -49,6 +55,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
@@ -56,49 +63,55 @@
 #include <errno.h>
 
 #include "bcm2835_detect.h"
+#include "bsc_i2cbus.h"
+#include "i2cdev_i2cbus.h"
 #include "abiocard.h"
 
 
-// You can define DISABLE_ABIOCARD here or in the makefile if you want to test
-// the server process with an actual AbioCard. This option allows you to test
-// the server process on a system other than a BCM2835-based computer.
+// You can define DISABLE_ABIOCARD here or in the makefile if you want to run
+// the server process without an actual AbioCard. This option allows you to
+// test the server process on a system other than a BCM2835-based computer.
 //
 //#define DISABLE_ABIOCARD
 
 
-static
-VOID  destroy_socket (int s)
+#define INTF_TYPE_BSC           0
+#define INTF_TYPE_I2CDEV        1
+
+
+static  int                         server_socket       = -1;
+static  int                         client_socket       = -1;
+static  FLAG                        req_exit            = 0;
+static  U16                         client_timeout_sec  = 30;
+static  FLAG                        use_stdio           = 0;
+
+static  BCM2835_DETECT_IO           detect_io           = { 0 };
+static  FLAG                        bsc_parsed          = 0;
+
+static  CHAR                        dev_name[20];
+static  struct  stat                stat_info;
+
+static  U8                          intf_type           = INTF_TYPE_BSC;
+
+static  BSC_I2CBUS_CREATE_IO        bsc_i2cbus_create_io =
 {
-    shutdown(s,SHUT_RDWR);
-    close(s);
-}
-
-
-static  int                 server_socket       = -1;
-static  int                 client_socket       = -1;
-static  FLAG                req_exit            = 0;
-static  U16                 client_timeout_sec  = 30;
-
-static  BCM2835_DETECT_IO   detect_io           = { 0 };
-static  FLAG                bsc_parsed          = 0;
-static  FLAG                dev_parsed = 0;
-static  FLAG                commandline_mode    = 0;
-
-
-static  CHAR                dev_name[20];
-static  struct  stat        stat_info;
-
-static  ABIOCARD_INIT_IO    abiocard_init_io =
-{
-    .intf        = ABIOCARD_INIT_INTF_BSC,
-    .bsc_index   = 0,
-    .i2cdev_name = 0
+    .bsc_index = 0,
+    .verbose   = 1
 };
 
-static  U16                 server_port;
-static  struct sockaddr_in  server_sin;
-static  struct sockaddr_in  client_sin;
-static  socklen_t           client_sin_size;
+static  I2CDEV_I2CBUS_CREATE_IO     i2cdev_i2cbus_create_io =
+{
+    .i2cdev_name = 0,
+    .verbose     = 1
+};
+
+static  ABIOCARD_INIT_IO            abiocard_init_io    = { 0 };
+static  ABIOCARD_HANDLE             abiocard_handle     = 0;
+
+static  U16                         server_port;
+static  struct sockaddr_in          server_sin;
+static  struct sockaddr_in          client_sin;
+static  socklen_t                   client_sin_size;
 
 
 // Receive buffer. This is a cache for reading data from the client socket.
@@ -110,7 +123,7 @@ static  CHAR                rcv_buf[RCV_BUF_LEN];
 
 // Received command buffer. The end-of-line character is not stored.
 //
-// The longest incoming command is:
+// The longest incoming command is QW0010, followed by 16 times xxxxxxxx
 //
 // -> 134 characters
 
@@ -128,6 +141,142 @@ static  FLAG                rcv_cmd_error;
 
 static  CHAR                snd_rsp[SND_RSP_LEN];
 static  U32                 snd_rsp_si;
+
+
+// Send the given number of characters. This is a blocking function. It returns
+// when either all characters have been sent, or the I/O channel has been
+// closed.
+//
+// Return value:
+// * =0: I/O channel has been closed.
+// * =1: All data bytes have been successfully sent.
+
+typedef FLAG    SEND_FN (CHAR *buf,  U32 cnt);
+
+
+// Receive one or more characters. This is a blocking function. It returns when
+// at least one character is received, or the I/O channel has been closed.
+//
+// Return value:
+// * =0: I/O channel has been closed.
+// * >0: Number of data bytes received.
+
+typedef U32     RCV_FN (CHAR *buf,  U32 cnt);
+
+
+// Callback functions for command and response I/O
+
+static  SEND_FN            *send_fn;
+static  RCV_FN             *rcv_fn;
+
+
+/*=============================================================================
+Helper functions
+=============================================================================*/
+
+
+static
+VOID  destroy_socket (int s)
+{
+    shutdown(s,SHUT_RDWR);
+    close(s);
+}
+
+
+/*=============================================================================
+Callback functions for socket I/O
+=============================================================================*/
+
+
+static
+FLAG  socket_send_cb (CHAR *buf, U32 cnt)
+{
+    int     n;
+
+    for (;;)
+    {
+        n = send(client_socket,buf,cnt,0);
+        if (n < 0) return 0;
+
+        if (n == 0)
+        {
+            // Couldn't transmit a single character, wait a bit and try again
+            usleep(200*1000);
+        }
+        else
+        {
+            cnt -= n;
+            if (cnt == 0) return 1;
+
+            printf(".");
+            // A partial transmission occured, send the remaining data
+            buf += n;
+        }
+    }
+}
+
+
+static
+U32  socket_rcv_cb (CHAR *buf, U32 cnt)
+{
+    int     n;
+
+    n = recv(client_socket,buf,cnt,0);
+    if (n == 0)
+    {
+        // The peer has shut down the socket connection
+        return 0;
+    }
+    else
+    if (n < 0)
+    {
+        // A socket error has occured, error value is set in errno. A read
+        // timeout also ends up here.
+        return 0;
+    }
+    else
+    {
+        // Report the number of characters received
+        return (U32)n;
+    }
+}
+
+
+/*=============================================================================
+Callback functions for standard I/O
+=============================================================================*/
+
+
+static
+FLAG  stdio_send_cb (CHAR *buf, U32 cnt)
+{
+    int     n;
+
+    while (cnt > 0)
+    {
+        n = fputc(*buf,stdout);
+        if (n == -1) return 0;
+
+        buf++;
+        cnt--;
+    }
+
+    return 1;
+}
+
+
+static
+U32  stdio_rcv_cb (CHAR *buf, U32 cnt)
+{
+    int     n;
+
+    n = fgetc(stdin);
+    if (n == -1) return 0;
+
+    // Report one character has been received
+    (*buf) = (CHAR)n;
+    return 1;
+}
 
 
 /*=============================================================================
@@ -249,10 +398,21 @@ FLAG  flush_rsp (VOID)
 {
     if (snd_rsp_si > 0)
     {
-        int     n;
+        FLAG    ok;
 
-        n = send(client_socket,snd_rsp,snd_rsp_si,0);
-        if (n < 0) return 0;
+/*
+        // DBG.
+        {
+            U32     u;
+
+            printf("Response: ");
+            for (u = 0; u < snd_rsp_si; u++) printf("%c",snd_rsp[u]);
+            printf("\n");
+        }
+*/
+
+        ok = send_fn(snd_rsp,snd_rsp_si);
+        if (!ok) return 0;
 
         // Reset the response buffer
         snd_rsp_si = 0;
@@ -389,7 +549,7 @@ FLAG  parse_cmd_cr (VOID)
     if (fetch_cmd_ch() != 0) return 0;
 
 #ifndef DISABLE_ABIOCARD
-    ok = abiocard_rtc_poll(&poll_info);
+    ok = abiocard_rtc_poll(abiocard_handle,&poll_info);
     if (!ok) return 0;
 #endif
 
@@ -452,7 +612,7 @@ FLAG  parse_cmd_cw (VOID)
 
 #ifndef DISABLE_ABIOCARD
     // Set the RTC date & time
-    ok = abiocard_rtc_set_time(&time);
+    ok = abiocard_rtc_set_time(abiocard_handle,&time);
     if (!ok) return 0;
 #endif
 
@@ -472,7 +632,7 @@ FLAG  parse_cmd_ar (VOID)
     if (fetch_cmd_ch() != 0) return 0;
 
 #ifndef DISABLE_ABIOCARD
-    ok = abiocard_adc_convert(&cnv_data);
+    ok = abiocard_adc_convert(abiocard_handle,&cnv_data);
     if (!ok) return 0;
 #endif
 
@@ -506,7 +666,7 @@ FLAG  parse_cmd_er (VOID)
     if (fetch_cmd_ch() != 0) return 0;
 
 #ifndef DISABLE_ABIOCARD
-    ok = abiocard_ioexp_read(&ioexp_read_word);
+    ok = abiocard_ioexp_read(abiocard_handle,&ioexp_read_word);
     if (!ok) return 0;
 #endif
 
@@ -536,7 +696,7 @@ FLAG  parse_cmd_ew (VOID)
     if (fetch_cmd_ch() != 0) return 0;
 
 #ifndef DISABLE_ABIOCARD
-    ok = abiocard_ioexp_write(ioexp_write_word);
+    ok = abiocard_ioexp_write(abiocard_handle,ioexp_write_word);
     if (!ok) return 0;
 #endif
 
@@ -569,7 +729,7 @@ FLAG  parse_cmd_pr (VOID)
     if (fetch_cmd_ch() != 0) return 0;
 
 #ifndef DISABLE_ABIOCARD
-    ok = abiocard_pwm_read_range((U8*)&pwm_read_data,start,cnt);
+    ok = abiocard_pwm_read_range(abiocard_handle,(U8*)&pwm_read_data,start,cnt);
     if (!ok) return 0;
 #else
     // Emulate
@@ -625,7 +785,7 @@ FLAG  parse_cmd_pw (VOID)
     if (fetch_cmd_ch() != 0) return 0;
 
 #ifndef DISABLE_ABIOCARD
-    ok = abiocard_pwm_write_range((U8*)&pwm_write_data,start,cnt);
+    ok = abiocard_pwm_write_range(abiocard_handle,(U8*)&pwm_write_data,start,cnt);
     if (!ok) return 0;
 #else
     // Emulate
@@ -650,6 +810,7 @@ FLAG  parse_cmd_qr (VOID)
     U8      cnt;
     U8      i;
 
+
     // Parse the start index value (2 hex. digits)
     ok = fetch_hex_n(2,&val);
     if (!ok) return 0;
@@ -664,7 +825,7 @@ FLAG  parse_cmd_qr (VOID)
     if (fetch_cmd_ch() != 0) return 0;
 
 #ifndef DISABLE_ABIOCARD
-    ok = abiocard_pwm2_read_range((ABIOCARD_PWM2_CH*)&pwm2_read_data,start,cnt);
+    ok = abiocard_pwm2_read_range(abiocard_handle,(ABIOCARD_PWM2_CH*)&pwm2_read_data,start,cnt);
     if (!ok) return 0;
 #else
     // Emulate
@@ -743,7 +904,7 @@ FLAG  parse_cmd_qw (VOID)
     if (fetch_cmd_ch() != 0) return 0;
 
 #ifndef DISABLE_ABIOCARD
-    ok = abiocard_pwm2_write_range((ABIOCARD_PWM2_CH*)&pwm2_write_data,start,cnt);
+    ok = abiocard_pwm2_write_range(abiocard_handle,(ABIOCARD_PWM2_CH*)&pwm2_write_data,start,cnt);
     if (!ok) return 0;
 #else
     // Emulate
@@ -768,7 +929,7 @@ FLAG  parse_cmd_qp (VOID)
     if (fetch_cmd_ch() != 0) return 0;
 
 #ifndef DISABLE_ABIOCARD
-    ok = abiocard_pwm2_read_prescaler(&pwm2_read_prescaler_val);
+    ok = abiocard_pwm2_read_prescaler(abiocard_handle,&pwm2_read_prescaler_val);
     if (!ok) return 0;
 #endif
 
@@ -798,7 +959,7 @@ FLAG  parse_cmd_qq (VOID)
     if (fetch_cmd_ch() != 0) return 0;
 
 #ifndef DISABLE_ABIOCARD
-    ok = abiocard_pwm2_write_prescaler(pwm2_write_prescaler_val);
+    ok = abiocard_pwm2_write_prescaler(abiocard_handle,pwm2_write_prescaler_val);
     if (!ok) return 0;
 #endif
 
@@ -890,7 +1051,7 @@ FLAG  process_rcv_cmd (VOID)
     {
         U32     u;
 
-        printf("Command: ");
+        printf("Command.: ");
         for (u = 0; u < rcv_cmd_si; u++) printf("%c",rcv_cmd[u]);
         printf("\n");
     }
@@ -927,7 +1088,7 @@ FLAG  process_rcv_cmd (VOID)
 static
 VOID  main_client (VOID)
 {
-    int     n;
+    U32     xfrd;
 
     // Reset the response buffer
     snd_rsp_si = 0;
@@ -938,17 +1099,10 @@ VOID  main_client (VOID)
 
     for (;;)
     {
-        n = recv(client_socket,rcv_buf,RCV_BUF_LEN,0);
-        if (n == 0)
+        xfrd = rcv_fn(rcv_buf,RCV_BUF_LEN);
+        if (xfrd == 0)
         {
-            // The peer has shut down the socket connection
-            break;
-        }
-        else
-        if (n < 0)
-        {
-            // A socket error has occured, error value is set in errno. A read
-            // timeout also ends up here.
+            // The I/O channel has been closed
             break;
         }
         else
@@ -957,7 +1111,7 @@ VOID  main_client (VOID)
             CHAR    c;
 
             // Process the received characters
-            for (i = 0; i < (U32)n; i++)
+            for (i = 0; i < xfrd; i++)
             {
                 c = rcv_buf[i];
                 if ((c == 13) || (c == 10))
@@ -1012,25 +1166,58 @@ static
 VOID  process_client (VOID)
 {
 #ifndef DISABLE_ABIOCARD
-    FLAG    ok;
+
+    // Create the i2cbus interface
+
+    if (intf_type == INTF_TYPE_BSC)
+    {
+        abiocard_init_io.i2cbus_intf = BSC_I2CBus_Create(&bsc_i2cbus_create_io);
+    }
+    else
+    {
+        abiocard_init_io.i2cbus_intf = I2CDev_I2CBus_Create(&i2cdev_i2cbus_create_io);
+    }
+
+    if (!abiocard_init_io.i2cbus_intf) goto Stop;
 
     // Initialise the AbioCard driver
-    ok = abiocard_init(&abiocard_init_io);
-    if (!ok) return;
+    abiocard_handle = abiocard_init(&abiocard_init_io);
+    if (!abiocard_handle) goto Stop;
+
 #else
-    // Emulate
+
+    // Emulate - apply any combination of these flags
     abiocard_init_io.rtc_present   = 0;
     abiocard_init_io.ioexp_present = 0;
     abiocard_init_io.adc_present   = 0;
     abiocard_init_io.pwm_present   = 1;
     abiocard_init_io.pwm2_present  = 0;
+
 #endif
 
     main_client();
 
 #ifndef DISABLE_ABIOCARD
-    // De-initialise the AbioCard driver
-    abiocard_deinit();
+
+  Stop:
+
+    // Deinitialise the AbioCard driver
+    abiocard_deinit(abiocard_handle);
+
+    // Destroy the i2cbus interface
+    if (intf_type == INTF_TYPE_BSC)
+    {
+        BSC_I2CBus_Destroy(abiocard_init_io.i2cbus_intf);
+    }
+    else
+    {
+        I2CDev_I2CBus_Destroy(abiocard_init_io.i2cbus_intf);
+    }
+
+    abiocard_handle              = 0;
+    abiocard_init_io.i2cbus_intf = 0;
+    abiocard_init_io.i2cbus_intf = 0;
+
 #endif
 }
 
@@ -1074,7 +1261,6 @@ FLAG  parse_u32 (CHAR **s, U32 *res, U32 min, U32 max)
         }
     }
 }
-
 
 
 static
@@ -1142,6 +1328,13 @@ FLAG  parse_cmdline (int argc, char *argv[])
             arg_index++;
         }
         else
+        if (strcmp(argv[arg_index],"-stdio") == 0)
+        {
+            use_stdio = 1;
+
+            arg_index++;
+        }
+        else
         if (strcmp(argv[arg_index],"-bsc") == 0)
         {
             CHAR   *s;
@@ -1154,8 +1347,9 @@ FLAG  parse_cmdline (int argc, char *argv[])
             s = argv[arg_index];
             if (!parse_u32(&s,&val,0,1)) return 0;
 
-            abiocard_init_io.bsc_index = (U8)val;
-            bsc_parsed = 1;
+            intf_type                      = INTF_TYPE_BSC;
+            bsc_i2cbus_create_io.bsc_index = (U8)val;
+            bsc_parsed                     = 1;
 
             if ((*s) != 0) return 0;
 
@@ -1170,26 +1364,23 @@ FLAG  parse_cmdline (int argc, char *argv[])
             arg_index++;
             if (arg_index == argc) return 0;
 
-            abiocard_init_io.intf        = ABIOCARD_INIT_INTF_I2CDEV;
-            abiocard_init_io.i2cdev_name = argv[arg_index];
-            dev_parsed                   = 1;
+            intf_type                           = INTF_TYPE_I2CDEV;
+            i2cdev_i2cbus_create_io.i2cdev_name = argv[arg_index];
 
             arg_index++;
-        }
-    if (strcmp(argv[arg_index],"-cl") == 0)
-        {
-            commandline_mode = 1;
-            return 1;
         }
         else
             return 0;
     }
 
-    // A server port type must be specified
-    if (!server_port_specified)
+    if (!use_stdio)
     {
-        printf("Server port number not specified\n");
-        return 0;
+        // A server port type must be specified
+        if (!server_port_specified)
+        {
+            printf("Server port number not specified\n");
+            return 0;
+        }
     }
 
     return 1;
@@ -1207,10 +1398,10 @@ VOID  usage_cmdline (VOID)
         "Command line arguments:\n" \
         "-p n       Server port, n=1..65535\n" \
         "-t n       Time-out value (seconds) for the client connection, n=5..65535\n" \
+        "-stdio     Use standard I/O instead of server port\n" \
         "-bsc n     Choose the BSC controller, n=0..1\n" \
         "-dev FILE  Specify the I2C device path\n" \
         "           Example FILE: /dev/i2c-0\n" \
-        "-cl        Use command line mode instead of telnet server\n" \
         "\n"
     );
 }
@@ -1224,8 +1415,8 @@ Entry point
 int  main (int argc, char *argv[])
 {
     int     error;
-    FLAG    ok;
     int     i;
+    FLAG    ok;
     int     so_reuseaddr;
 
 
@@ -1246,60 +1437,62 @@ int  main (int argc, char *argv[])
     }
 
 
-    if (abiocard_init_io.intf == ABIOCARD_INIT_INTF_BSC)
+    if (intf_type == INTF_TYPE_BSC)
     {
 #ifndef DISABLE_ABIOCARD
 
-    // Detect the BCM2835 hardware
-    ok = bcm2835_detect(&detect_io);
-    if (!ok)
-    {
-        printf("Error detecting BCM2835 hardware\n");
-        goto Stop;
-    }
+        // Detect the BCM2835 hardware
+        ok = bcm2835_detect(&detect_io);
+        if (!ok)
+        {
+            printf("Error detecting BCM2835 hardware\n");
+            goto Stop;
+        }
 
-    if (!detect_io.res_detected)
-    {
-        printf("BCM2835 hardware not detected\n");
-        goto Stop;
-    }
+        if (!detect_io.res_detected)
+        {
+            printf("BCM2835 hardware not detected\n");
+            goto Stop;
+        }
 
 
-    if (!bsc_parsed)
-    {
-        // If the bsc parameter wasn't parsed, determine the BSC index from the
-        // revision number:
-        // * <0004:  Computer rev. 1, use BSC0
-        // * >=0004: Computer rev. 2, use BSC1
+        if (!bsc_parsed)
+        {
+            // The bsc parameter wasn't parsed
 
-            if (detect_io.res_revision >= 4) abiocard_init_io.bsc_index = 1;
+            // Determine the BSC index from the revision number:
+            // * <0004:  Computer rev. 1, use BSC0
+            // * >=0004: Computer rev. 2, use BSC1
+
+            if (detect_io.res_revision >= 4) bsc_i2cbus_create_io.bsc_index = 1;
 
             // Check whether the i2c-dev file for the target BSC is present. If
             // the file is present then use the i2c-dev interface rather than
             // direct I/O.
 
-            sprintf(dev_name,"/dev/i2c-%d",abiocard_init_io.bsc_index);
+            sprintf(dev_name,"/dev/i2c-%d",bsc_i2cbus_create_io.bsc_index);
 
             i = stat(dev_name,&stat_info);
             if (i == 0)
             {
                 // Switch interface to i2c-dev
-                abiocard_init_io.intf        = ABIOCARD_INIT_INTF_I2CDEV;
-                abiocard_init_io.i2cdev_name = dev_name;
+                intf_type                           = INTF_TYPE_I2CDEV;
+                i2cdev_i2cbus_create_io.i2cdev_name = dev_name;
             }
         }
 
+#endif
     }
 
-#endif
 
-
+/*
     // DBG.
-    printf("abiocardserver: intf %d, ",abiocard_init_io.intf);
-    if (abiocard_init_io.intf == ABIOCARD_INIT_INTF_BSC)
-        printf("bsc %d\n",abiocard_init_io.bsc_index);
+    printf("abiocardserver: intf %d, ",intf_type);
+    if (intf_type == INTF_TYPE_BSC)
+        printf("bsc %d\n",bsc_i2cbus_create_io.bsc_index);
     else
-        printf("dev %s\n",abiocard_init_io.i2cdev_name);
+        printf("dev %s\n",i2cdev_i2cbus_create_io.i2cdev_name);
+*/
 
 
 #ifndef DISABLE_ABIOCARD
@@ -1317,203 +1510,110 @@ int  main (int argc, char *argv[])
 #endif
 
 
-    //Check if command line mode
-    if(commandline_mode == 1){
-
-#ifndef DISABLE_ABIOCARD
-            FLAG    ok;
-
-
-            // Initialise the AbioCard driver
-            ok = abiocard_init(&abiocard_init_io);
-            if (!ok) {
-                printf("Not ok\n");
-                return;
-            }
-#else
-            // Emulate
-            abiocard_init_io.rtc_present   = 0;
-            abiocard_init_io.ioexp_present = 0;
-            abiocard_init_io.adc_present   = 0;
-            abiocard_init_io.pwm_present   = 1;
-            abiocard_init_io.pwm2_present  = 0;
-#endif
-
-
-
-         //Read the commands from command line instead of opening a telent server.
-         printf("Accept commands\n");
-       
-         int     n;
-    
-         // Reset the response buffer
-         snd_rsp_si = 0;
-    
-         // Reset the received command buffer
-         rcv_cmd_si    = 0;
-         rcv_cmd_error = 0;
-         for (;;)
-         {
-             for (;;)
-             {
-                int c = fgetc(stdin);
-                if ((c == 13) || (c == 10))
-                {
-                    if (!rcv_cmd_error)
-                    {
-                        if (rcv_cmd_si > 0)
-                        {
-                            process_rcv_cmd();
-                            if (req_exit)
-                             {
-#ifndef DISABLE_ABIOCARD
-                                 // De-initialise the AbioCard driver
-                                 abiocard_deinit();
-#endif
-                                 return 0;
-                             }
-                        }
-                    } else {
-                        printf("Receive command error\n");
-                    }
-                    // Reset the received command buffer
-                    rcv_cmd_si    = 0;
-                    rcv_cmd_error = 0;
-                    break;
-                }
-                else
-                if ((c >= 32) && (c <= 126))
-                {
-                    if (!rcv_cmd_error)
-                    {
-                        if (rcv_cmd_si < RCV_CMD_LEN)
-                        {
-                            rcv_cmd[rcv_cmd_si] = c;
-                            rcv_cmd_si++;
-                        }
-                        else
-                        {
-                            // Command buffer overflow
-                            rcv_cmd_error = 1;
-                        }
-                    }
-                }
-                else
-                {
-                    // Invalid character received
-                    rcv_cmd_error = 1;
-
-                    //read EOF - error quitting program
-                    if(c == -1) {
-#ifndef DISABLE_ABIOCARD
-                         // De-initialise the AbioCard driver
-                         abiocard_deinit();
-#endif
-                         return 0;
-                    }
-                }
-            }
-            if (snd_rsp_si > 0)
-            {
-                U32 u;
-                for (u = 0; u < snd_rsp_si; u++) printf("%c",snd_rsp[u]);
-                printf("\n");
-                // Reset the response buffer
-                snd_rsp_si = 0;
-            }
-        }
-
-    }
-    //END Command Line
-    
-    
-    // Create a blocking socket
-    server_socket = socket(AF_INET,SOCK_STREAM,0);
-    if (server_socket == -1)
+    if (use_stdio)
     {
-        printf("Create server socket: error %d\n",errno);
-        goto Stop;
+        // Use standard I/O
+        send_fn = stdio_send_cb;
+        rcv_fn  = stdio_rcv_cb;
+
+        // Process standard I/O
+        process_client();
     }
-
-    // To avoid the error code "address already in use" (errno 98) when the
-    // socket is bound to a local address, we set the SO_REUSEADDR flag  first.
-    so_reuseaddr = 1;
-    error = setsockopt(server_socket,SOL_SOCKET,SO_REUSEADDR,&so_reuseaddr,sizeof(so_reuseaddr));
-    if (error == -1)
+    else
     {
-        printf("Failed to set option for server socket: error %d\n",errno);
-        goto Stop;
-    }
+        // Use client socket I/O
+        send_fn = socket_send_cb;
+        rcv_fn  = socket_rcv_cb;
 
-    // Associate a local address with the socket
-
-    memset(&server_sin,0,sizeof(server_sin));
-    server_sin.sin_family      = AF_INET;
-    server_sin.sin_port        = htons(server_port);
-    server_sin.sin_addr.s_addr = INADDR_ANY;
-
-    error = bind(server_socket,(const struct sockaddr *)&server_sin,sizeof(server_sin));
-    if (error == -1)
-    {
-        printf("Bind server socket: error %d\n",errno);
-        goto Stop;
-    }
-
-    // Listen to incoming connections (set limit to one)
-    error = listen(server_socket,1);
-    if (error == -1)
-    {
-        printf("Listen to server socket: error %d\n",errno);
-        goto Stop;
-    }
-
-    for (;;)
-    {
-        struct  timeval     tv;
-
-        //printf("Accepting incoming connection...\n");
-
-        // Accept client socket
-        client_sin_size = sizeof(client_sin);
-        client_socket = accept(server_socket,(struct sockaddr *)&client_sin,&client_sin_size);
-        if (client_socket == -1)
+        // Create a blocking socket
+        server_socket = socket(AF_INET,SOCK_STREAM,0);
+        if (server_socket == -1)
         {
-            printf("Accept client socket: error %d\n",errno);
+            printf("Create server socket: error %d\n",errno);
             goto Stop;
         }
 
-/*
-        // DBG.
+        // To avoid the error code "address already in use" (errno 98) when the
+        // socket is bound to a local address, we set the SO_REUSEADDR flag first.
+        so_reuseaddr = 1;
+        error = setsockopt(server_socket,SOL_SOCKET,SO_REUSEADDR,&so_reuseaddr,sizeof(so_reuseaddr));
+        if (error == -1)
         {
-            U32     client_ip;
-            U16     client_port;
-
-            client_ip   = ntohl(client_sin.sin_addr.s_addr);
-            client_port = ntohs(client_sin.sin_port);
-
-            printf("Client IPv4 address: %d.%d.%d.%d:%d\n",
-                   client_ip >> 24,
-                   (client_ip >> 16) & 255,
-                   (client_ip >> 8) & 255,
-                   client_ip & 255,
-                   client_port);
+            printf("Failed to set option for server socket: error %d\n",errno);
+            goto Stop;
         }
+
+        // Associate a local address with the socket
+
+        memset(&server_sin,0,sizeof(server_sin));
+        server_sin.sin_family      = AF_INET;
+        server_sin.sin_port        = htons(server_port);
+        server_sin.sin_addr.s_addr = INADDR_ANY;
+
+        error = bind(server_socket,(const struct sockaddr *)&server_sin,sizeof(server_sin));
+        if (error == -1)
+        {
+            printf("Bind server socket: error %d\n",errno);
+            goto Stop;
+        }
+
+        // Listen to incoming connections (set limit to one)
+        error = listen(server_socket,1);
+        if (error == -1)
+        {
+            printf("Listen to server socket: error %d\n",errno);
+            goto Stop;
+        }
+
+        for (;;)
+        {
+            struct  timeval     tv;
+
+            //printf("Accepting incoming connection...\n");
+
+            // Accept client socket
+            client_sin_size = sizeof(client_sin);
+            client_socket = accept(server_socket,(struct sockaddr *)&client_sin,&client_sin_size);
+            if (client_socket == -1)
+            {
+                printf("Accept client socket: error %d\n",errno);
+                goto Stop;
+            }
+
+/*
+            // DBG.
+            {
+                U32     client_ip;
+                U16     client_port;
+
+                client_ip   = ntohl(client_sin.sin_addr.s_addr);
+                client_port = ntohs(client_sin.sin_port);
+
+                printf("Client IPv4 address: %d.%d.%d.%d:%d\n",
+                       client_ip >> 24,
+                       (client_ip >> 16) & 255,
+                       (client_ip >> 8) & 255,
+                       client_ip & 255,
+                       client_port);
+            }
 */
 
-        // Specify a read timeout for the client socket
-        tv.tv_sec  = client_timeout_sec;
-        tv.tv_usec = 0;
-        setsockopt(client_socket,SOL_SOCKET,SO_RCVTIMEO,&tv,sizeof(struct timeval));
+            // Specify a read timeout for the client socket
+            tv.tv_sec  = client_timeout_sec;
+            tv.tv_usec = 0;
+            setsockopt(client_socket,SOL_SOCKET,SO_RCVTIMEO,&tv,sizeof(struct timeval));
 
-        // Process the client connection until it's shut down
-        process_client();
+            // Process the client connection until it's shut down
+            process_client();
 
-        // Destroy the client socket
-        destroy_socket(client_socket);
-        client_socket = -1;
+            // Destroy the client socket
+            destroy_socket(client_socket);
+            client_socket = -1;
 
-        if (req_exit) goto Stop;
+            if (req_exit) goto Stop;
+        }
     }
+
 
   Stop:
 
