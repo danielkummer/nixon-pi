@@ -26,15 +26,15 @@ module NixonPi
 
     # Called for dynamically-defined keys, and also the first key deferenced at the top-level, if load! is not used.
     # Otherwise, create_accessors! (called by new) will have created actual methods for each key.
-    def method_missing(name, *args, &block)
+    def method_missing(name, *_args, &_block)
       key = name.to_s
-      raise("Missing key '#{key}'") unless has_key? key
+      fail("Missing key '#{key}'") unless key? key
       value = fetch(key)
       create_accessor_for(key)
       value.is_a?(Hash) ? self.class.new(value) : value
     end
 
-    def create_accessor_for(key, val=nil)
+    def create_accessor_for(key, val = nil)
       return unless key.to_s =~ /^\w+$/ # could have "some-setting:" which blows up eval
       instance_variable_set("@#{key}", val) if val
       self.class.class_eval <<-EndEval
@@ -51,5 +51,4 @@ module NixonPi
   def to_json
     JSON.encode(self)
   end
-
 end

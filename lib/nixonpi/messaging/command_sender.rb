@@ -11,9 +11,9 @@ module NixonPi
       # @param [Symbol] target
       # @param [Hash] payload
       def send_command(target, payload)
-        log.info "publishing #{payload.to_s} to #{target}"
+        log.info "publishing #{payload} to #{target}"
         direct_exchange_channel.publish(payload.to_json,
-                                        routing_key: "nixonpi.command",
+                                        routing_key: 'nixonpi.command',
                                         content_type: 'application/json',
                                         type: target,
                                         immediate: true)

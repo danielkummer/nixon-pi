@@ -5,26 +5,23 @@ require_relative '../configurations/settings'
 require_relative '../../dependency'
 
 module NixonPi
-  class RgbStateMachine <  BaseStateMachine
-
+  class RgbStateMachine < BaseStateMachine
     register :rgb, self
     accepted_commands :state, :value, :animation_name, :options
 
-    def initialize()
+    def initialize
       super()
       register_driver get_injected(:rgb_proxy)
     end
 
     state_machine do
-
       state :free_value do
         def write
           value = params[:value]
-          if !value.nil? and value != params[:last_value]
+          if !value.nil? && value != params[:last_value]
             @driver.write(value)
             params[:last_value] = value
           end
-
         end
       end
 
@@ -34,7 +31,6 @@ module NixonPi
           handle_command(state: :free_value, value: 0)
         end
       end
-
     end
   end
 end

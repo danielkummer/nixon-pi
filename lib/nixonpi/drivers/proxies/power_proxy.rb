@@ -11,29 +11,29 @@ module NixonPi
 
     accepted_commands :value
 
-    def initialize(options = {port: nil})
+    def initialize(options = { port: nil })
       @io_driver = IoDriver.new([options[:port]])
       @value = 0
-      log.info "Initializing power driver..."
+      log.info 'Initializing power driver...'
     end
 
     def handle_command(command)
       value = command[:value].to_i
       log.debug "got power command: #{command}, applying..."
       if (0..1).member?(value)
-        NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "power #{value == 1 ? "on" : "off"}!"})
+        NixonPi::Messaging::CommandSender.new.send_command(:sound, value: "power #{value == 1 ? 'on' : 'off'}!")
         @io_driver.write(value)
         @value = value
       end
     end
 
     def handle_info_request(about)
-      ret = Hash.new
+      ret = {}
       case about.to_sym
         when :params
-          ret = {value: @value}
+          ret = { value: @value }
         when :commands
-          ret = {commands: self.class.available_commands}
+          ret = { commands: self.class.available_commands }
         else
           log.error "No information about #{about}"
       end
@@ -55,8 +55,7 @@ module NixonPi
     end
 
     def get_params
-      {value: @value}
+      { value: @value }
     end
-
   end
 end

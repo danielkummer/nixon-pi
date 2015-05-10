@@ -3,12 +3,11 @@
 #
 module NixonPi
   module ConversionHelper
-
     # Convert a hex to a binary string
     # @return [String]
     # @param [String] input
     def hex_to_bit(input)
-      #string -> hex -> binary
+      # string -> hex -> binary
       input.to_s.to_i(16).to_s(2)
     end
 

@@ -17,7 +17,7 @@ module NixonPi
     end
 
     class << self
-      alias to new
+      alias_method :to, :new
     end
   end
 end

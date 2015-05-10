@@ -3,10 +3,9 @@ require 'thread'
 
 module NixonPi
   class DirectIO
-
     def initialize
       @stdin, @stdout, @stderr, @wait_thr = Open3.popen3("sudo #{Dir.pwd}/c-driver/abiocard/abiocardserver -stdio")
-      #pid = @wait_thr[:pid]
+      # pid = @wait_thr[:pid]
       @mutex = Mutex.new
     end
 
@@ -17,16 +16,14 @@ module NixonPi
     def cmd(value)
       @mutex.synchronize do
         @stdin.puts(value)
-        if block_given?
-          yield @stdout.gets
-        end
+        yield @stdout.gets if block_given?
       end
     end
 
     # Close io connections
     def close
       @mutex.synchronize do
-        @stdin.puts("QU")
+        @stdin.puts('QU')
         @stdin.close
         @stdout.close
         @stderr.close

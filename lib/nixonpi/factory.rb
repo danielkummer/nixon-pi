@@ -11,31 +11,30 @@ module NixonPi
       # @param [Object] options optional hash to be passed to the class instance
       def create(type, options = nil)
         if type.match(/([a-zA-Z]+)\d+/)
-          #remove the int suffix to locate the subclass
-          klass = @@subclasses[$1.to_sym]
+          # remove the int suffix to locate the subclass
+          klass = @@subclasses[Regexp.last_match(1).to_sym]
         else
           klass = @@subclasses[type.to_sym]
         end
 
         begin
-        if klass
-          #if klass.instance_method(:initialize).parameters.empty? or
-          if options.nil?
-            instance = klass.new
+          if klass
+            # if klass.instance_method(:initialize).parameters.empty? or
+            if options.nil?
+              instance = klass.new
+            else
+              instance = klass.new(options)
+            end
+            instance.send(:registered_as_type=, type) if instance.respond_to?(:registered_as_type=)
+            instance
           else
-            instance = klass.new(options)
+            fail "Bad type: #{type}"
           end
-          instance.send(:registered_as_type=, type) if instance.respond_to?(:registered_as_type=)
-          instance
-        else
-          raise "Bad type: #{type}"
-        end
         rescue Exception
-          log.error "Error in DI: #{$!.message}"
+          log.error "Error in DI: #{$ERROR_INFO.message}"
         ensure
-          raise "Object instanciation error"
+          fail 'Object instanciation error'
         end
-
       end
 
       ##
@@ -43,17 +42,15 @@ module NixonPi
       # @param [*Symbol] names one ore more names under which to register the class for the factory methods
       def register_as(*names)
         names.each do |n|
-          raise "Subclass key already taken - please use another one because all subclass keys are shared" if @@subclasses.has_key?(n)
+          fail 'Subclass key already taken - please use another one because all subclass keys are shared' if @@subclasses.key?(n)
           @@subclasses[n] = self
           log.debug "registered instance for #{self.class.name} under #{n}"
         end
       end
-
     end
 
     def self.included(base)
       base.extend(ClassMethods)
     end
-
   end
 end

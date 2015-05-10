@@ -11,7 +11,6 @@ class Command < ActiveRecord::Base
   include ActiveModel::Validations
   include ActiveModel::MassAssignmentSecurity
 
-
   attr_accessible :target,
                   :state,
                   :value,
@@ -27,7 +26,6 @@ class Command < ActiveRecord::Base
     end
   end
 end
-
 
 class Schedule < ActiveRecord::Base
   attr_accessible :id,
@@ -53,12 +51,12 @@ class Schedule < ActiveRecord::Base
       when :at
         begin
           t = Time.parse(timing)
-          errors.add(:timing, "At timing must be in the future!") if t < Time.now
+          errors.add(:timing, 'At timing must be in the future!') if t < Time.now
         rescue ArgumentError => e
           errors.add(:timing, "Schedule invalid for method #{method} with timing #{timing}: #{e.message}")
         end
       when :cron
-        #todo validate cron string
+        # TODO: validate cron string
       else
         errors.add(:method, "Method #{method} not supported!")
     end unless method.nil?

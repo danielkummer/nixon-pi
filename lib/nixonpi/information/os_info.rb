@@ -2,19 +2,19 @@
 # Detect OS
 #
 module OSInfo
-  def OSInfo.windows?
+  def self.windows?
     (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
   end
 
-  def OSInfo.mac?
+  def self.mac?
     (/darwin/ =~ RUBY_PLATFORM) != nil
   end
 
-  def OSInfo.unix?
+  def self.unix?
     !OSInfo.windows?
   end
 
-  def OSInfo.linux?
-    OSInfo.unix? and not OSInfo.mac?
+  def self.linux?
+    OSInfo.unix? && !OSInfo.mac?
   end
 end

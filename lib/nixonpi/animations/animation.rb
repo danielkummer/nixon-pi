@@ -18,9 +18,9 @@ module NixonPi
       attr_accessor :thread
 
       def initialize(options = {})
-        raise "options must be a hash" unless options.is_a?(Hash)
+        fail 'options must be a hash' unless options.is_a?(Hash)
         @options = HashWithIndifferentAccess.new(self.class.defaults.merge(options))
-        @output = Array.new
+        @output = []
       end
 
       def use_driver(driver)
@@ -36,21 +36,19 @@ module NixonPi
           yield value, index
         else
           if value.nil?
-            raise "Options musn't be empty" if @options.nil?
+            fail "Options musn't be empty" if @options.nil?
             @send_command ||= begin
               log.debug "Animation ended, sending transition command, target: #{@options[:goto_target]} state: #{@options[:goto_state]}"
-              NixonPi::Messaging::CommandSender.new.send_command(@options[:goto_target], {state: @options[:goto_state]})
-              log.debug "already sent transistion command"
+              NixonPi::Messaging::CommandSender.new.send_command(@options[:goto_target], state: @options[:goto_state])
+              log.debug 'already sent transistion command'
             end
           else
-            log.debug "animation value: #{value.to_s}"
+            log.debug "animation value: #{value}"
             @driver.write(value)
           end
 
         end
-
       end
-
 
       def time_diff_milli(start, finish)
         (finish - start) * 1000.0
@@ -59,8 +57,8 @@ module NixonPi
       def self.handle_info_request(about)
         ret = {}
         case about.to_sym
-          when :params #animation options, but called 'params' for consistency
-            ret = defaults()
+          when :params # animation options, but called 'params' for consistency
+            ret = defaults
           else
             log.error "No information about #{about}"
         end
@@ -68,13 +66,13 @@ module NixonPi
       end
 
       def self.defaults
-        options_hash = Hash.new
+        options_hash = {}
         options = available_commands
         options.each do |o|
           default_value =
               case o.to_s
                 when /_array$/
-                  Array.new
+                  []
                 when /\?$/
                   false
                 else

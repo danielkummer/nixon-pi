@@ -7,21 +7,23 @@ module NixonPi
     include Driver
 
     BLANK_NUM = 10
-    #elementOrder 1,6,2,7,5,0,4,9,8,3
+    # elementOrder 1,6,2,7,5,0,4,9,8,3
 
-    def initialize(options = {data: nil, clock: nil, latch: nil})
-      @data_pin, @clock_pin, @latch_pin = options[:data], options[:clock], options[:latch]
-      log.debug "initialize tubes with pins - data: #@data_pin, clock: #@clock_pin, latch: #@latch_pin"
+    def initialize(options = { data: nil, clock: nil, latch: nil })
+      @data_pin = options[:data]
+      @clock_pin = options[:clock]
+      @latch_pin = options[:latch]
+      log.debug "initialize tubes with pins - data: #{@data_pin}, clock: #{@clock_pin}, latch: #{@latch_pin}"
       client.io_write(@data_pin, 0)
       client.io_write(@clock_pin, 0)
       client.io_write(@latch_pin, 0)
     end
 
     def write_string_with_blanks(output)
-      #log.debug "write number with blanks '#{output}'"
+      # log.debug "write number with blanks '#{output}'"
       client.io_write(@latch_pin, 0)
 
-      output.split('').reverse.each do |digit|
+      output.split('').reverse_each do |digit|
         digit =~ /\s|_/ ? serialize_digit(BLANK_NUM) : serialize_digit(digit)
       end
       client.io_write(@latch_pin, 1)
@@ -39,7 +41,7 @@ module NixonPi
       end
     end
 
-    #todo refactor into helper
+    # TODO: refactor into helper
     def has_canged?(value)
       result = (value == @old_value ? false : true)
       @old_value = value
@@ -47,9 +49,9 @@ module NixonPi
     end
 
     def write_number_string_with_zeros(output)
-      log.info "write : #{output.to_s} in reverse order"
+      log.info "write : #{output} in reverse order"
       client.io_write(@latch_pin, 0)
-      output.split('').reverse.each do |digit|
+      output.split('').reverse_each do |digit|
         serialize_digit(digit)
       end
       client.io_write(@latch_pin, 1)
@@ -84,8 +86,8 @@ module NixonPi
 
       # Write the digits out from right to left
       digits.times do
-        number == 0 ? serialize_digit(BLANK_NUM) : serialize_digit(number%10)
-        number = number / 10
+        number == 0 ? serialize_digit(BLANK_NUM) : serialize_digit(number % 10)
+        number /= 10
       end
       client.io_write(@latch_pin, 1)
       client.io_write(@latch_pin, 0)
@@ -98,10 +100,10 @@ module NixonPi
     def write_zero_padded_number(number, digits)
       log.info "write num #{number} trim #{digits}"
       client.io_write(@latch_pin, 0)
-      #Write the digits out from right to left
+      # Write the digits out from right to left
       digits.times do
-        serialize_digit(number%10)
-        number = number / 10
+        serialize_digit(number % 10)
+        number /= 10
       end
       client.io_write(@latch_pin, 1)
       client.io_write(@latch_pin, 0)
@@ -116,7 +118,7 @@ module NixonPi
     def serialize_digit(digit)
       bitmask = 8
       client.io_write(@data_pin, 0)
-      #send out the bits of the nibble MSB -> LSB
+      # send out the bits of the nibble MSB -> LSB
       4.times do
         client.io_write(@clock_pin, 0)
         current_bit = bitmask & digit.to_i

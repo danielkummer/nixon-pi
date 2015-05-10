@@ -1,0 +1,3866 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='UTF-8' />
+    <title>RuboCop Inspection Report</title>
+    
+    <style>
+    * {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    }
+
+    body, html {
+    font-size: 62.5%;
+    }
+    body {
+    background-color: #ecedf0;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    margin: 0;
+    }
+    code {
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 85%;
+    }
+    #header {
+    background: #f9f9f9;
+    color: #333;
+    border-bottom: 3px solid #ccc;
+    height: 50px;
+    padding: 0;
+    }
+    #header .logo {
+    float: left;
+    margin: 5px 12px 7px 20px;
+    width: 38px;
+    height: 38px;
+    }
+    #header .title {
+    display: inline-block;
+    float: left;
+    height: 50px;
+    font-size: 2.4rem;
+    letter-spacing: normal;
+    line-height: 50px;
+    margin: 0;
+    }
+
+    .information, #offenses {
+    width: 100%;
+    padding: 20px;
+    color: #333;
+    }
+    #offenses {
+    padding: 0 20px;
+    }
+
+    .information .infobox {
+    border-left: 3px solid;
+    border-radius: 4px;
+    background-color: #fff;
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    padding: 15px;
+    border-color: #0088cc;
+    font-size: 1.4rem;
+    }
+    .information .infobox .info-title {
+    font-size: 1.8rem;
+    line-height: 2.2rem;
+    margin: 0 0 0.5em;
+    }
+    .information .infobox ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    }
+    .information .infobox ul li {
+    line-height: 1.8rem
+    }
+
+    #offenses .offense-box {
+    border-radius: 4px;
+    margin-bottom: 20px;
+    background-color: #fff;
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    }
+    #offenses .offense-box .box-title h3 {
+    color: #33353f;
+    background-color: #f6f6f6;
+    font-size: 2rem;
+    line-height: 2rem;
+    display: block;
+    padding: 15px;
+    border-radius: 5px;
+    margin: 0;
+    }
+    #offenses .offense-box .offense-reports  {
+    padding: 0 15px;
+    }
+    #offenses .offense-box .offense-reports .report {
+    border-bottom: 1px dotted #ddd;
+    padding: 15px 0px;
+    position: relative;
+    font-size: 1.3rem;
+    }
+    #offenses .offense-box .offense-reports .report:last-child {
+    border-bottom: none;
+    }
+    #offenses .offense-box .offense-reports .report pre code {
+    display: block;
+    background: #000;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 5px;
+    line-height: 1.6rem;
+    }
+    #offenses .offense-box .offense-reports .report .location {
+    font-weight: bold;
+    }
+    #offenses .offense-box .offense-reports .report .message code {
+    padding: 0.3em;
+    background-color: rgba(0,0,0,0.07);
+    border-radius: 3px;
+    }
+    .severity {
+    text-transform: capitalize;
+    font-weight: bold;
+    }
+    .highlight {
+    padding: 2px;
+    border-radius: 2px;
+    font-weight: bold;
+    }
+
+    .severity.refactor {
+    color: rgba(237, 156, 40, 1.0);
+    }
+    .highlight.refactor {
+    background-color: rgba(237, 156, 40, 0.6);
+    border: 1px solid rgba(237, 156, 40, 0.4);
+    }
+
+    .severity.convention {
+    color: rgba(237, 156, 40, 1.0);
+    }
+    .highlight.convention {
+    background-color: rgba(237, 156, 40, 0.6);
+    border: 1px solid rgba(237, 156, 40, 0.4);
+    }
+
+    .severity.warning {
+    color: rgba(150, 40, 239, 1.0);
+    }
+    .highlight.warning {
+    background-color: rgba(150, 40, 239, 0.6);
+    border: 1px solid rgba(150, 40, 239, 0.4);
+    }
+
+    .severity.error {
+    color: rgba(210, 50, 45, 1.0);
+    }
+    .highlight.error {
+    background-color: rgba(210, 50, 45, 0.6);
+    border: 1px solid rgba(210, 50, 45, 0.4);
+    }
+
+    .severity.fatal {
+    color: rgba(210, 50, 45, 1.0);
+    }
+    .highlight.fatal {
+    background-color: rgba(210, 50, 45, 0.6);
+    border: 1px solid rgba(210, 50, 45, 0.4);
+    }
+
+    footer {
+    margin-bottom: 20px;
+    margin-right: 20px;
+    font-size: 1.3rem;
+    color: #777;
+    text-align: right;
+    }
+    </style>
+  </head>
+  <body>
+    <div id="header">
+      <img class="logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEwAAABMCAYAAADHl1ErAAAKQWlDQ1BJQ0Mg
+UHJvZmlsZQAASA2dlndUU9kWh8+9N73QEiIgJfQaegkg0jtIFQRRiUmAUAKG
+hCZ2RAVGFBEpVmRUwAFHhyJjRRQLg4Ji1wnyEFDGwVFEReXdjGsJ7601896a
+/cdZ39nnt9fZZ+9917oAUPyCBMJ0WAGANKFYFO7rwVwSE8vE9wIYEAEOWAHA
+4WZmBEf4RALU/L09mZmoSMaz9u4ugGS72yy/UCZz1v9/kSI3QyQGAApF1TY8
+fiYX5QKUU7PFGTL/BMr0lSkyhjEyFqEJoqwi48SvbPan5iu7yZiXJuShGlnO
+Gbw0noy7UN6aJeGjjAShXJgl4GejfAdlvVRJmgDl9yjT0/icTAAwFJlfzOcm
+oWyJMkUUGe6J8gIACJTEObxyDov5OWieAHimZ+SKBIlJYqYR15hp5ejIZvrx
+s1P5YjErlMNN4Yh4TM/0tAyOMBeAr2+WRQElWW2ZaJHtrRzt7VnW5mj5v9nf
+Hn5T/T3IevtV8Sbsz55BjJ5Z32zsrC+9FgD2JFqbHbO+lVUAtG0GQOXhrE/v
+IADyBQC03pzzHoZsXpLE4gwnC4vs7GxzAZ9rLivoN/ufgm/Kv4Y595nL7vtW
+O6YXP4EjSRUzZUXlpqemS0TMzAwOl89k/fcQ/+PAOWnNycMsnJ/AF/GF6FVR
+6JQJhIlou4U8gViQLmQKhH/V4X8YNicHGX6daxRodV8AfYU5ULhJB8hvPQBD
+IwMkbj96An3rWxAxCsi+vGitka9zjzJ6/uf6Hwtcim7hTEEiU+b2DI9kciWi
+LBmj34RswQISkAd0oAo0gS4wAixgDRyAM3AD3iAAhIBIEAOWAy5IAmlABLJB
+PtgACkEx2AF2g2pwANSBetAEToI2cAZcBFfADXALDIBHQAqGwUswAd6BaQiC
+8BAVokGqkBakD5lC1hAbWgh5Q0FQOBQDxUOJkBCSQPnQJqgYKoOqoUNQPfQj
+dBq6CF2D+qAH0CA0Bv0BfYQRmALTYQ3YALaA2bA7HAhHwsvgRHgVnAcXwNvh
+SrgWPg63whfhG/AALIVfwpMIQMgIA9FGWAgb8URCkFgkAREha5EipAKpRZqQ
+DqQbuY1IkXHkAwaHoWGYGBbGGeOHWYzhYlZh1mJKMNWYY5hWTBfmNmYQM4H5
+gqVi1bGmWCesP3YJNhGbjS3EVmCPYFuwl7ED2GHsOxwOx8AZ4hxwfrgYXDJu
+Na4Etw/XjLuA68MN4SbxeLwq3hTvgg/Bc/BifCG+Cn8cfx7fjx/GvyeQCVoE
+a4IPIZYgJGwkVBAaCOcI/YQRwjRRgahPdCKGEHnEXGIpsY7YQbxJHCZOkxRJ
+hiQXUiQpmbSBVElqIl0mPSa9IZPJOmRHchhZQF5PriSfIF8lD5I/UJQoJhRP
+ShxFQtlOOUq5QHlAeUOlUg2obtRYqpi6nVpPvUR9Sn0vR5Mzl/OX48mtk6uR
+a5Xrl3slT5TXl3eXXy6fJ18hf0r+pvy4AlHBQMFTgaOwVqFG4bTCPYVJRZqi
+lWKIYppiiWKD4jXFUSW8koGStxJPqUDpsNIlpSEaQtOledK4tE20Otpl2jAd
+Rzek+9OT6cX0H+i99AllJWVb5SjlHOUa5bPKUgbCMGD4M1IZpYyTjLuMj/M0
+5rnP48/bNq9pXv+8KZX5Km4qfJUilWaVAZWPqkxVb9UU1Z2qbapP1DBqJmph
+atlq+9Uuq43Pp893ns+dXzT/5PyH6rC6iXq4+mr1w+o96pMamhq+GhkaVRqX
+NMY1GZpumsma5ZrnNMe0aFoLtQRa5VrntV4wlZnuzFRmJbOLOaGtru2nLdE+
+pN2rPa1jqLNYZ6NOs84TXZIuWzdBt1y3U3dCT0svWC9fr1HvoT5Rn62fpL9H
+v1t/ysDQINpgi0GbwaihiqG/YZ5ho+FjI6qRq9Eqo1qjO8Y4Y7ZxivE+41sm
+sImdSZJJjclNU9jU3lRgus+0zwxr5mgmNKs1u8eisNxZWaxG1qA5wzzIfKN5
+m/krCz2LWIudFt0WXyztLFMt6ywfWSlZBVhttOqw+sPaxJprXWN9x4Zq42Oz
+zqbd5rWtqS3fdr/tfTuaXbDdFrtOu8/2DvYi+yb7MQc9h3iHvQ732HR2KLuE
+fdUR6+jhuM7xjOMHJ3snsdNJp9+dWc4pzg3OowsMF/AX1C0YctFx4bgccpEu
+ZC6MX3hwodRV25XjWuv6zE3Xjed2xG3E3dg92f24+ysPSw+RR4vHlKeT5xrP
+C16Il69XkVevt5L3Yu9q76c+Oj6JPo0+E752vqt9L/hh/QL9dvrd89fw5/rX
++08EOASsCegKpARGBFYHPgsyCRIFdQTDwQHBu4IfL9JfJFzUFgJC/EN2hTwJ
+NQxdFfpzGC4sNKwm7Hm4VXh+eHcELWJFREPEu0iPyNLIR4uNFksWd0bJR8VF
+1UdNRXtFl0VLl1gsWbPkRoxajCCmPRYfGxV7JHZyqffS3UuH4+ziCuPuLjNc
+lrPs2nK15anLz66QX8FZcSoeGx8d3xD/iRPCqeVMrvRfuXflBNeTu4f7kufG
+K+eN8V34ZfyRBJeEsoTRRJfEXYljSa5JFUnjAk9BteB1sl/ygeSplJCUoykz
+qdGpzWmEtPi000IlYYqwK10zPSe9L8M0ozBDuspp1e5VE6JA0ZFMKHNZZruY
+jv5M9UiMJJslg1kLs2qy3mdHZZ/KUcwR5vTkmuRuyx3J88n7fjVmNXd1Z752
+/ob8wTXuaw6thdauXNu5Tnddwbrh9b7rj20gbUjZ8MtGy41lG99uit7UUaBR
+sL5gaLPv5sZCuUJR4b0tzlsObMVsFWzt3WazrWrblyJe0fViy+KK4k8l3JLr
+31l9V/ndzPaE7b2l9qX7d+B2CHfc3em681iZYlle2dCu4F2t5czyovK3u1fs
+vlZhW3FgD2mPZI+0MqiyvUqvakfVp+qk6oEaj5rmvep7t+2d2sfb17/fbX/T
+AY0DxQc+HhQcvH/I91BrrUFtxWHc4azDz+ui6rq/Z39ff0TtSPGRz0eFR6XH
+wo911TvU1zeoN5Q2wo2SxrHjccdv/eD1Q3sTq+lQM6O5+AQ4ITnx4sf4H++e
+DDzZeYp9qukn/Z/2ttBailqh1tzWibakNml7THvf6YDTnR3OHS0/m/989Iz2
+mZqzymdLz5HOFZybOZ93fvJCxoXxi4kXhzpXdD66tOTSna6wrt7LgZevXvG5
+cqnbvfv8VZerZ645XTt9nX297Yb9jdYeu56WX+x+aem172296XCz/ZbjrY6+
+BX3n+l37L972un3ljv+dGwOLBvruLr57/17cPel93v3RB6kPXj/Mejj9aP1j
+7OOiJwpPKp6qP6391fjXZqm99Oyg12DPs4hnj4a4Qy//lfmvT8MFz6nPK0a0
+RupHrUfPjPmM3Xqx9MXwy4yX0+OFvyn+tveV0auffnf7vWdiycTwa9HrmT9K
+3qi+OfrW9m3nZOjk03dp76anit6rvj/2gf2h+2P0x5Hp7E/4T5WfjT93fAn8
+8ngmbWbm3/eE8/syOll+AAAACXBIWXMAAAsTAAALEwEAmpwYAAAEJGlUWHRY
+TUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9i
+ZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS40LjAiPgogICA8cmRm
+OlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjIt
+cmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjph
+Ym91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRv
+YmUuY29tL3RpZmYvMS4wLyIKICAgICAgICAgICAgeG1sbnM6ZXhpZj0iaHR0
+cDovL25zLmFkb2JlLmNvbS9leGlmLzEuMC8iCiAgICAgICAgICAgIHhtbG5z
+OmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIKICAgICAg
+ICAgICAgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAv
+Ij4KICAgICAgICAgPHRpZmY6UmVzb2x1dGlvblVuaXQ+MTwvdGlmZjpSZXNv
+bHV0aW9uVW5pdD4KICAgICAgICAgPHRpZmY6Q29tcHJlc3Npb24+NTwvdGlm
+ZjpDb21wcmVzc2lvbj4KICAgICAgICAgPHRpZmY6WFJlc29sdXRpb24+NzI8
+L3RpZmY6WFJlc29sdXRpb24+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9u
+PjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgICAgIDx0aWZmOllSZXNvbHV0
+aW9uPjcyPC90aWZmOllSZXNvbHV0aW9uPgogICAgICAgICA8ZXhpZjpQaXhl
+bFhEaW1lbnNpb24+NzY8L2V4aWY6UGl4ZWxYRGltZW5zaW9uPgogICAgICAg
+ICA8ZXhpZjpDb2xvclNwYWNlPjE8L2V4aWY6Q29sb3JTcGFjZT4KICAgICAg
+ICAgPGV4aWY6UGl4ZWxZRGltZW5zaW9uPjc2PC9leGlmOlBpeGVsWURpbWVu
+c2lvbj4KICAgICAgICAgPGRjOnN1YmplY3Q+CiAgICAgICAgICAgIDxyZGY6
+U2VxLz4KICAgICAgICAgPC9kYzpzdWJqZWN0PgogICAgICAgICA8eG1wOk1v
+ZGlmeURhdGU+MjAxNDowOToyMyAyMjowOToxNDwveG1wOk1vZGlmeURhdGU+
+CiAgICAgICAgIDx4bXA6Q3JlYXRvclRvb2w+UGl4ZWxtYXRvciAzLjIuMTwv
+eG1wOkNyZWF0b3JUb29sPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAg
+PC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KkpvroQAABkNJREFUeAHtm0uIHFUY
+hWveM8ZpHN/RYCIS34mKGGSMMmLA6CKILmQwBOJCEcwqKzELceVWN+IyIgQM
+4gt84SMqBpNBkBiJGkEFMRFNMmSSzEzm5fmG7qEpbt1bt7q6XuOBQ3Xfuvf/
+z/nr3qrq6u6OIH9cLAlrxGvr20e0vVsE34rviL+Lv9W3J7XNDR05Zb5deR8U
+7xfXiVeKnaIN89p5XPxB/EL8WPxerCxqcrZd3CdOiwstkhj7RGISuzLol5On
+xSNiq0WKGk9scpCr1LhP6veLUUbTbicXOUuHHil+QZwS0y6KKx45yY2GUuAy
+qXxXdBlr9340oKXQWC11Y2K7ixE3PlrQVEhcI1WHxLhmsuqHJrQVCtx8cpOZ
+VRF886ANjYVAl1TsFX1NZN0fjWjNHTulIGvzSfOhNVfcpuwTYlIDWY9DK5pz
+AdP7EzFr063mQ3MuS/PREharUWy0Zwruog+IDQFl26I9008Cm0tcrMbBxYM3
+XM+gogI+GbWjRO2ZebhKRTklNo5UWbd4wIsXksywEWW4yCtLMTvjYcRXWpKC
+bfJNUuD+3l58C9Yt83cWuAC+0vCCp7aBT/3nxbKet8K68eL1JMO3unzLtFtk
+WwVQwKp4Kebx8KnurbLwjLhBHCimHW9VkxpxUHxVPOw92jJgi/bxjXP4HFCV
+93jDYypYrSj/iFUpTpQPPK4RrYhzW7FVES61RqnGTjw+4bISp2B3uIJUaL/T
+a5yC9VaoIC4rTq9xCjbrylKh/U6vroLdpGKsr1BBXFbwiudE4NP8j2LUVaWq
+7XiOfBpjm2HbNPBmcbkBz3g3wnanf1ojBo2j6o1DnZ3B6IpasL6nb/Hng0y5
+IgKT8+Khmelgz9nTwal53lnB13E1Uw9bwaz+r+jqCvZcsjIY7hsIZhdXrSl8
+sdq69Tl7//RkMHriWPD33JxLnLE2vk8rlpLsGBwKhvsHggn30Voak/+LhUXN
+aN81/m8iObZzWGRABg339QfTC9ZJGDk+zx1oRnsi4xKeaBxlmlJi45zNsxox
+cqMZ7UkPdeKCvX3uTNCrkpWpaGhFM9qTFizxOWy3rjZru3uD7RfWgoGOcpRt
+UjPrlYnxAO1JYXN6QEF5WGgFtxQ39vQGXbZI1gjZ7JzTlPpp5vzirUWMjGPq
+4/QejjOiBmbuciTevcH57TWRu7zlUjS84jnRuV3jFr+z+1Lb5VKwr+qe8W6E
+q5I87jhpHFnNxhOyZX3E4yoYZcnl13o5HQ+n1zgFS34Nzsl1C2mdXuMU7PMW
+BJRtaCpeecTDfUnVT/x4tD7O8jn616nz1xUuGt7w6ITP/Xmfoj0s8n/sFSIz
+Low4Szw8Jov33F+FgfezIn+r+UDkH77/I+0K+MywRm7+0P6hGF7vM2rbIh4V
+i4S1EvOeGP6ZOY+hHxKPi7GR5GkFYxDBsmwGS5RlWzSg6QYxPDlYjt7+vQfU
+q2G6G6bNdF6rD1naPKZXHNk0wEx/yxEITWgLzzCTB0eoBBV2RrR3eEC7Xxcv
+sHeLvXdUPcfFz2KPaLFjllc1foD7hphWsbBOLGISOxMkXZJJxLEMuWAALuEY
+PcebBKBQW0XOT8Qk9ndiIbFKqlgGnBuayS+SbxGj0KUdz4sUaUdUJ492YhCL
+mMSOAppMv/zGA17ajqQFawhj+YSvWI19PltixFmKqRYsyyXZKEZaS4fZnVas
+hjbnNo+ChUVtVMP1omvWUaCfxW/EUuFqqTX9m21W7es8nTyl/oxrPhfaXtOX
+MT5AkykHHvDSdgwpw1+iyRgfjeLiHnU8I5ri2NoYw9i4QJMpHh7w0nZw7zYm
+mkS8GTP7SvX7JSKGKW64jbHEiIO96hQez3s8ZHYf+nKECKb+NtEGzpvviyYT
+Pm3EcJ2D0WJajuTBQ2bYqEz8wMpkcErtu8TLxTC4X3pJNI1L0kYs0z0YudGA
+FlNctOPBG64rU1RARH4kborqoPZj4mGx8cUCuVaJG8Q0cVDB/hQpDKiJ/C/K
+tmQ/1f7NovNXdeqTGu5SJB6RmI5gkdvQjPZc8KyyFrk4Jm1ozhXPKTvPzE3i
+itSGRrQWAo9LxR9ikQrUrAVtaCwUOMm+KB4Vm8Xm+RotaLJdALQ7Xwwq/b3i
+TvFXMeuCkZPcaEBLqvgPBhCuiZo8+sAAAAAASUVORK5CYII=
+" alt="">
+      <h1 class="title">RuboCop Inspection Report</h1>
+    </div>
+    <div class="information">
+      <div class="infobox">
+        82 files inspected,
+        265 offenses detected
+      </div>
+    </div>
+    <div id="offenses">
+      
+      
+      
+      
+      
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>bin/nixon-pi - 5 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #1</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Use snake_case for source file names.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">#</span>!/usr/bin/env ruby</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #3</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">$environment</span> = ENV[&#39;RACK_ENV&#39;] # default value if nothing else is set</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #4</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">$force_mock_client</span> = false</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #10</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">$environment</span>  = val</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #12</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code>    op.on(&#39;-m&#39;, &#39;force the usage of the telnet mock interface&#39;) { <span class="highlight convention">$force_mock_client</span> = true }</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>db/migrate/20121212215028_create_tables.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #1</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">class</span> CreateTables &lt; ActiveRecord::Migration</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>db/migrate/20130111221133_add_schedules_table.rb - 2 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #1</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">class</span> AddSchedulesTable &lt; ActiveRecord::Migration</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #11</span> –
+              <span class="severity warning">warning:</span>
+              <span class="message"><code>end</code> at 11, 3 is not aligned with <code>def</code> at 2, 2</span>
+            </div>
+            
+            <pre><code>   <span class="highlight warning">end</span></code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>db/migrate/20130116090700_rename_schedule_attributes.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #1</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">class</span> RenameScheduleAttributes &lt; ActiveRecord::Migration</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>db/migrate/20130116091808_remove_unused_from_schedules.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #1</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">class</span> RemoveUnusedFromSchedules &lt; ActiveRecord::Migration</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>db/migrate/20130116094701_add_timing_to_schedule.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #1</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">class</span> AddTimingToSchedule &lt; ActiveRecord::Migration</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>db/migrate/20130116100619_rename_column_type.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #1</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">class</span> RenameColumnType &lt; ActiveRecord::Migration</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>db/migrate/20130121173731_remove_initial_column.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #1</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">class</span> RemoveInitialColumn &lt; ActiveRecord::Migration</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>db/migrate/20130426092338_rename_state_machine_column_to_target.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #1</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">class</span> RenameStateMachineColumnToTarget &lt; ActiveRecord::Migration</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>db/models.rb - 5 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #10</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">class</span> Command &lt; ActiveRecord::Base</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #30</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">class</span> Schedule &lt; ActiveRecord::Base</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #42</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for valid_schedule? is too high. [27.09/15]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">def</span> valid_schedule?</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #42</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Cyclomatic complexity for valid_schedule? is too high. [8/6]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">def</span> valid_schedule?</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #42</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [19/10]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">def</span> valid_schedule?</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>db/validators/command_validator.rb - 13 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #4</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">class</span> CommandValidator &lt; ActiveModel::Validator</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #5</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for validate is too high. [35.85/15]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">def</span> validate(record)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #5</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Cyclomatic complexity for validate is too high. [15/6]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">def</span> validate(record)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #5</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [24/10]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">def</span> validate(record)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #5</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Perceived complexity for validate is too high. [9/7]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">def</span> validate(record)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #35</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for validate_tubes is too high. [32.89/15]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">def</span> validate_tubes(record)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #35</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Cyclomatic complexity for validate_tubes is too high. [12/6]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">def</span> validate_tubes(record)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #35</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [15/10]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">def</span> validate_tubes(record)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #35</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Perceived complexity for validate_tubes is too high. [9/7]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">def</span> validate_tubes(record)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #39</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Line is too long. [172/160]</span>
+            </div>
+            
+            <pre><code>        record.errors.add(:value, &quot;length exceeds number of tubes (#{NixonPi::Settings.in12a_tubes.count})&quot;) unless record.value.size &lt;= NixonPi::Settings.in12a<span class="highlight convention">_tubes.count</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #65</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for validate_animation is too high. [36.15/15]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">def</span> validate_animation(record)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #65</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Cyclomatic complexity for validate_animation is too high. [10/6]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">def</span> validate_animation(record)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #65</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Perceived complexity for validate_animation is too high. [10/7]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">def</span> validate_animation(record)</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/blank_monkeypatch.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #1</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">class</span> Object</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/dependency.rb - 7 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #1</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Replace class var @@class_registry with a class instance var.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">@@class_registry</span> = {}</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #36</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for get_injected is too high. [42.87/15]</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">def</span> get_injected(type, new_instance = false, args = {})</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #36</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Cyclomatic complexity for get_injected is too high. [12/6]</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">def</span> get_injected(type, new_instance = false, args = {})</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #36</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [28/10]</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">def</span> get_injected(type, new_instance = false, args = {})</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #36</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Perceived complexity for get_injected is too high. [14/7]</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">def</span> get_injected(type, new_instance = false, args = {})</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #48</span> –
+              <span class="severity warning">warning:</span>
+              <span class="message">Avoid rescuing the <code>Exception</code> class. Perhaps you meant to rescue <code>StandardError</code>?</span>
+            </div>
+            
+            <pre><code>      <span class="highlight warning">rescue Exception =&gt; e</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #62</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Avoid multi-line ?: (the ternary operator); use <code>if</code>/<code>unless</code> instead.</span>
+            </div>
+            
+            <pre><code>    klass = <span class="highlight convention">reg_entry[:klass].instance_method(:initialize).parameters.empty? ?</span></code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/animations/animation.rb - 5 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #12</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">class</span> Animation</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #34</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for handle_output_on_tick is too high. [18.36/15]</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">def</span> handle_output_on_tick(value)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #34</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [15/10]</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">def</span> handle_output_on_tick(value)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #68</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [15/10]</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">def</span> self.defaults</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #78</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Redundant <code>else</code>-clause.</span>
+            </div>
+            
+            <pre><code>                <span class="highlight convention">else</span></code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/animations/bar/ramp_up_down_animation.rb - 2 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #8</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">class</span> RampUpDownAnimation &lt; Animation</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #35</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not prefix reader method names with <code>get_</code>.</span>
+            </div>
+            
+            <pre><code>      def <span class="highlight convention">get_current_value</span></code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/animations/easing.rb - 8 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #9</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Module definition is too long. [187/100]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">module</span> Easing</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #9</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level module documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">module</span> Easing</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #40</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for ease_in_out_quad is too high. [18.81/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> ease_in_out_quad(t, b, c, d)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #74</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for ease_in_out_cubic is too high. [18.81/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> ease_in_out_cubic(t, b, c, d)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #107</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for ease_in_out_quart is too high. [21.56/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> ease_in_out_quart(t, b, c, d)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #140</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for ease_in_out_quint is too high. [22.49/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> ease_in_out_quint(t, b, c, d)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #196</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for ease_in_out_expo is too high. [20.64/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> ease_in_out_expo(t, b, c, d)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #229</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for ease_in_out_circ is too high. [22.49/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> ease_in_out_circ(t, b, c, d)</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/animations/lamp/blink_animation.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #9</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">class</span> BlinkAnimation &lt; Animation</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/animations/led/rgb_animation.rb - 2 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #5</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">class</span> RgbAnimation &lt; Animation</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #17</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for fade is too high. [16.28/15]</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">def</span> fade(from_hex, to_hex, sleep = 10)</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/animations/tube/count_up_all_animation.rb - 2 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #5</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">class</span> CountFromToAnimation &lt; Animation</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #16</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Use a guard clause instead of wrapping the code inside a conditional expression.</span>
+            </div>
+            
+            <pre><code>        <span class="highlight convention">if</span> @options[:single_digit?]</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/animations/tube/single_fly_in_animation.rb - 3 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #9</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">class</span> SingleFlyInAnimation &lt; Animation</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #15</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for initialize is too high. [25.51/15]</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">def</span> initialize(options = {})</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #15</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [21/10]</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">def</span> initialize(options = {})</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/animations/tube/switch_numbers_animation.rb - 2 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #9</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">class</span> SwitchNumbersAnimation &lt; Animation</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #17</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [14/10]</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">def</span> initialize(options = {})</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/client/abio_card_client.rb - 22 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #11</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code>if <span class="highlight convention">$environment</span> == &#39;test&#39; || $force_mock_client</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #11</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code>if $environment == &#39;test&#39; || <span class="highlight convention">$force_mock_client</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #16</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Class definition is too long. [158/100]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> AbioCardClient</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #16</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> AbioCardClient</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #34</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Replace class var @@mutex with a class instance var.</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">@@mutex</span> = Mutex.new</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #57</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for clock_read is too high. [21.61/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> clock_read</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #57</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [12/10]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> clock_read</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #76</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for info is too high. [17.12/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> info</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #82</span> –
+              <span class="severity warning">warning:</span>
+              <span class="message"><code>(...)</code> interpreted as grouped expression.</span>
+            </div>
+            
+            <pre><code>        log.info<span class="highlight warning"> </span>(&#39;read hardware information: &#39; + @hardware_information.to_s)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #92</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for io_write is too high. [16.55/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> io_write(pin, value)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #96</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Use a guard clause instead of wrapping the code inside a conditional expression.</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">if</span> @out_register.nil? || @out_register[NUMBER_OF_IO_PORTS - 1 - pin] != value.to_s</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #113</span> –
+              <span class="severity warning">warning:</span>
+              <span class="message"><code>(...)</code> interpreted as grouped expression.</span>
+            </div>
+            
+            <pre><code>          log.info<span class="highlight warning"> </span>(&#39;read return value: &#39; + return_value)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #149</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for pwm_read_registers is too high. [32.33/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> pwm_read_registers(options = { start_index: 0, count: NUMBER_OF_PWM_PORTS })</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #149</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [20/10]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> pwm_read_registers(options = { start_index: 0, count: NUMBER_OF_PWM_PORTS })</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #159</span> –
+              <span class="severity warning">warning:</span>
+              <span class="message"><code>(...)</code> interpreted as grouped expression.</span>
+            </div>
+            
+            <pre><code>          log.info<span class="highlight warning"> </span>(&#39;read pwm return value: &#39; + return_value)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #182</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for pwm_write_registers is too high. [21.63/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> pwm_write_registers(options)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #182</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [12/10]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> pwm_write_registers(options)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #217</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code>          @conn ||= connection_for(<span class="highlight convention">$environment</span>)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #227</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [17/10]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> connection_for(environment)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #228</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code>      if <span class="highlight convention">$force_mock_client</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #250</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [11/10]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> handle</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #254</span> –
+              <span class="severity warning">warning:</span>
+              <span class="message">Avoid rescuing the <code>Exception</code> class. Perhaps you meant to rescue <code>StandardError</code>?</span>
+            </div>
+            
+            <pre><code>    <span class="highlight warning">rescue Exception =&gt; e</span></code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/client/conversion_helper.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #5</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level module documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">module</span> ConversionHelper</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/client/direct_io.rb - 2 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #5</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> DirectIO</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #31</span> –
+              <span class="severity warning">warning:</span>
+              <span class="message">Useless assignment to variable - <code>exit_status</code>.</span>
+            </div>
+            
+            <pre><code>      <span class="highlight warning">exit_status</span> = @wait_thr.value # Process::Status object returned.</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/client/retryable.rb - 2 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #5</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level module documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">module</span> Retryable</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #22</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [13/10]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> retryable(options = {})</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/configurations/settings.rb - 2 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #10</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Avoid the use of the case equality operator <code>===</code>.</span>
+            </div>
+            
+            <pre><code>    super if name <span class="highlight convention">===</span> :to_ary # delegate to_ary to Hash</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #20</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> Settings &lt; Settingslogic</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/configurations/state_hash.rb - 2 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #5</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level module documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">module</span> NixonPi</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #6</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> StateHash &lt; ::Hash</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/delegators/multi_delegator.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #2</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> MultiDelegator</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/drivers/basic/io_driver.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #5</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> IoDriver</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/drivers/basic/pwm_driver.rb - 4 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #4</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> PwmDriver</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #23</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for write is too high. [22.14/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> write(values)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #23</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Cyclomatic complexity for write is too high. [8/6]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> write(values)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #23</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Perceived complexity for write is too high. [9/7]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> write(values)</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/drivers/basic/tube_driver.rb - 6 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #6</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> TubeDriver</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #45</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Rename <code>has_canged?</code> to <code>canged?</code>.</span>
+            </div>
+            
+            <pre><code>    def <span class="highlight convention">has_canged?</span>(value)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #78</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for write_trimmed_number is too high. [15.65/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> write_trimmed_number(number, digits)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #78</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [12/10]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> write_trimmed_number(number, digits)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #118</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for serialize_digit is too high. [17.49/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> serialize_digit(digit)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #118</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [12/10]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> serialize_digit(digit)</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/drivers/driver.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #4</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level module documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">module</span> Driver</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/drivers/proxies/background_proxy.rb - 2 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #8</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> BackgroundProxy</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #41</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not prefix reader method names with <code>get_</code>.</span>
+            </div>
+            
+            <pre><code>    def <span class="highlight convention">get_params</span></code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/drivers/proxies/lamp_proxy.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #6</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> LampProxy</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/drivers/proxies/power_proxy.rb - 3 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #7</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> PowerProxy</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #23</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Use a guard clause instead of wrapping the code inside a conditional expression.</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">if</span> (0..1).member?(value)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #57</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not prefix reader method names with <code>get_</code>.</span>
+            </div>
+            
+            <pre><code>    def <span class="highlight convention">get_params</span></code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/drivers/proxies/rgb_proxy.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #5</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> RgbProxy</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/drivers/proxies/sound_proxy.rb - 3 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #7</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> SoundProxy</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #20</span> –
+              <span class="severity warning">warning:</span>
+              <span class="message">Literal <code>true</code> appeared in a condition.</span>
+            </div>
+            
+            <pre><code>      case <span class="highlight warning">true</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #54</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Use a guard clause instead of wrapping the code inside a conditional expression.</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">unless</span> file.nil?</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/factory.rb - 7 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #4</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level module documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">module</span> Factory</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #5</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level module documentation comment.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">module</span> ClassMethods</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #7</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Replace class var @@subclasses with a class instance var.</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">@@subclasses</span> = {}</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #12</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for create is too high. [17.23/15]</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">def</span> create(type, options = nil)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #12</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [22/10]</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">def</span> create(type, options = nil)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #12</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Perceived complexity for create is too high. [9/7]</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">def</span> create(type, options = nil)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #33</span> –
+              <span class="severity warning">warning:</span>
+              <span class="message">Avoid rescuing the <code>Exception</code> class. Perhaps you meant to rescue <code>StandardError</code>?</span>
+            </div>
+            
+            <pre><code>        <span class="highlight warning">rescue Exception</span></code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/hash_monkeypatch.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #1</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">class</span> Hash</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/information/hardware_info.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #6</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> HardwareInfo</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/information/information_holder.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #2</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level module documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">module</span> InformationHolder</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/information/information_proxy.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #33</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [13/10]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> get_info_from(target, about)</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/logging/logging.rb - 5 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #5</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">class</span> String</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #29</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level module documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">module</span> Logging</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #43</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for configure_logger_for is too high. [17.35/15]</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">def</span> configure_logger_for(classname)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #43</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [19/10]</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">def</span> configure_logger_for(classname)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #46</span> –
+              <span class="severity warning">warning:</span>
+              <span class="message">The use of <code>eval</code> is a serious security risk.</span>
+            </div>
+            
+            <pre><code>        logger.level = <span class="highlight warning">eval</span> &quot;Logger::#{Settings.log_level}&quot;</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/messaging/client.rb - 6 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #6</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level module documentation comment.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">module</span> Client</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #12</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code>        unless <span class="highlight convention">$client</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #15</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code>          <span class="highlight convention">$client</span> = conn</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #17</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code>        <span class="highlight convention">$client</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #23</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code>        <span class="highlight convention">$direct_exchange</span> ||= client.create_channel.direct(&#39;nixonpi.channel&#39;)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #29</span> –
+              <span class="severity warning">warning:</span>
+              <span class="message">Avoid rescuing the <code>Exception</code> class. Perhaps you meant to rescue <code>StandardError</code>?</span>
+            </div>
+            
+            <pre><code>      <span class="highlight warning">rescue Exception =&gt; e</span></code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/messaging/command_receiver.rb - 7 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #13</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">class</span> CommandReceiver</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #17</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for initialize is too high. [21.93/15]</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">def</span> initialize</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #17</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [19/10]</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">def</span> initialize</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #26</span> –
+              <span class="severity warning">warning:</span>
+              <span class="message">Avoid rescuing the <code>Exception</code> class. Perhaps you meant to rescue <code>StandardError</code>?</span>
+            </div>
+            
+            <pre><code>            <span class="highlight warning">rescue Exception =&gt; e</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #97</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for handle_command_for is too high. [26.65/15]</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">def</span> handle_command_for(target, data)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #97</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [17/10]</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">def</span> handle_command_for(target, data)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #97</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Perceived complexity for handle_command_for is too high. [8/7]</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">def</span> handle_command_for(target, data)</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/messaging/command_sender.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #6</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">class</span> CommandSender</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/messaging/commands_module.rb - 3 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #2</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level module documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">module</span> Commands</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #3</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level module documentation comment.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">module</span> ClassMethods</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #4</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Replace class var @@accepted_commands with a class instance var.</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">@@accepted_commands</span> = {}</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/scheduler.rb - 9 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #9</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> CommandJob</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #30</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> Scheduler</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #38</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Replace class var @@scheduler with a class instance var.</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">@@scheduler</span> ||= Rufus::Scheduler.start_new</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #39</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Replace class var @@jobs with a class instance var.</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">@@jobs</span> = {}</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #71</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for handle_command is too high. [20.35/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> handle_command(command)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #71</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [18/10]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> handle_command(command)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #116</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for schedule is too high. [16.79/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> schedule(id, method, timing, target, command, lock = false)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #116</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [18/10]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> schedule(id, method, timing, target, command, lock = false)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #116</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Avoid parameter lists longer than 5 parameters.</span>
+            </div>
+            
+            <pre><code>    def schedule<span class="highlight convention">(id, method, timing, target, command, lock = false)</span></code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/state_machines/bar_state_machine.rb - 2 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #11</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> BarStateMachine &lt; BaseStateMachine</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #35</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Use a guard clause instead of wrapping the code inside a conditional expression.</span>
+            </div>
+            
+            <pre><code>          <span class="highlight convention">if</span> !value.nil? &amp;&amp; value != params[:last_value]</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/state_machines/base_state_machine.rb - 13 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #17</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Class definition is too long. [112/100]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> BaseStateMachine</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #17</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> BaseStateMachine</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #43</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for enter_state is too high. [21.79/15]</span>
+            </div>
+            
+            <pre><code>        <span class="highlight convention">def</span> enter_state</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #94</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Use a guard clause instead of wrapping the code inside a conditional expression.</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">if</span> command[:state]</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #99</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [19/10]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> handle_info_request(about)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #129</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not prefix writer method names with <code>set_</code>.</span>
+            </div>
+            
+            <pre><code>    def <span class="highlight convention">set_params</span>(options)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #156</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for handle_around_transition is too high. [18.55/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> self.handle_around_transition(object, _transition, block)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #156</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [12/10]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> self.handle_around_transition(object, _transition, block)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #161</span> –
+              <span class="severity warning">warning:</span>
+              <span class="message">Do not suppress exceptions.</span>
+            </div>
+            
+            <pre><code>      <span class="highlight warning">rescue NoMethodError =&gt; e</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #161</span> –
+              <span class="severity warning">warning:</span>
+              <span class="message">Useless assignment to variable - <code>e</code>.</span>
+            </div>
+            
+            <pre><code>      rescue NoMethodError =&gt; <span class="highlight warning">e</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #164</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Line is too long. [190/160]</span>
+            </div>
+            
+            <pre><code>      # NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: &quot;Entering  #{object.state} state for #{object.registered_as_type}&quot;}) unless object.pa<span class="highlight convention">rams[:last_state] == &quot;startup&quot;</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #168</span> –
+              <span class="severity warning">warning:</span>
+              <span class="message">Do not suppress exceptions.</span>
+            </div>
+            
+            <pre><code>      <span class="highlight warning">rescue NoMethodError =&gt; e</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #168</span> –
+              <span class="severity warning">warning:</span>
+              <span class="message">Useless assignment to variable - <code>e</code>.</span>
+            </div>
+            
+            <pre><code>      rescue NoMethodError =&gt; <span class="highlight warning">e</span></code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/state_machines/lamp_state_machine.rb - 2 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #9</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> LampStateMachine &lt; BaseStateMachine</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #24</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Use a guard clause instead of wrapping the code inside a conditional expression.</span>
+            </div>
+            
+            <pre><code>          <span class="highlight convention">if</span> !value.nil? &amp;&amp; value != params[:last_value]</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/state_machines/machine_manager.rb - 5 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #6</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> MachineManager</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #9</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Replace class var @@state_machines with a class instance var.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">@@state_machines</span> = {}</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #10</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Replace class var @@threads with a class instance var.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">@@threads</span> = []</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #23</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Line is too long. [202/160]</span>
+            </div>
+            
+            <pre><code>      # @param [Symbol] name add a state machines to the manager, the machines added must have a corresponding type in the factory module (a machine registers i<span class="highlight convention">tself using the register_as class method.)</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #24</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Line is too long. [161/160]</span>
+            </div>
+            
+            <pre><code>      # @param [Integer] instances_count number of instances to create, this adds a numeric suffix to the instances queue listeners (ex: lamp0, lamp1, lamp2,...<span class="highlight convention">)</span></code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/state_machines/multi_machine_proxy.rb - 2 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #7</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> MultiMachineProxy</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #15</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Replace class var @@state_machines with a class instance var.</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">@@state_machines</span> = Set.new</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/state_machines/rgb_state_machine.rb - 2 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #8</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> RgbStateMachine &lt; BaseStateMachine</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #21</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Use a guard clause instead of wrapping the code inside a conditional expression.</span>
+            </div>
+            
+            <pre><code>          <span class="highlight convention">if</span> !value.nil? &amp;&amp; value != params[:last_value]</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi/state_machines/tube_state_machine.rb - 18 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #14</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Class definition is too long. [140/100]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> TubeStateMachine &lt; BaseStateMachine</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #14</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> TubeStateMachine &lt; BaseStateMachine</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #41</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for enter_state is too high. [21.75/15]</span>
+            </div>
+            
+            <pre><code>        <span class="highlight convention">def</span> enter_state</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #54</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for write is too high. [58.27/15]</span>
+            </div>
+            
+            <pre><code>        <span class="highlight convention">def</span> write</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #54</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Cyclomatic complexity for write is too high. [12/6]</span>
+            </div>
+            
+            <pre><code>        <span class="highlight convention">def</span> write</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #54</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [25/10]</span>
+            </div>
+            
+            <pre><code>        <span class="highlight convention">def</span> write</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #54</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Perceived complexity for write is too high. [14/7]</span>
+            </div>
+            
+            <pre><code>        <span class="highlight convention">def</span> write</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #104</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for enter_state is too high. [18.03/15]</span>
+            </div>
+            
+            <pre><code>        <span class="highlight convention">def</span> enter_state</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #110</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for write is too high. [42.07/15]</span>
+            </div>
+            
+            <pre><code>        <span class="highlight convention">def</span> write</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #110</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Cyclomatic complexity for write is too high. [9/6]</span>
+            </div>
+            
+            <pre><code>        <span class="highlight convention">def</span> write</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #110</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [33/10]</span>
+            </div>
+            
+            <pre><code>        <span class="highlight convention">def</span> write</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #110</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Perceived complexity for write is too high. [8/7]</span>
+            </div>
+            
+            <pre><code>        <span class="highlight convention">def</span> write</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #128</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Use a guard clause instead of wrapping the code inside a conditional expression.</span>
+            </div>
+            
+            <pre><code>          <span class="highlight convention">if</span> current_time &gt;= params[:target_time]</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #135</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Avoid more than 3 levels of block nesting.</span>
+            </div>
+            
+            <pre><code>                  <span class="highlight convention">case k.to_sym</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #140</span> –
+              <span class="severity warning">warning:</span>
+              <span class="message">Non-local exit from iterator, without return value. <code>next</code>, <code>break</code>, <code>Array#find</code>, <code>Array#any?</code>, etc. is preferred.</span>
+            </div>
+            
+            <pre><code>                      <span class="highlight warning">return</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #153</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for enter_state is too high. [15.94/15]</span>
+            </div>
+            
+            <pre><code>        <span class="highlight convention">def</span> enter_state</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #153</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [13/10]</span>
+            </div>
+            
+            <pre><code>        <span class="highlight convention">def</span> enter_state</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #181</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Favor <code>format</code> over <code>sprintf</code>.</span>
+            </div>
+            
+            <pre><code>          @driver.write(<span class="highlight convention">sprintf</span>(&#39;%.2f&#39;, cost).gsub(/\./, &#39; &#39;).rjust(@tubes_count, &#39; &#39;))</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/nixonpi_service.rb - 8 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #43</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> NixieService</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #51</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Line is too long. [162/160]</span>
+            </div>
+            
+            <pre><code>    register :in12a_driver, NixonPi::TubeDriver, data: Settings.in12a_tubes.data_pin, clock: Settings.in12a_tubes.clock_pin, latch: Settings.in12a_tubes.latch_p<span class="highlight convention">in</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #56</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for initialize is too high. [58.03/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> initialize</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #56</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [43/10]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> initialize</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #58</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code>      log.info &quot;Environment: #{<span class="highlight convention">$environment</span>}&quot;</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #112</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for run! is too high. [19/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> run!</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #112</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [14/10]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> run!</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #134</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for quit! is too high. [17.03/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> quit!</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>lib/version.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #1</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level module documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">module</span> NixonPi</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>spec/abio_card_client_spec.rb - 8 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #32</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">$last_cmd</span>.should include time.strftime(&#39;%y%m%d%H%M%S&#39;)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #50</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">$last_cmd</span>.should eq &#39;EW01&#39;</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #55</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">$last_cmd</span>.should eq &#39;EW03&#39;</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #57</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">$last_cmd</span>.should eq &#39;EW07&#39;</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #69</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">$last_cmd</span>.should eq &#39;PW00017C&#39;</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #74</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">$last_cmd</span>.should eq &#39;PW001000000000000000000000000000000000&#39;</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #79</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">$last_cmd</span>.should eq &#39;PW10017C&#39;</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #81</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">$last_cmd</span>.should eq &#39;PW1001FF&#39;</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>spec/command_spec.rb - 2 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #57</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Line is too long. [174/160]</span>
+            </div>
+            
+            <pre><code>        @cmd = Command.new(target: :tubes, state: :animation, animation_name: :some_animation, options: { start_value: &#39;1234&#39;, goto_target: :tubes, goto_state: <span class="highlight convention">:free_value })</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #143</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Line is too long. [173/160]</span>
+            </div>
+            
+            <pre><code>        @cmd = Command.new(target: :bars, state: :animation, animation_name: :some_animation, options: { start_value: &#39;1234&#39;, goto_target: :tubes, goto_state: :<span class="highlight convention">free_value })</span></code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>spec/multi_delegator_spec.rb - 2 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #4</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">class</span> Entry</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #16</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">class</span> Receiver</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>spec/retryable_spec.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #5</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">class</span> Retry</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>spec/spec_helper.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #11</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">$environment</span>  = &#39;test&#39;</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>spec/support/active_record.rb - 2 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #10</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level module documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">module</span> ActiveModel::Validations</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #10</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Use nested module/class definitions instead of compact style.</span>
+            </div>
+            
+            <pre><code>module <span class="highlight convention">ActiveModel::Validations</span></code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>spec/support/mock_telnet.rb - 4 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #3</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">class</span> MockTelnet</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #10</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Cyclomatic complexity for cmd is too high. [8/6]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">def</span> cmd(string)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #10</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [15/10]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">def</span> cmd(string)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #13</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">$last_cmd</span> = string</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>spec/web_app_spec.rb - 1 offense</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #7</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">$environment</span> = &#39;test&#39;</code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+      
+      
+      
+      <div class="offense-box">
+        <div class="box-title"><h3>web/web_server.rb - 30 offenses</h3></div>
+        <div class="offense-reports">
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #16</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Do not introduce global variables.</span>
+            </div>
+            
+            <pre><code><span class="highlight convention">$environment</span> = ENV[&#39;RACK_ENV&#39;]</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #28</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Class definition is too long. [296/100]</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> WebServer &lt; Sinatra::Base</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #28</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Missing top-level class documentation comment.</span>
+            </div>
+            
+            <pre><code>  <span class="highlight convention">class</span> WebServer &lt; Sinatra::Base</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #55</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Use 2 spaces for indentation in a hash, relative to the start of the line where the left curly brace is.</span>
+            </div>
+            
+            <pre><code>                                          <span class="highlight convention">info: {</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #56</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Use 2 spaces for indentation in a hash, relative to the start of the line where the left curly brace is.</span>
+            </div>
+            
+            <pre><code>                                              <span class="highlight convention">title: &quot;404 - are you sure it&#39;s there?&quot;</span>,</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #59</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Indent the right brace the same as the start of the line where the left brace is.</span>
+            </div>
+            
+            <pre><code>                                      <span class="highlight convention">}</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #63</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Space inside { missing.</span>
+            </div>
+            
+            <pre><code>        halt(<span class="highlight convention">{</span>success: &#39;false&#39;, message: &quot;404 - are you sure it&#39;s there?&quot;}.to_json)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #63</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Space inside } missing.</span>
+            </div>
+            
+            <pre><code>        halt({success: &#39;false&#39;, message: &quot;404 - are you sure it&#39;s there?&quot;<span class="highlight convention">}</span>.to_json)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #70</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Use 2 spaces for indentation in a hash, relative to the start of the line where the left curly brace is.</span>
+            </div>
+            
+            <pre><code>                                              <span class="highlight convention">info: {</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #71</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Use 2 spaces for indentation in a hash, relative to the start of the line where the left curly brace is.</span>
+            </div>
+            
+            <pre><code>                                                  <span class="highlight convention">title: &#39;Oops - I found a dead bunny...&#39;</span>,</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #74</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Indent the right brace the same as the start of the line where the left brace is.</span>
+            </div>
+            
+            <pre><code>                                          <span class="highlight convention">}</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #77</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Space inside { missing.</span>
+            </div>
+            
+            <pre><code>        halt(<span class="highlight convention">{</span>success: &#39;false&#39;, message: &#39;Make sure your RabbitMQ server is up and running...&#39;}.to_json)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #77</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Space inside } missing.</span>
+            </div>
+            
+            <pre><code>        halt({success: &#39;false&#39;, message: &#39;Make sure your RabbitMQ server is up and running...&#39;<span class="highlight convention">}</span>.to_json)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #85</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Space inside { missing.</span>
+            </div>
+            
+            <pre><code>        halt(<span class="highlight convention">{</span>success: &#39;false&#39;, message: e.message}.to_json)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #85</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Space inside } missing.</span>
+            </div>
+            
+            <pre><code>        halt({success: &#39;false&#39;, message: e.message<span class="highlight convention">}</span>.to_json)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #88</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Use 2 spaces for indentation in a hash, relative to the start of the line where the left curly brace is.</span>
+            </div>
+            
+            <pre><code>                                            <span class="highlight convention">info: {</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #89</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Use 2 spaces for indentation in a hash, relative to the start of the line where the left curly brace is.</span>
+            </div>
+            
+            <pre><code>                                                <span class="highlight convention">title: &#39;Something just went terribly wrong...&#39;</span>,</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #92</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Indent the right brace the same as the start of the line where the left brace is.</span>
+            </div>
+            
+            <pre><code>                                        <span class="highlight convention">}</span></code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #97</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for hash_to_haml is too high. [16.16/15]</span>
+            </div>
+            
+            <pre><code>      <span class="highlight convention">def</span> hash_to_haml(hash, level = 0)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #115</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Use <code>&&</code> instead of <code>and</code>.</span>
+            </div>
+            
+            <pre><code>          unless value.nil? <span class="highlight convention">and</span> value != &#39;&#39;</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #297</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for preprocess_post_params is too high. [20.49/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> preprocess_post_params(target, params)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #297</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [15/10]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> preprocess_post_params(target, params)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #346</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for get_or_create_command is too high. [25.24/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> get_or_create_command(data)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #346</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Cyclomatic complexity for get_or_create_command is too high. [7/6]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> get_or_create_command(data)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #346</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [15/10]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> get_or_create_command(data)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #370</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for formatted_response is too high. [16.76/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> formatted_response(format, data, respond_message = &#39;&#39;)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #370</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [15/10]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> formatted_response(format, data, respond_message = &#39;&#39;)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #393</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Assignment Branch Condition size for get_remote_info_from is too high. [20.49/15]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> get_remote_info_from(target, about)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #393</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Method has too many lines. [18/10]</span>
+            </div>
+            
+            <pre><code>    <span class="highlight convention">def</span> get_remote_info_from(target, about)</code></pre>
+            
+          </div>
+          
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #408</span> –
+              <span class="severity warning">warning:</span>
+              <span class="message">Avoid rescuing the <code>Exception</code> class. Perhaps you meant to rescue <code>StandardError</code>?</span>
+            </div>
+            
+            <pre><code>      <span class="highlight warning">rescue Exception</span></code></pre>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+      
+    </div>
+    <footer>
+      Generated by <a href="https://github.com/bbatsov/rubocop">RuboCop</a>
+      <span class="version">0.31.0</span>
+    </footer>
+  </body>
+</html>

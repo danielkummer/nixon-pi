@@ -11,9 +11,8 @@ module NixonPi
       @client ||= NixonPi::AbioCardClient.instance
     end
 
-    def write(params)
-      raise NotImplementedError
+    def write(_params)
+      fail NotImplementedError
     end
-
   end
 end

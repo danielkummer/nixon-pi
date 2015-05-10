@@ -6,25 +6,26 @@ require_relative 'messaging/command_receiver'
 require_relative 'information/information_holder'
 
 module NixonPi
-
   class CommandJob
     include Logging
     include Messaging
 
     def initialize(id, target, command, lock)
-      @id, @target, @command, @lock = id, target, command, lock
+      @id = id
+      @target = target
+      @command = command
+      @lock = lock
     end
 
     def call(job)
-      log.info "Job called#{job.to_s} "
-      log.error "Error in job #{job.to_s}, queue: #{queue}, command: #@command" if @target.nil? or @command.nil?
+      log.info "Job called#{job} "
+      log.error "Error in job #{job}, queue: #{queue}, command: #{@command}" if @target.nil? || @command.nil?
       CommandSender.new.send_command(@target, @command)
-      #todo unlock queue
-      #CommandQueue.unlock(@queue) if @lock
-      Schedule.delete(@id) if job.is_a?(Rufus::Scheduler::InJob) or job.is_a?(Rufus::Scheduler::AtJob)
+      # TODO: unlock queue
+      # CommandQueue.unlock(@queue) if @lock
+      Schedule.delete(@id) if job.is_a?(Rufus::Scheduler::InJob) || job.is_a?(Rufus::Scheduler::AtJob)
     end
   end
-
 
   class Scheduler
     include Logging
@@ -38,16 +39,16 @@ module NixonPi
       @@jobs = {}
 
       def @@scheduler.handle_exception(job, exception)
-        self.log.error "job #{job.job_id} caught exception '#{exception}'"
+        log.error "job #{job.job_id} caught exception '#{exception}'"
       end
 
-      log.info "Scheduler started"
+      log.info 'Scheduler started'
       reload
     end
 
     def reload
-      #delete all ambiguous records
-      #Schedule.find(:all, conditions: ["method IN (?)", %w(in every)])
+      # delete all ambiguous records
+      # Schedule.find(:all, conditions: ["method IN (?)", %w(in every)])
       schedules = Schedule.find(:all)
       schedules.each do |s|
         schedule(s.id, s.method, s.timing, s.target, s.command)
@@ -60,25 +61,26 @@ module NixonPi
         when :commands
           ret = self.class.available_commands
         when :jobs
-          ret = {jobs: jobs}
+          ret = { jobs: jobs }
         else
           log.error "No information about #{about}"
       end
       ret
     end
 
-
     def handle_command(command)
-
-      if command.has_key?(:delete)
+      if command.key?(:delete)
         id = command[:id]
         log.info "deleting schedule with id: #{id}"
         unschedule(id)
       else
         log.info "got schedule command: #{command}, applying..."
-        id, method, timing, target = command[:id], command[:method], command[:timing], command[:target]
+        id = command[:id]
+        method = command[:method]
+        timing = command[:timing]
+        target = command[:target]
 
-        new_commands = Hash.new
+        new_commands = {}
         command[:command].each do |k, v|
           new_commands[k.to_sym] = v
         end
@@ -91,7 +93,7 @@ module NixonPi
     end
 
     def self.exit_scheduler
-      #unschedule_all #quit cron jobs too...
+      # unschedule_all #quit cron jobs too...
     end
 
     ##
@@ -112,29 +114,27 @@ module NixonPi
     # @param [Symbol] target Name of the queue -> command receiver
     # @param [Hash] command Hash of command parameters
     def schedule(id, method, timing, target, command, lock = false)
-
       log.debug "schedule command #{command}, #{method} #{timing} for #{target}"
-      #if %w"in at".include?(method) or lock
+      # if %w"in at".include?(method) or lock
       if lock
-        log.debug "locking state machine..."
-        #todo lock queue
-        #CommandQueue.lock(queue)
+        log.debug 'locking state machine...'
+        # TODO: lock queue
+        # CommandQueue.lock(queue)
       end
 
-      #todo test if block works
+      # TODO: test if block works
       job = case method.to_sym
               when :in
-                @@scheduler.in "#{timing}", CommandJob.new(id, target, command, lock), :mutex => "#{target}"
+                @@scheduler.in "#{timing}", CommandJob.new(id, target, command, lock), mutex: "#{target}"
               when :at
-                @@scheduler.at "#{timing}", CommandJob.new(id, target, command, lock), :mutex => "#{target}"
+                @@scheduler.at "#{timing}", CommandJob.new(id, target, command, lock), mutex: "#{target}"
               when :every
-                @@scheduler.every "#{timing}", CommandJob.new(id, target, command, lock), :mutex => "#{target}"
+                @@scheduler.every "#{timing}", CommandJob.new(id, target, command, lock), mutex: "#{target}"
               when :cron
-                @@scheduler.cron "#{timing}", CommandJob.new(id, target, command, lock), :mutex => "#{target}"
+                @@scheduler.cron "#{timing}", CommandJob.new(id, target, command, lock), mutex: "#{target}"
               else
                 false
             end
-
 
       @@jobs[id.to_s.to_sym] = job
       true
@@ -144,13 +144,9 @@ module NixonPi
       @@jobs[id.to_s.to_sym].unschedule unless @@jobs[id.to_s.to_sym].nil?
     end
 
-    #unused
+    # unused
     def unschedule_all
-      @@jobs.each do |j|
-        j.unschedule
-      end
+      @@jobs.each(&:unschedule)
     end
   end
-
-
 end
