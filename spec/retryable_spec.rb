@@ -7,30 +7,26 @@ class Retry
   include NixonPi::Logging
 end
 
-
 describe NixonPi::Retryable do
-
   before :each do
     @retry = Retry.new
   end
 
-  it "should not raise an exception if less than specified retries" do
+  it 'should not raise an exception if less than specified retries' do
     @times = 0
     expect do
-        @retry.retryable do
-          @times += 1
-          raise Exception if @times < 5
-        end
+      @retry.retryable do
+        @times += 1
+        fail Exception if @times < 5
+      end
     end.not_to raise_error
-
   end
 
-  it "should raise an exception if more than specified retries" do
+  it 'should raise an exception if more than specified retries' do
     expect do
       @retry.retryable do
-        raise Exception
+        fail Exception
       end
     end.to raise_error NixonPi::RetryError
   end
-
 end

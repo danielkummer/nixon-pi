@@ -1,4 +1,4 @@
 module NixonPi
-  class RetryError < StandardError;
+  class RetryError < StandardError
   end
 end

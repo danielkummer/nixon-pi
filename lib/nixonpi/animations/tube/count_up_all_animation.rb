@@ -3,15 +3,13 @@ require_relative '../animation'
 module NixonPi
   module Animations
     class CountFromToAnimation < Animation
-
       register :count_from_to, self
       accepted_commands :start_value, :single_digit?
 
-      #todo unfinished and untested
+      # TODO: unfinished and untested
       def initialize(options = {})
         super(options)
         @options[:single_digit?] ||= true
-
 
         from = @options[:start_value]
         to = from
@@ -26,7 +24,6 @@ module NixonPi
       def write
         handle_output_on_tick(@output.shift)
       end
-
     end
   end
 end

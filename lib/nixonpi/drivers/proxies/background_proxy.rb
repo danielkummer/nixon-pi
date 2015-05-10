@@ -12,9 +12,9 @@ module NixonPi
 
     accepted_commands :value
 
-    def initialize(options = {port: nil})
-      @pwm_driver = PwmDriver.new({ports: [options[:port]]})
-      log.info "Initializing background driver..."
+    def initialize(options = { port: nil })
+      @pwm_driver = PwmDriver.new(ports: [options[:port]])
+      log.info 'Initializing background driver...'
       @value = 0
     end
 
@@ -26,22 +26,20 @@ module NixonPi
     end
 
     def handle_info_request(about)
-      ret = Hash.new
+      ret = {}
       case about.to_sym
         when :params
-          ret = {value: @value}
+          ret = { value: @value }
         when :commands
-          ret = {commands: self.class.available_commands}
+          ret = { commands: self.class.available_commands }
         else
           log.error "No information about #{about}"
       end
       ret
     end
 
-
     def get_params
-      {value: @value}
+      { value: @value }
     end
-
   end
 end

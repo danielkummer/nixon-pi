@@ -1,40 +1,32 @@
 require_relative '../../lib/nixonpi/logging/logging'
 
-
 class MockTelnet
   include NixonPi::Logging
 
   def close
-    log.debug "Closing connection"
+    log.debug 'Closing connection'
   end
 
   def cmd(string)
-    #enable for more debug output..
-    #STDERR.puts "telnet mock: " << string.to_s
+    # enable for more debug output..
+    # STDERR.puts "telnet mock: " << string.to_s
     $last_cmd = string
 
-
     case string
-      when "ER"
-        ret = "ERFF"
-      when "CR"
-        ret = "CR" << ("1" * 12) << "01" #last two are powerup and battery
-      when "HI"
-        ret = "HI0F"
+      when 'ER'
+        ret = 'ERFF'
+      when 'CR'
+        ret = 'CR' << ('1' * 12) << '01' # last two are powerup and battery
+      when 'HI'
+        ret = 'HI0F'
       when /PR.*/
-        ret = "PR0011FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF" #all pwm on 255
+        ret = 'PR0011FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF' # all pwm on 255
       else
-        ret = ""
+        ret = ''
     end
 
-    if string.class == Hash
-      if string['String'] == 'HI'
-        ret = "HIFF"
-      end
-    end
+    ret = 'HIFF' if string['String'] == 'HI' if string.class == Hash
 
-    if block_given?
-      yield ret
-    end
+    yield ret if block_given?
   end
 end

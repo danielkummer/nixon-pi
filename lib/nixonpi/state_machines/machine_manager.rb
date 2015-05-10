@@ -6,11 +6,10 @@ module NixonPi
   class MachineManager
     extend Logging
 
-    @@state_machines = Hash.new
-    @@threads = Array.new
+    @@state_machines = {}
+    @@threads = []
 
     class << self
-
       ##
       # exit threads
       def exit
@@ -18,7 +17,6 @@ module NixonPi
           Thread.kill(t)
         end
       end
-
 
       ##
       # Add a number of state machines to the manager
@@ -30,20 +28,16 @@ module NixonPi
           key = "#{name}#{suffix}".to_sym
           instance = get_injected(key)
           @@state_machines[key] = instance
-          if block_given?
-            yield instance, key
-          end
+          yield instance, key if block_given?
           log.debug "Added state machine for #{name} under key #{key}"
         end
-
       end
-
 
       ##
       # Start each state machine in a separate thread
       # @param [Float] sleep_for_sec sleep time after each loop
       def start_state_machines(sleep_for_sec = 0.1)
-        @@state_machines.each do |type, state_machine|
+        @@state_machines.each do |_type, state_machine|
           log.debug "Starting state machine: #{state_machine.class}"
           @@threads << Thread.new do
             loop do

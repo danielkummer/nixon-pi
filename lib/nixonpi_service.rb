@@ -20,6 +20,7 @@ require_relative 'nixonpi/drivers/proxies/sound_proxy'
 require_relative 'nixonpi/drivers/proxies/rgb_proxy'
 require_relative 'nixonpi/scheduler'
 require_relative 'nixonpi/messaging/command_receiver'
+require_relative 'nixonpi/support/network_info'
 require_relative 'nixonpi/information/information_proxy'
 require_relative 'nixonpi/information/os_info'
 require_relative 'nixonpi/information/hardware_info'
@@ -54,10 +55,10 @@ module NixonPi
     register :background, NixonPi::BackgroundProxy, port: Settings.background_led_pin
 
     def initialize
-      log.info "Initializing Nixon-Pi service.."
+      log.info 'Initializing Nixon-Pi service..'
       log.info "Environment: #{$environment}"
-      ActiveRecord::Base.establish_connection("sqlite3:///db/settings.db")
-      ActiveRecord::Migrator.up("/db/migrate")
+      ActiveRecord::Base.establish_connection('sqlite3:///db/settings.db')
+      ActiveRecord::Migrator.up('/db/migrate')
 
       %w(INT TERM).each do |sig|
         Signal.trap(sig) do
@@ -112,38 +113,40 @@ module NixonPi
     def run!
       [:INT, :TERM].each do |sig|
         trap(sig) do
-          quit!()
+          quit!
         end
       end
-      NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "Hi Im Nixon pi"})
+      # use literal writing to correct speech pattern
+      NixonPi::Messaging::CommandSender.new.send_command(:sound, value: 'Hi, my name is Nixon Pie')
+      # State ip address for better connectabilty
+      NixonPi::Messaging::CommandSender.new.send_command(:sound, value: 'My eye pee addresses are:' + NixonPi::NetworkInfo.info.join(', '))
 
-      NixonPi::Messaging::CommandSender.new.send_command(:lamp0, {state: :free_value, value: 0})
-      NixonPi::Messaging::CommandSender.new.send_command(:lamp1, {state: :free_value, value: 0})
-      NixonPi::Messaging::CommandSender.new.send_command(:lamp2, {state: :free_value, value: 0})
-      NixonPi::Messaging::CommandSender.new.send_command(:lamp3, {state: :free_value, value: 0})
-      NixonPi::Messaging::CommandSender.new.send_command(:lamp4, {state: :free_value, value: 0})
+      NixonPi::Messaging::CommandSender.new.send_command(:lamp0, state: :free_value, value: 0)
+      NixonPi::Messaging::CommandSender.new.send_command(:lamp1, state: :free_value, value: 0)
+      NixonPi::Messaging::CommandSender.new.send_command(:lamp2, state: :free_value, value: 0)
+      NixonPi::Messaging::CommandSender.new.send_command(:lamp3, state: :free_value, value: 0)
+      NixonPi::Messaging::CommandSender.new.send_command(:lamp4, state: :free_value, value: 0)
 
+      NixonPi::Messaging::CommandSender.new.send_command(:sound, value: 'Power on!')
       get_injected(:power).power_on
 
       NixonPi::MachineManager.start_state_machines
-      NixonPi::MachineManager.join_threads          #this must be inside the main run script - else the subthreads exit
+      NixonPi::MachineManager.join_threads # this must be inside the main run script - else the subthreads exit
     end
 
     ##
     # quit service power down nicely
     def quit!
-      log.info "Nixon Pi is shutting down..."
+      log.info 'Nixon Pi is shutting down...'
       DRb.stop_service
       DRb.thread.join unless DRb.thread.nil?
       NixonPi::MachineManager.exit
       NixonPi::Scheduler.exit_scheduler
       @message_distributor.on_exit
-      log.info "Blow the candles out..."
+      log.info 'Blow the candles out...'
       get_injected(:power).power_off
-      log.info "Bye ;)"
+      log.info 'Bye ;)'
       exit!
     end
   end
 end
-
-

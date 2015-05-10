@@ -10,7 +10,7 @@ module NixonPi
     include Logging
 
     def initialize
-      @receivers = Hash.new
+      @receivers = {}
     end
 
     ##
@@ -32,8 +32,8 @@ module NixonPi
     # @param [Symbol] about information about what
     def get_info_from(target, about)
       target = target.to_sym
-      returned_info = Array.new
-      if @receivers.has_key?(target)
+      returned_info = []
+      if @receivers.key?(target)
         @receivers[target].each do |receiver|
           if receiver.respond_to?(:handle_info_request)
             returned_info << receiver.handle_info_request(about)
@@ -42,9 +42,8 @@ module NixonPi
           end
         end
       end
-      returned_info = returned_info[0] if returned_info.size == 1 #array to single if only one element
+      returned_info = returned_info[0] if returned_info.size == 1 # array to single if only one element
       Marshal.load(Marshal.dump(returned_info))
     end
   end
 end
-

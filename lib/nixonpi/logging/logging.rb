@@ -27,7 +27,6 @@ end
 
 module NixonPi
   module Logging
-
     @loggers = {}
 
     ##
@@ -43,11 +42,11 @@ module NixonPi
 
       def configure_logger_for(classname)
         path = File.join(Dir.home, 'nixon-pi.log')
-        logger = Logger.new MultiDelegator.delegate(:write, :close).to(STDOUT, File.open(path, "a"))
+        logger = Logger.new MultiDelegator.delegate(:write, :close).to(STDOUT, File.open(path, 'a'))
         logger.level = eval "Logger::#{Settings.log_level}"
         logger.progname = classname
         logger.formatter = proc do |severity, datetime, progname, msg|
-          format = "[#{severity}] #{progname} -- #{datetime.strftime("%Y-%m-%d %H:%M:%S")}: #{msg}\n"
+          format = "[#{severity}] #{progname} -- #{datetime.strftime('%Y-%m-%d %H:%M:%S')}: #{msg}\n"
           case severity
             when 'INFO'
               format = format.green

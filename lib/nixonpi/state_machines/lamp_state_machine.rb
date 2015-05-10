@@ -7,31 +7,28 @@ require_relative '../animations/lamp/blink_animation'
 
 module NixonPi
   class LampStateMachine < BaseStateMachine
-
     register :lamp, self
     accepted_commands :state, :value, :animation_name, :options
 
-    def initialize()
+    def initialize
       super()
       register_driver get_injected(:in1_proxy)
     end
 
     state_machine do
-
       event(:blink) { transition all => :blink }
 
       state :free_value do
         def write
           value = params[:value]
-          if !value.nil? and value != params[:last_value]
+          if !value.nil? && value != params[:last_value]
             @driver.write_to_lamp(lamp_index, value)
             params[:last_value] = value
           end
-
         end
       end
 
-      #todo the blink state conflicts with the normal clock mode - concurrency error in io driver?
+      # TODO: the blink state conflicts with the normal clock mode - concurrency error in io driver?
       state :blink do
         def enter_state
           @last_blink_time = Time.now
@@ -50,25 +47,22 @@ module NixonPi
         def leave_state
           @driver.write_to_lamp(lamp_index, 0)
         end
-
       end
-
 
       state :startup do
         def write
-          #transition over to the animation state after setting the correct values
+          # transition over to the animation state after setting the correct values
           goto_state = params[:initial_state].nil? ? :free_value : params[:initial_state]
           params[:animation_name] = :blink
-          params[:options] = {lamp: lamp_index, goto_state: goto_state, goto_target: "lamp#{lamp_index}".to_sym}
+          params[:options] = { lamp: lamp_index, goto_state: goto_state, goto_target: "lamp#{lamp_index}".to_sym }
           handle_command(state: :animation)
         end
       end
-
     end
 
     def lamp_index
       registered_as_type.to_s.match(/lamp(\d+)/)[1]
-      $1.to_i
+      Regexp.last_match(1).to_i
     end
   end
 end

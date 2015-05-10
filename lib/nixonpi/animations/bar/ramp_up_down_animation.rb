@@ -24,11 +24,11 @@ module NixonPi
         @elapsed = 0
       end
 
-      def write()
+      def write
         if @elapsed < @total_time
-          handle_output_on_tick({port: @options[:bar], value: get_current_value})
+          handle_output_on_tick(port: @options[:bar], value: get_current_value)
         else
-          handle_output_on_tick(nil) #exit
+          handle_output_on_tick(nil) # exit
         end
       end
 
@@ -37,6 +37,5 @@ module NixonPi
         ease_in_out_quad(@elapsed, 0, 255, @total_time).ceil
       end
     end
-
   end
 end

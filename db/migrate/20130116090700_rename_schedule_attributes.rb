@@ -6,8 +6,8 @@ class RenameScheduleAttributes < ActiveRecord::Migration
   end
 
   def down
-    rename_column :schedules,:type, :timing
-    rename_column :schedules,:queue, :state_machine
-    rename_column :schedules,:command ,:value
+    rename_column :schedules, :type, :timing
+    rename_column :schedules, :queue, :state_machine
+    rename_column :schedules, :command, :value
   end
 end

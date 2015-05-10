@@ -1,6 +1,7 @@
 require_relative 'information_holder'
 require_relative '../logging/logging'
 require_relative '../client/abio_card_client'
+require_relative '../support/network_info'
 
 module NixonPi
   class HardwareInfo
@@ -11,15 +12,17 @@ module NixonPi
       ret = {}
       case about.to_sym
         when :io_carad
-          ret = {io_card: AbioCardClient.instance.info}
+          ret = { io_card: AbioCardClient.instance.info }
         when :pi
-          #todo get information about cpu ram hdd etc..., (maybe distro)
+          # TODO: get information about cpu ram hdd etc..., (maybe distro)
           ret = {}
+        when :network
+          #todo test!
+          ret = { network: NetworkInfo.info}
         else
           log.error "No information about #{about}"
       end
       ret
     end
-
   end
 end

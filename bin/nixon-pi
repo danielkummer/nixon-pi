@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 
-$environment = ENV['RACK_ENV'] #default value if nothing else is set
+$environment = ENV['RACK_ENV'] # default value if nothing else is set
 $force_mock_client = false
 
 if ARGV.any?
   require 'optparse'
-  OptionParser.new { |op|
+  OptionParser.new do |op|
     op.on('-e env', 'set the environment (default is development, others are test and production)') do |val|
       $environment  = val
     end
@@ -18,9 +18,8 @@ if ARGV.any?
       puts op
       exit
     end
-  }.parse!(ARGV.dup)
+  end.parse!(ARGV.dup)
 end
 require_relative '../lib/nixonpi_service'
 server = NixonPi::NixieService.new
 server.run!
-

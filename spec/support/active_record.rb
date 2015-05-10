@@ -5,7 +5,7 @@ require 'shoulda/matchers'
 
 ENV['RACK_ENV'] = 'test'
 
-ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
+ActiveRecord::Base.establish_connection adapter: 'sqlite3', database: ':memory:'
 
 module ActiveModel::Validations
   # Extension to enhance `should have` on AR Model instances.  Calls
@@ -22,9 +22,9 @@ module ActiveModel::Validations
   #     model.errors_on(:attribute).should include("can't be blank")
   def errors_on(attribute)
     self.valid?
-    [self.errors[attribute]].flatten.compact
+    [errors[attribute]].flatten.compact
   end
-  alias :error_on :errors_on
+  alias_method :error_on, :errors_on
 end
 
-ActiveRecord::Migrator.up("../db/migrate")
+ActiveRecord::Migrator.up('../db/migrate')

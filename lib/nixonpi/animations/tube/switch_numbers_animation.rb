@@ -3,11 +3,10 @@ require_relative '../animation'
 # This animation increments every number by one, the number of turnarounds can be specified
 #
 
-#todo refactor!!
+# TODO: refactor!!
 module NixonPi
   module Animations
     class SwitchNumbersAnimation < Animation
-
       register :switch_numbers, self
       accepted_commands :start_value, :turnarounds
 

@@ -1,8 +1,6 @@
 require 'settingslogic'
 require 'fileutils'
 
-YAML::ENGINE.yamler= 'syck'
-
 ##
 # Monkeypath settingslogic
 class Settingslogic
@@ -11,12 +9,11 @@ class Settingslogic
   def method_missing(name, *args, &block)
     super if name === :to_ary # delegate to_ary to Hash
     key = name.to_s
-    return missing_key("Missing setting '#{key}' in #@section") unless has_key? key
+    return missing_key("Missing setting '#{key}' in #{@section}") unless key? key
     value = fetch(key)
     create_accessor_for(key)
-    value.is_a?(Hash) ? self.class.new(value, "'#{key}' section in #@section") : value
+    value.is_a?(Hash) ? self.class.new(value, "'#{key}' section in #{@section}") : value
   end
-
 end
 
 module NixonPi
@@ -27,7 +24,7 @@ module NixonPi
       ##
       # Get the path to the configuration file
       def config_path
-        File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "config", "nixonpi-settings.yml"))
+        File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'config', 'nixonpi-settings.yml'))
       end
     end
 

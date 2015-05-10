@@ -20,8 +20,9 @@ module NixonPi
     #    end
     #
     def retryable(options = {})
-      opts = {:retry_times => 10, :on => Exception}.merge(options)
-      retry_times, try_exception = opts[:retry_times], opts[:on]
+      opts = { retry_times: 10, on: Exception }.merge(options)
+      retry_times = opts[:retry_times]
+      try_exception = opts[:on]
       begin
         yield
       rescue try_exception => e

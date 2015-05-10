@@ -6,8 +6,8 @@ module NixonPi
   class LampProxy
     include Logging
 
-    def initialize(options = {ports: nil})
-      log.info "Initializing lamps driver"
+    def initialize(options = { ports: nil })
+      log.info 'Initializing lamps driver'
       @pwm_driver = PwmDriver.new(options)
     end
 
@@ -24,19 +24,18 @@ module NixonPi
     # Write multiple lamp values at once
     # @param [Array] value_array 0 = off, >=1 = on
 
-    #todo refactor
+    # TODO: refactor
     def write(value_array)
       if value_array.is_a?(Hash)
-        if value_array.has_key?(:lamp) and value_array.has_key?(:value)
+        if value_array.key?(:lamp) && value_array.key?(:value)
           write_to_lamp(value_array[:lamp], value_array[:value])
         else
-          raise ArgumentError
+          fail ArgumentError
         end
       else
         value_array.map! { |x| x.to_i >= 1 ? 255 : 0 }
         @pwm_driver.write(value_array)
       end
-
     end
   end
 end

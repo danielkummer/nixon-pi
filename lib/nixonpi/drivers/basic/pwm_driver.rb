@@ -4,12 +4,12 @@ module NixonPi
   class PwmDriver
     include Driver
 
-    def initialize(options = {ports: nil})
+    def initialize(options = { ports: nil })
       client.pwm_reset
       dim_all(100)
       @values = {}
       @ports = options[:ports]
-      log.debug "initialize pwm ports #{@ports.to_s}"
+      log.debug "initialize pwm ports #{@ports}"
     end
 
     def pwm_values
@@ -21,11 +21,11 @@ module NixonPi
     # @param [Array] values of integers between 0 and 255
     #
     def write(values)
-      if values.kind_of? Hash #todo hacky - refactor
-        raise "wrong hash format, expected the keys 'port' and 'value'" unless values.has_key?(:port) and values.has_key?(:value)
+      if values.is_a? Hash # TODO: hacky - refactor
+        fail "wrong hash format, expected the keys 'port' and 'value'" unless values.key?(:port) && values.key?(:value)
         write_to_port(values[:port], values[:value])
-      elsif values.kind_of? Array
-        log.error "more values than configured lamps" and return if values.size > @ports.size
+      elsif values.is_a? Array
+        log.error('more values than configured lamps') && return if values.size > @ports.size
         values.map! { |x| x.to_i > 255 ? 255 : x.to_i }
         client.pwm_write_registers(start_index: @ports.sort.first, values: values)
       end
@@ -39,7 +39,7 @@ module NixonPi
     def write_to_port(port, value)
       value = value.to_i
       @values[port.to_i] = value
-      #log.debug "write bar #{port} value #{value}"
+      # log.debug "write bar #{port} value #{value}"
       client.pwm_write(@ports[port.to_i], value)
     end
 
