@@ -2,13 +2,13 @@ set :application, 'nixon-pi'
 set :scm, :none
 set :repository, '.'
 
-server 'nixonpi', :app, :web, :db
+server '10.0.1.14', :app, :web, :db
 
 set :deploy_to, '/home/pi/nixon-pi'
 set :deploy_via, :copy
 set :branch, Regexp.last_match(1) if `git branch` =~ /\* (\S+)\s/m
 
-set :copy_local_tar, '/usr/bin/gnutar' if `uname` =~ /Darwin/
+set :copy_local_tar, '/usr/local/bin/gtar' if `uname` =~ /Darwin/
 
 require 'rvm/capistrano' # Load RVM's capistrano plugin.
 
@@ -23,7 +23,7 @@ set :password, 'pi'
 set :use_sudo, false
 
 namespace :app do
-  desc 'Check if appliction is running'
+  desc 'Check if application is running'
   task :status do
     run "ps -ef | grep #{application} | grep -v grep || echo 'no process with name #{application} found'"
   end
