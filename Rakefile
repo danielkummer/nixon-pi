@@ -12,4 +12,5 @@ require 'sinatra/activerecord/rake'
 require 'sinatra'
 require 'sinatra/activerecord'
 
-set :database, 'sqlite3:///db/settings.db'
+# set config for rake tasks
+set :database, {adapter: 'sqlite3', database: 'nixonpi.sqlite3'}

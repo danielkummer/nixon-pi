@@ -46,7 +46,7 @@ module NixonPi
         logger.level = eval "Logger::#{Settings.log_level}"
         logger.progname = classname
         logger.formatter = proc do |severity, datetime, progname, msg|
-          format = "[#{severity}] #{progname} -- #{datetime.strftime('%Y-%m-%d %H:%M:%S')}: #{msg}\n"
+          format = "[#{severity}] #{progname} #{caller[4]} -- #{datetime.strftime('%Y-%m-%d %H:%M:%S')}: #{msg}\n"
           case severity
             when 'INFO'
               format = format.green

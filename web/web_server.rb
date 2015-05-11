@@ -38,7 +38,7 @@ module NixonPi
     # TODO: always development
     set environment: ENV['RACK_ENV'].to_sym
     #set :database, 'sqlite:///../db/settings.db'
-    set :database, {adapter: "sqlite3", database: "../db/settings.db"}
+    set :database, {adapter: 'sqlite3', database: 'nixonpi.sqlite3'}
     set :public_folder, File.join(File.dirname(__FILE__), 'public')
     set :haml, format: :html5
 

@@ -18,6 +18,7 @@ Many thanks to all who contributed and hopefully will contribute to this project
 - [Service](#service)
 - [Web Server](#web_server)
 - [API](#api)
+- [Raspberry PI](#raspberry_pi)
 
 --------------------------
 
@@ -571,4 +572,9 @@ Returns:
 	}
 
 
+#<a id="raspberry_pi" name="raspberry_pi"></a> Raspberry PI
+
+## Network Configuration
+
+Use the example file config/network.config.example to configure network and wifi.
 

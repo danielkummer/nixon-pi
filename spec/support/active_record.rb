@@ -5,7 +5,7 @@ require 'shoulda/matchers'
 
 ENV['RACK_ENV'] = 'test'
 
-ActiveRecord::Base.establish_connection adapter: 'sqlite3', database: ':memory:'
+ActiveRecord::Base.establish_connection adapter: 'sqlite3',  database: ':memory:'
 
 module ActiveModel::Validations
   # Extension to enhance `should have` on AR Model instances.  Calls
