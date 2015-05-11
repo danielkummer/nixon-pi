@@ -27,4 +27,14 @@ module ActiveModel::Validations
   alias_method :error_on, :errors_on
 end
 
-ActiveRecord::Migrator.up('../db/migrate')
+ActiveRecord::Migrator.up('db/migrate')
+
+
+RSpec.configure do |config|
+  config.around do |example|
+    ActiveRecord::Base.transaction do
+      example.run
+      raise ActiveRecord::Rollback
+    end
+  end
+end

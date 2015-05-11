@@ -9,32 +9,19 @@ ActiveRecord::Base.logger = nil
 
 class Command < ActiveRecord::Base
   include ActiveModel::Validations
-  include ActiveModel::MassAssignmentSecurity
-
-  attr_accessible :target,
-                  :state,
-                  :value,
-                  :animation_name,
-                  :options
+  include ActiveModel::ForbiddenAttributesProtection
 
   validates_presence_of :target
   validates_with CommandValidator
 
-  def assign_attributes(values, options = {})
-    sanitize_for_mass_assignment(values, options[:as]).each do |k, v|
-      send("#{k}=", v)
-    end
-  end
+  #def assign_attributes(values, options = {})
+  #  sanitize_for_mass_assignment(values, options[:as]).each do |k, v|
+  #    send("#{k}=", v)
+  #  end
+  #end
 end
 
 class Schedule < ActiveRecord::Base
-  attr_accessible :id,
-                  :method,
-                  :timing,
-                  :target,
-                  :command,
-                  :lock
-
   validates_presence_of :target, :method, :timing, :command
 
   validate :valid_schedule?
@@ -44,7 +31,7 @@ class Schedule < ActiveRecord::Base
     case method.to_sym
       when :in, :every
         begin
-          Rufus.parse_time_string(timing)
+          Rufus::Scheduler.parse(timing)
         rescue ArgumentError => e
           errors.add(:timing, "Schedule invalid for method #{method} with timing #{timing}: #{e.message}")
         end

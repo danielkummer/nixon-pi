@@ -1,6 +1,6 @@
 require_relative 'spec_helper'
 require_relative 'support/active_record'
-require_relative '../web/models'
+require_relative '../db/models'
 
 describe Schedule do
   it 'should throw an error on an unsupported timing method' do

@@ -1,6 +1,6 @@
 require_relative 'spec_helper'
 require_relative 'support/active_record'
-# require_relative '../web/models'
+require_relative '../db/models'
 
 describe Command do
   context 'tube commands' do
