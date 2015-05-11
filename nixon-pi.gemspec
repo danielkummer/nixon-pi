@@ -50,6 +50,8 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'simplecov-gem-adapter'
   gem.add_development_dependency 'mocha'
   gem.add_development_dependency 'ruby-graphviz'
-  gem.add_development_dependency 'capistrano'
-  gem.add_development_dependency 'railsless-deploy'
+  gem.add_development_dependency 'capistrano', '~> 3.0'
+  gem.add_development_dependency 'capistrano-bundler', '~> 1.1'
+  gem.add_development_dependency 'capistrano-rvm', '~> 0.1'
+  gem.add_development_dependency 'capistrano-scm-gitcopy'
 end
