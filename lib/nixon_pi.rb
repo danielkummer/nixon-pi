@@ -3,6 +3,10 @@ require 'active_record'
 
 require 'nixon_pi/cli/application'
 
+
+require 'nixon_pi/dependency_injection/container'
+require 'nixon_pi/dependency_injection/injectable'
+
 require 'nixon_pi/state_hash'
 
 
@@ -12,7 +16,6 @@ require 'nixon_pi/os_info'
 require 'nixon_pi/blank_monkeypatch'
 require 'nixon_pi/hash_monkeypatch'
 
-require 'nixon_pi/dependency_injection'
 require 'nixon_pi/version'
 require 'nixon_pi/multi_delegator'
 require 'nixon_pi/logging'

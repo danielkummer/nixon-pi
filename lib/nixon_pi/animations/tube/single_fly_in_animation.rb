@@ -7,6 +7,7 @@ module NixonPi
   module Animations
     class SingleFlyInAnimation < Animation
       include Commands
+      include NixonPi::DependencyInjection
 
       register :single_fly_in, self
       accepted_commands :start_value, :goto_state, :goto_target

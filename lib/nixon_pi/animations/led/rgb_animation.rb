@@ -1,6 +1,8 @@
 module NixonPi
   module Animations
     class RgbAnimation < Animation
+      include NixonPi::DependencyInjection
+
       register :rgb_animation, self
       accepted_commands :mode, :colors
 

@@ -2,12 +2,14 @@ require 'state_machine'
 
 module NixonPi
   class LampStateMachine < BaseStateMachine
+    include NixonPi::DependencyInjection
+
     register :lamp, self
     accepted_commands :state, :value, :animation_name, :options
 
     def initialize
       super()
-      register_driver get_injected(:in1_proxy)
+      register_driver NixonPi::DependencyInjection::Container.get_injected(:in1_proxy)
     end
 
     state_machine do

@@ -3,6 +3,8 @@ require 'active_support/inflector'
 
 module NixonPi
   class TubeStateMachine < BaseStateMachine
+    include NixonPi::DependencyInjection
+
     include Logging
 
     register :tubes, self
@@ -10,7 +12,7 @@ module NixonPi
 
     def initialize
       super()
-      register_driver get_injected(:in12a_driver)
+      register_driver NixonPi::DependencyInjection::Container.get_injected(:in12a_driver)
     end
 
     state_machine do

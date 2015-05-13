@@ -1,6 +1,8 @@
 module NixonPi
   module Animations
     class CountFromToAnimation < Animation
+      include NixonPi::DependencyInjection
+
       register :count_from_to, self
       accepted_commands :start_value, :single_digit?
 

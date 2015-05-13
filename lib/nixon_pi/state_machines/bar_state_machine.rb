@@ -2,12 +2,14 @@ require 'state_machine'
 
 module NixonPi
   class BarStateMachine < BaseStateMachine
+    include NixonPi::DependencyInjection
+
     register :bar, self
     accepted_commands :state, :value, :animation_name, :options
 
     def initialize
       super()
-      register_driver get_injected(:in13_driver)
+      register_driver NixonPi::DependencyInjection::Container.get_injected(:in13_driver)
     end
 
     state_machine do

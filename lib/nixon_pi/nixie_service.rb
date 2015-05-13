@@ -2,6 +2,7 @@ module NixonPi
   class NixieService
     include Logging
     include OSInfo
+    include DependencyInjection
 
     ActiveRecord::Base.logger = Logger.new(STDERR)
 
@@ -46,22 +47,22 @@ module NixonPi
       end
 
       @message_distributor.add_receiver(NixonPi::Driver::Proxy::SoundProxy.new, :sound)
-      @message_distributor.add_receiver(get_injected(:power), :power)
+      @message_distributor.add_receiver(NixonPi::DependencyInjection::Container.get_injected(:power), :power)
       @message_distributor.add_receiver(NixonPi::Scheduler.new, :schedule)
-      @message_distributor.add_receiver(get_injected(:background), :background)
+      @message_distributor.add_receiver(NixonPi::DependencyInjection::Container.get_injected(:background), :background)
 
       @info_gatherer.add_target(NixonPi::HardwareInfo.new, :hardware)
       @info_gatherer.add_target(NixonPi::Driver::Proxy::SoundProxy.new, :sound)
       @info_gatherer.add_target(NixonPi::Scheduler.new, :schedule)
-      @info_gatherer.add_target(get_injected(:power), :power)
-      @info_gatherer.add_target(get_injected(:background), :background)
+      @info_gatherer.add_target(NixonPi::DependencyInjection::Container.get_injected(:power), :power)
+      @info_gatherer.add_target(NixonPi::DependencyInjection::Container.get_injected(:background), :background)
       @info_gatherer.add_target(@message_distributor, :commands)
 
-      @info_gatherer.add_target(get_class(:single_fly_in), :single_fly_in)
-      @info_gatherer.add_target(get_class(:switch_numbers), :switch_numbers)
-      @info_gatherer.add_target(get_class(:rgb_animation), :rgb_animation)
-      @info_gatherer.add_target(get_class(:ramp_up_down), :ramp_up_down)
-      @info_gatherer.add_target(get_class(:blink), :blink)
+      @info_gatherer.add_target(NixonPi::DependencyInjection::Container.get_class(:single_fly_in), :single_fly_in)
+      @info_gatherer.add_target(NixonPi::DependencyInjection::Container.get_class(:switch_numbers), :switch_numbers)
+      @info_gatherer.add_target(NixonPi::DependencyInjection::Container.get_class(:rgb_animation), :rgb_animation)
+      @info_gatherer.add_target(NixonPi::DependencyInjection::Container.get_class(:ramp_up_down), :ramp_up_down)
+      @info_gatherer.add_target(NixonPi::DependencyInjection::Container.get_class(:blink), :blink)
 
       DRb.start_service('druby://localhost:9001', @info_gatherer)
     end
@@ -86,7 +87,7 @@ module NixonPi
       NixonPi::Messaging::CommandSender.new.send_command(:lamp4, state: :free_value, value: 0)
 
       NixonPi::Messaging::CommandSender.new.send_command(:sound, value: 'Power on!')
-      get_injected(:power).power_on
+      NixonPi::DependencyInjection::Container.get_injected(:power).power_on
 
       NixonPi::MachineManager.start_state_machines
       NixonPi::MachineManager.join_threads # this must be inside the main run script - else the subthreads exit

@@ -6,6 +6,8 @@
 module NixonPi
   module Animations
     class BlinkAnimation < Animation
+      include NixonPi::DependencyInjection
+
       register :blink, self
       accepted_commands :lamp, :no_of_times
 

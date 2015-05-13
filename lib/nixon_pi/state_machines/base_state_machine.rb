@@ -37,7 +37,7 @@ module NixonPi
             options['start_value'] = params[:value]
           end
           handle_command(state: params[:last_state]) if options.empty? # leave state if options are empty!!
-          @animation = get_injected(name.to_sym, true, options)
+          @animation = NixonPi::DependencyInjection::Container.get_injected(name.to_sym, true, options)
           @animation.use_driver(@driver)
         end
 

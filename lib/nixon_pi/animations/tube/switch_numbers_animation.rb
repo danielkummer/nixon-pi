@@ -7,6 +7,8 @@
 module NixonPi
   module Animations
     class SwitchNumbersAnimation < Animation
+      include NixonPi::DependencyInjection
+
       register :switch_numbers, self
       accepted_commands :start_value, :turnarounds
 

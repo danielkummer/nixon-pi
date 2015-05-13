@@ -3,6 +3,7 @@ module NixonPi
   module Animations
     class RampUpDownAnimation < Animation
       include Easing
+      include NixonPi::DependencyInjection
 
       register :ramp_up_down, self
       accepted_commands :bar, :total_time

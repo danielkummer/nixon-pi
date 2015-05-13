@@ -2,12 +2,14 @@ require 'state_machine'
 
 module NixonPi
   class RgbStateMachine < BaseStateMachine
+    include NixonPi::DependencyInjection
+
     register :rgb, self
     accepted_commands :state, :value, :animation_name, :options
 
     def initialize
       super()
-      register_driver get_injected(:rgb_proxy)
+      register_driver NixonPi::DependencyInjection::Container.get_injected(:rgb_proxy)
     end
 
     state_machine do
