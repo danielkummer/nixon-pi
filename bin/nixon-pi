@@ -1,17 +1,28 @@
 #!/usr/bin/env ruby
 
-$environment = ENV['RACK_ENV'] # default value if nothing else is set
-$force_mock_client = false
+#require 'nixon_pi'
+require 'thor'
 
+require 'nixon_pi'
+
+NixonPi::Cli::Application.start(ARGV)
+
+
+=begin
+ENV['RACK_ENV'] = 'development'
+ENV['NIXON_PI_FORCE_MOCK'] = 'false'
+
+
+#TODO replace with thor
 if ARGV.any?
   require 'optparse'
   OptionParser.new do |op|
     op.on('-e env', 'set the environment (default is development, others are test and production)') do |val|
-      $environment  = val
+      ENV['RACK_ENV'] = val
     end
-    op.on('-m', 'force the usage of the telnet mock interface') { $force_mock_client = true }
+    op.on('-m', 'force the usage of the telnet mock interface') { ENV['NIXON_PI_FORCE_MOCK'] = 'true' }
     op.on('-p port', 'set the webserver port (default is 8080)') do |val|
-      require_relative '../lib/nixonpi/configurations/settings'
+      require 'lib/nixon_pi/settings'
       NixonPi::Settings['web_server']['port'] = val
     end
     op.on('-h', '--help', 'Display help') do
@@ -20,6 +31,9 @@ if ARGV.any?
     end
   end.parse!(ARGV.dup)
 end
-require_relative '../lib/nixonpi_service'
+
+require 'nixon_pi'
+
 server = NixonPi::NixieService.new
 server.run!
+=end

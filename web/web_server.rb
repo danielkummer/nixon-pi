@@ -13,8 +13,6 @@ require 'sinatra/jsonp'
 require 'drb'
 require_relative '../lib/version'
 
-$environment = ENV['RACK_ENV']
-
 require_relative '../lib/nixonpi/configurations/settings'
 require_relative '../db/models'
 require_relative '../lib/blank_monkeypatch'
@@ -38,7 +36,7 @@ module NixonPi
     # TODO: always development
     set environment: ENV['RACK_ENV'].to_sym
     #set :database, 'sqlite:///../db/settings.db'
-    set :database, {adapter: "sqlite3", database: "../db/settings.db"}
+    set :database, {adapter: "sqlite3", database: Settings.database}
     set :public_folder, File.join(File.dirname(__FILE__), 'public')
     set :haml, format: :html5
 

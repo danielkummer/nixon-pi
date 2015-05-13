@@ -1,15 +1,13 @@
 require 'bundler/gem_tasks'
 
-# if $environment == 'development'
-require 'rspec/core/rake_task'
 require 'tasks/state_machine'
-RSpec::Core::RakeTask.new('spec')
-task default: :spec
-# end
-
 require 'sinatra/activerecord/rake'
 
 require 'sinatra'
 require 'sinatra/activerecord'
 
-set :database, 'sqlite3:///db/settings.db'
+require 'lib/nixonpi/configurations/settings'
+
+set :database, {adapter: "sqlite3", database: Settings.database}
+
+Dir.glob('tasks/**/*.rake').each(&method(:import))

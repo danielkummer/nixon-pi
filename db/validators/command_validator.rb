@@ -1,5 +1,4 @@
 # http://api.rubyonrails.org/classes/ActiveModel/Validator.html
-require_relative '../../lib/blank_monkeypatch'
 
 class CommandValidator < ActiveModel::Validator
   def validate(record)

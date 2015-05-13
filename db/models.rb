@@ -1,8 +1,6 @@
 require 'active_record'
 require 'active_model/validations'
 require 'chronic_duration'
-require_relative '../lib/blank_monkeypatch'
-require_relative '../lib/nixonpi/configurations/settings'
 require_relative 'validators/command_validator'
 
 ActiveRecord::Base.logger = nil

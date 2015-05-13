@@ -1,10 +1,11 @@
 # -*- encoding: utf-8 -*-
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'version'
+
+require 'nixon_pi/version'
 
 Gem::Specification.new do |gem|
-  gem.name          = 'nixon-pi'
+  gem.name          = 'nixon_pi'
   gem.version       = NixonPi::VERSION
   gem.authors       = ['Daniel Kummer']
   gem.email         = %w(daniel.kummer@gmail.com)
@@ -15,7 +16,8 @@ Gem::Specification.new do |gem|
   gem.has_rdoc      = true
 
   gem.files         = `git ls-files`.split($INPUT_RECORD_SEPARATOR)
-  gem.executables   = gem.files.grep(%r{^bin/}).map { |f| File.basename(f) }
+  #gem.executables   = gem.files.grep(%r{^bin/}).map { |f| File.basename(f) }
+  gem.executables   = ["nixon-pi"]
   gem.default_executable = 'nixon-pi'
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = %w(lib config)
@@ -35,10 +37,12 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'sinatra-formhelpers'
   gem.add_dependency 'sinatra-jsonp'
   gem.add_dependency 'json'
+  gem.add_dependency 'thor'
 
   gem.add_dependency 'haml'
   gem.add_dependency 'chronic_duration'
   gem.add_dependency 'thin'
+  gem.add_dependency 'colorize'
 
   gem.add_development_dependency 'less'
   gem.add_development_dependency 'rdoc'
