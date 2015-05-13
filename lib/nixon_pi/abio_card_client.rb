@@ -216,7 +216,7 @@ module NixonPi
     # and in test a mock object for verbose output
     # @param [String]
     def connection_for(environment)
-      if ENV['NIXON_PI_FORCE_MOCK']
+      if ENV['NIXON_PI_FORCE_MOCK'] == 'true'
         log.info 'Force usage of mock client'
         return MockTelnet.new
       end

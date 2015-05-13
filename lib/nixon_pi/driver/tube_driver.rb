@@ -3,6 +3,7 @@ module NixonPi
   module Driver
     class TubeDriver
       include Driver
+      include Logging
 
       BLANK_NUM = 10
       # elementOrder 1,6,2,7,5,0,4,9,8,3

@@ -2,6 +2,7 @@ module NixonPi
   module Driver
     class IoDriver
       include Logging
+      include Driver
 
       def initialize(ports)
         @ports = ports

@@ -17,6 +17,8 @@ module NixonPi
       log.info "Environment: #{ENV['RACK_ENV']}"
 
       ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: Settings.database)
+
+      log.debug 'Running migrations'
       ActiveRecord::Migrator.up('/db/migrate')
 
       # Kill process if interrupted while initializing
@@ -43,13 +45,13 @@ module NixonPi
         @info_gatherer.add_target(receiver, target)
       end
 
-      @message_distributor.add_receiver(SoundProxy.new, :sound)
+      @message_distributor.add_receiver(NixonPi::Driver::Proxy::SoundProxy.new, :sound)
       @message_distributor.add_receiver(get_injected(:power), :power)
       @message_distributor.add_receiver(NixonPi::Scheduler.new, :schedule)
       @message_distributor.add_receiver(get_injected(:background), :background)
 
-      @info_gatherer.add_target(HardwareInfo.new, :hardware)
-      @info_gatherer.add_target(SoundProxy.new, :sound)
+      @info_gatherer.add_target(NixonPi::HardwareInfo.new, :hardware)
+      @info_gatherer.add_target(NixonPi::Driver::Proxy::SoundProxy.new, :sound)
       @info_gatherer.add_target(NixonPi::Scheduler.new, :schedule)
       @info_gatherer.add_target(get_injected(:power), :power)
       @info_gatherer.add_target(get_injected(:background), :background)

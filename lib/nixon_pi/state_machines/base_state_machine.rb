@@ -53,8 +53,7 @@ module NixonPi
     end
 
     def reload_state
-      #TODO use new naming scheme!
-      ActiveRecord::Base.establish_connection('sqlite3:///db/settings.db')
+      ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: Settings.database)
       options = Command.find(:first, conditions: ['target LIKE ?', registered_as_type])
       ActiveRecord::Base.connection.close
       if options
@@ -125,7 +124,7 @@ module NixonPi
     ##
     # Lazy initialize state hash if not already existing
     def initialize_state
-      @state_parameters = StateHash.new
+      @state_parameters = NixonPi::StateHash.new
       self.class.available_commands.each do |cmd|
         @state_parameters[cmd] = nil
       end

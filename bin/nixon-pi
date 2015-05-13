@@ -1,9 +1,23 @@
 #!/usr/bin/env ruby
 
 #require 'nixon_pi'
-require 'thor'
+ENV['RACK_ENV'] = 'development'
 
-require 'nixon_pi'
+begin
+  require 'thor'
+  require 'nixon_pi'
+rescue LoadError => e
+  require 'rubygems'
+  require 'thor'
+  require 'nixon_pi'
+  #path = File.expand_path '../../lib', __FILE__
+  #$:.unshift(path) if File.directory?(path) && !$:.include?(path)
+  #require 'rain_singing/application/app.rb'
+end
+
+
+
+
 
 NixonPi::Cli::Application.start(ARGV)
 

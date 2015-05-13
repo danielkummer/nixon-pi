@@ -3,6 +3,7 @@ module NixonPi
   module Driver
     class PwmDriver
       include Driver
+      include Logging
 
       def initialize(options = {ports: nil})
         client.pwm_reset

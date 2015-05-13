@@ -9,7 +9,7 @@ module NixonPi
     accepted_commands :method, :timing, :target, :command, :time, :id, :delete
 
     def initialize
-      @@scheduler ||= Rufus::Scheduler.start_new
+      @@scheduler ||= Rufus::Scheduler.new
       @@jobs = {}
 
       def @@scheduler.handle_exception(job, exception)
@@ -23,7 +23,7 @@ module NixonPi
     def reload
       # delete all ambiguous records
       # Schedule.find(:all, conditions: ["method IN (?)", %w(in every)])
-      schedules = Schedule.find(:all)
+      schedules = Schedule.all
       schedules.each do |s|
         schedule(s.id, s.method, s.timing, s.target, s.command)
       end

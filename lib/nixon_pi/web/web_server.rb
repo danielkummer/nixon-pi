@@ -11,13 +11,7 @@ require 'active_record'
 require 'sinatra/form_helpers'
 require 'sinatra/jsonp'
 require 'drb'
-require_relative '../lib/version'
 
-require_relative '../lib/nixonpi/configurations/settings'
-require_relative '../db/models'
-require_relative '../lib/blank_monkeypatch'
-require_relative '../lib/nixonpi/messaging/command_sender'
-require_relative '../lib/nixonpi/hash_monkeypatch'
 
 REMOTE_INFO_PROXY = DRbObject.new_with_uri('druby://localhost:9001')
 DRb.start_service
@@ -36,7 +30,7 @@ module NixonPi
     # TODO: always development
     set environment: ENV['RACK_ENV'].to_sym
     #set :database, 'sqlite:///../db/settings.db'
-    set :database, {adapter: "sqlite3", database: Settings.database}
+    set :database, {adapter: 'sqlite3', database: Settings.database}
     set :public_folder, File.join(File.dirname(__FILE__), 'public')
     set :haml, format: :html5
 
@@ -410,6 +404,6 @@ module NixonPi
       data
     end
 
-    run! if app_file == $PROGRAM_NAME
+    #run! if app_file == $PROGRAM_NAME
   end
 end

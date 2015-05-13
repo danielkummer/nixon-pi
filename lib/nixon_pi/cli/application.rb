@@ -14,8 +14,15 @@ module NixonPi
       desc 'start', 'starts the background service'
       def start
 
+        ENV['NIXON_PI_FORCE_MOCK'] = 'true' if options[:mock]
+
+        NixonPi::WebServer.run!
         server = NixonPi::NixieService.new
         server.run!
+
+
+
+
 
       end
 
