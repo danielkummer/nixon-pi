@@ -24,10 +24,6 @@ require 'nixon_pi/hex_bit_convert'
 
 require 'nixon_pi/direct_io'
 require 'nixon_pi/mock_telnet'
-#require 'spec/support/mock_telnet' if ENV['RACK_ENV'] == 'test' || ENV['NIXON_PI_FORCE_MOCK']
-
-
-
 require 'nixon_pi/information_proxy'
 require 'nixon_pi/information_holder'
 require 'nixon_pi/hardware_info'
@@ -71,7 +67,7 @@ require 'nixon_pi/state_machines/rgb_state_machine'
 require 'nixon_pi/state_machines/tube_state_machine'
 require 'nixon_pi/state_machines/machine_manager'
 
-require_relative '../db/models'
+require 'nixon_pi/db/models'
 
 require 'nixon_pi/nixie_service'
 

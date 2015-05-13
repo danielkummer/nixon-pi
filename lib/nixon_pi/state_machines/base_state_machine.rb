@@ -73,7 +73,7 @@ module NixonPi
 
     ##
     # Receive command parameters to change the state of the current state machine
-    # TODO: this currently doesn't abord running animations
+    # TODO: this currently doesn't abort running animations
     # @param [Hash] command command parameters
     def handle_command(command)
       # TODO: add new param -> after state to specify a transition to go to  - can't use last state because it's aready used... - maybe its not needed anymore

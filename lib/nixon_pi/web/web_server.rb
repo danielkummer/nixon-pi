@@ -75,7 +75,7 @@ module NixonPi
       if request.accept? 'application/json'
         content_type :json
 
-        halt({success: 'false', message: e.message}.to_json)
+        halt({success: 'false', message: $ERROR_INFO.message}.to_json)
       end
       haml 'errors/rabbitmq_down'.to_sym, layout: false, locals: {
                                             info: {
@@ -131,7 +131,7 @@ module NixonPi
       @no_of_bars = Settings.in13_pins.size
       @no_of_lamps = Settings.in1_pins.size
       %w(tubes bar0 bar1 bar2 bar3 lamp1 lamp2 lamp3 lamp4 lamp5 background rgb ).each do |target|
-        initial = Command.find(:first, conditions: ['target LIKE ?', target]) || Command.new(target: target)
+        initial = Command.where('target LIKE ?', target).first || Command.new(target: target)
         instance_variable_set("@#{target}", initial)
       end
       haml :control, format: :html5

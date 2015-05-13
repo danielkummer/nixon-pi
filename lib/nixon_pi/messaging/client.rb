@@ -34,7 +34,7 @@ module NixonPi
       # Clean up
       def on_exit
         # queues delete
-        log.info 'closing connection to rabbitmq...'
+        #log.info 'closing connection to rabbitmq...'
         client.close
       end
     end

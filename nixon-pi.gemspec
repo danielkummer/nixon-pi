@@ -44,6 +44,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'thin'
   gem.add_dependency 'colorize'
   gem.add_dependency 'vegas'
+  gem.add_dependency 'eventmachine'
 
   gem.add_development_dependency 'less'
   gem.add_development_dependency 'rdoc'
