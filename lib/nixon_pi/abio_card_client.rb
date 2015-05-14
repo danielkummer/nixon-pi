@@ -247,7 +247,7 @@ module NixonPi
         when Errno::ECONNRESET, Errno::ECONNABORTED, Errno::ETIMEDOUT, Errno::EPIPE
           log.error e.message
           connection || raise
-        when NixonPi::RetryError => e
+        when NixonPi::RetryError
           log.error e.message
           exit
           exit! #force shutdown!

@@ -68,21 +68,7 @@ module NixonPi
 
           #NixonPi::WebServer.run!({port: 3000})
         end
-
-
-
-
-
-
       end
-
-      desc 'Install', 'Install application'
-
-      def install
-
-      end
-
-
     end
   end
 end
