@@ -28,7 +28,7 @@ Gem::Specification.new do |gem|
   # gem.add_dependency 'festivaltts4r'
   gem.add_dependency 'rufus-scheduler', '~> 3.1.1'
   gem.add_dependency 'foreman', '~> 0.78.0'
-  gem.add_dependency 'bunny'
+  gem.add_dependency 'bunny', '~> 0.9.8'#
   gem.add_dependency 'sinatra', '~> 1.4.6'
   gem.add_dependency 'sinatra-contrib', '~> 1.4.2'
   gem.add_dependency 'sinatra-activerecord', '~> 2.0.6'
@@ -45,6 +45,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'colorize', '~> 0.7.7'
   #gem.add_dependency 'vegas'
   gem.add_dependency 'eventmachine', '~> 1.0.7'
+  gem.add_dependency 'em_pessimistic', '~> 0.2.0'
 
   gem.add_development_dependency 'less', '~> 2.6.0'
   gem.add_development_dependency 'rdoc', '~> 4.2.0'

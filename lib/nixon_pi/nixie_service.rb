@@ -22,12 +22,10 @@ module NixonPi
       log.debug 'Running migrations'
       ActiveRecord::Migrator.up('/db/migrate')
 
-      # Kill process if interrupted while initializing
-      %w(INT TERM).each { |sig| Signal.trap(sig) { Process.kill 9, Process.pid } }
 
       begin
-      @message_distributor = NixonPi::Messaging::CommandReceiver.new
-      @info_gatherer = NixonPi::InformationProxy.new
+        @message_distributor = NixonPi::Messaging::CommandReceiver.new
+        @info_gatherer = NixonPi::InformationProxy.new
       rescue Bunny::TCPConnectionFailed
         log.error 'RabbitMQ server not found! is it running?'
         exit!(false)

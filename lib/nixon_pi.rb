@@ -1,8 +1,8 @@
 require 'thread'
 require 'active_record'
 
+require 'nixon_pi/runner'
 require 'nixon_pi/cli/application'
-
 
 require 'nixon_pi/dependency_injection/container'
 require 'nixon_pi/dependency_injection/injectable'
