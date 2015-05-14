@@ -2,8 +2,8 @@ namespace :deploy do
   desc 'Link production db into current directory'
   task :link_db do
     on roles(:db) do
-      execute "rm -f  #{latest_release}/db/settings.db"
-      execute "ln -s #{shared_path}/db/settings.db #{latest_release}/db/settings.db"
+      execute "rm -f  #{latest_release}/nixonpi.sqlite3"
+      execute "ln -s #{shared_path}/nixonpi.sqlite3 #{latest_release}/nixonpi.sqlite3"
     end
   end
 

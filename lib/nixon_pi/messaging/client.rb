@@ -7,6 +7,7 @@ module NixonPi
 
       ##
       # RabbitMQ Client
+      # @raise [Bunny::TCPConnectionFailed] if server not reachable
       def client
         unless $client
           conn = Bunny.new

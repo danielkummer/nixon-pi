@@ -10,6 +10,7 @@ module NixonPi
       include Client
       include NixonPi::InformationHolder
 
+      # @raise [Bunny::TCPConnectionFailed] if rabbitmq server not reachable
       def initialize
         @receivers = {}
         @locks = Set.new

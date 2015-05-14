@@ -33,7 +33,7 @@ module NixonPi
           retry
         end
         log.info "failed retrying... #{e.message}"
-        raise RetryError
+        raise RetryError, "Reached retry threshold of #{opts[:retry_times]}"
       end
     end
   end

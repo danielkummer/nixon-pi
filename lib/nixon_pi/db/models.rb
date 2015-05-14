@@ -6,6 +6,8 @@ require_relative 'validators/command_validator'
 ActiveRecord::Base.logger = nil
 
 class Command < ActiveRecord::Base
+  serialize :options, Hash
+
   include ActiveModel::Validations
   include ActiveModel::ForbiddenAttributesProtection
 
