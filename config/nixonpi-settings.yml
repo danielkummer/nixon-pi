@@ -1,5 +1,6 @@
 defaults: &defaults
   log_level: DEBUG
+  database: nixon_pi.sqlite3
   telnet_server:
     host: 10.0.0.101
     port: 5678
@@ -37,6 +38,7 @@ test:
   <<: *defaults
 
 production:
+  database: nixon_pi.sqlite3
   log_level: INFO
   telnet_server:
       host: localhost

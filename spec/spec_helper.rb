@@ -1,5 +1,6 @@
+require 'nixon_pi'
 
-ENV['RACK_ENV'] ||= 'test'
+ENV['RACK_ENV'] = 'test'
 
 require 'rubygems'
 require 'bundler/setup'
@@ -8,8 +9,6 @@ require 'simplecov-gem-adapter'
 require_relative 'support/active_record'
 
 SimpleCov.start 'gem'
-
-$environment  = 'test'
 
 RSpec.configure do |config|
   config.run_all_when_everything_filtered = true

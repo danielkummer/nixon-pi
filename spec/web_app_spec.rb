@@ -4,7 +4,7 @@ require_relative 'support/active_record'
 require 'sinatra'
 require 'rack/test'
 
-$environment = 'test'
+
 set :environment, :test
 # set :database, 'sqlite:///spec/db/settings.db'
 
