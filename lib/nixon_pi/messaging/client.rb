@@ -10,10 +10,18 @@ module NixonPi
       # @raise [Bunny::TCPConnectionFailed] if server not reachable
       def client
         unless $client
-          conn = Bunny.new
-          conn.start
-          $client = conn
+
+          begin
+            conn = Bunny.new
+            conn.start
+            $client = conn
+          rescue Bunny::TCPConnectionFailed => e
+            #todo properly handle the connection error
+            log.error "Failed to connect to Rabbitmq: #{e.message}"
+            raise e
+          end
         end
+
         $client
       end
 

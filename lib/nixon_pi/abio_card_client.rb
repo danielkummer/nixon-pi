@@ -47,7 +47,6 @@ module NixonPi
     # @return [Time]
     def clock_read
       clock_regexp = /CR(?<year>\d{2})(?<month>\d{2})(?<day>\d{2})(?<hour>\d{2})(?<minute>\d{2})(?<second>\d{2})(?<powerup>\d)(?<battery>\d)/
-
       current_time = nil
       handle do
         connection.cmd('CR') do |return_value|
@@ -82,11 +81,9 @@ module NixonPi
     # @param [Integer] value 0..1
     def io_write(pin, value)
       value = 0 unless (0..1).include?(value) # set to 0 if out of bounds
-
       # write only if the output register changed
       if @out_register.nil? || @out_register[NUMBER_OF_IO_PORTS - 1 - pin] != value.to_s
         @out_register ||= ''.rjust(NUMBER_OF_IO_PORTS, '0')
-
         @out_register[NUMBER_OF_IO_PORTS - 1 - pin] = value.to_s
         handle { connection.cmd("EW#{bit_to_hex(@out_register)}") }
       end

@@ -46,6 +46,7 @@ Gem::Specification.new do |gem|
   #gem.add_dependency 'vegas'
   gem.add_dependency 'eventmachine', '~> 1.0.7'
   gem.add_dependency 'em_pessimistic', '~> 0.2.0'
+  gem.add_dependency 'amqp'
 
   gem.add_development_dependency 'less', '~> 2.6.0'
   gem.add_development_dependency 'rdoc', '~> 4.2.0'

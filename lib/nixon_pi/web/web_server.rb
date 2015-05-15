@@ -407,3 +407,5 @@ module NixonPi
     #run! if app_file == $PROGRAM_NAME
   end
 end
+
+#todo do we need DRb.thread.join ?

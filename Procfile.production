@@ -1,2 +1,1 @@
-service: ./bin/nixon-pi -e production
-web: thin start -p 80 -c web
+service: ./bin/nixon-pi run --environment production -p 80

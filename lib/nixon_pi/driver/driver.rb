@@ -1,4 +1,5 @@
 
+#todo refactor to parent class
 module NixonPi
   module Driver
 

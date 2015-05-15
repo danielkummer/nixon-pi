@@ -6,6 +6,8 @@ module NixonPi
     @@threads = []
 
     class << self
+      attr_accessor :state_machines
+
       ##
       # exit threads
       def exit

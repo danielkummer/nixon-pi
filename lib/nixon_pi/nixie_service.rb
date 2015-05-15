@@ -74,6 +74,7 @@ module NixonPi
     ##
     # Run service run
     def run!
+      #todo raises `lock': can't be called from trap context (ThreadError)
       [:INT, :TERM].each do |sig|
         trap(sig) do
           shutdown
@@ -112,7 +113,6 @@ module NixonPi
       log.info 'Blow the candles out...'
       get_injected(:power).power_off
       log.info 'Bye ;)'
-      exit!(true)
     end
   end
 end

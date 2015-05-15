@@ -7,7 +7,7 @@ module NixonPi
     def handle_info_request(about)
       ret = {}
       case about.to_sym
-        when :io_carad
+        when :io_card
           ret = { io_card: AbioCardClient.instance.info }
         when :pi
           # TODO: get information about cpu ram hdd etc..., (maybe distro)

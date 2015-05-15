@@ -28,7 +28,6 @@ module NixonPi
             receiver = metadata.type
             handle_access(receiver) do
               handle_lock(receiver, data_hash[:lock])
-
               handle_command_for(receiver, data_hash)
             end
           else
