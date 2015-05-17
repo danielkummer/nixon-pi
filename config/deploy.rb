@@ -2,27 +2,19 @@
 lock '3.4.0'
 
 set :application, 'nixon-pi'
-set :scm, :gitcopy
+set :scm, :git
 set :repo_url, 'git@github.com:danielkummer/nixon-pi.git'
 
-set :stage, :production
 
 # We will tell a white lie to Capistrano
 
-server '10.0.1.14', user: 'pi', roles: %w{app db web}, my_property: :my_value
-
-set :deploy_to, '/home/pi/nixon-pi'
 
 set :branch, Regexp.last_match(1) if `git branch` =~ /\* (\S+)\s/m
 
-set :user, 'pi'
-set :password, 'pi'
-
-
-after 'deploy:restart', 'deploy:cleanup'
-after 'deploy:update', 'deploy:link_db'
-after 'deploy:update', 'foreman:export'
-after 'deploy:update', 'deploy:link_init'
+#after 'deploy:restart', 'deploy:cleanup'
+#after 'deploy:update', 'deploy:link_db'
+#after 'deploy:update', 'foreman:export'
+#after 'deploy:update', 'deploy:link_init'
 
 
 #USAGE:
