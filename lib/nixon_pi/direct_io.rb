@@ -8,10 +8,13 @@ module NixonPi
   class DirectIO
     include Logging
 
+
+    CRLF = "\x0d\x0a"
+
     def initialize
       @stdin, @stdout, @stderr, @wait_thr = Open3.popen3('sudo /opt/abiocard/abiocardserver -stdio')
       # pid = @wait_thr[:pid]
-      @mutex = Mutex.new
+      @@mutex = Mutex.new
       @errors = []
     end
 
@@ -21,9 +24,9 @@ module NixonPi
     # Pass a block if you like to handle the return value
     def cmd(value)
       log.debug("CMD: #{value}")
-      @mutex.synchronize do
+      @@mutex.synchronize do
         begin
-          @stdin.puts(value)
+          @stdin.puts("#{value}#{CRLF}")
           yield @stdout.gets if block_given?
         rescue => e
           raise e, @stderr.read
@@ -35,7 +38,7 @@ module NixonPi
 
     # Close io connections
     def close
-      @mutex.synchronize do
+      @@mutex.synchronize do
         @stdin.puts('QU')
         @stdin.close
         @stdout.close

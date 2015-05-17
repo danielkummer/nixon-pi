@@ -11,7 +11,7 @@ module NixonPi
       def client
         unless @client
           begin
-            conn = Bunny.new
+            conn = Bunny.new(read_timeout: 2, heartbeat: 2)
             @client = conn.start
           rescue Bunny::TCPConnectionFailed => e
             #todo properly handle the connection error

@@ -1,3 +1,4 @@
+=begin
 namespace :deploy do
   desc 'Link production db into current directory'
   task :link_db do
@@ -20,3 +21,4 @@ namespace :deploy do
   task :restart do
   end
 end
+=end
