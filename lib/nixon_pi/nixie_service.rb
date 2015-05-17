@@ -12,15 +12,16 @@ module NixonPi
     register :power, NixonPi::Driver::Proxy::PowerProxy, port: Settings.power_pin
     register :rgb_proxy, NixonPi::Driver::Proxy::RgbProxy, ports: Settings.rgb_pins
     register :background, NixonPi::Driver::Proxy::BackgroundProxy, port: Settings.background_led_pin
+    register :cmd_send, NixonPi::Messaging::CommandSender
 
     def initialize
       log.info 'Initializing Nixon-Pi service..'
       log.info "Environment: #{ENV['RACK_ENV']}"
-
       ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: Settings.database)
 
       log.debug 'Running migrations'
-      ActiveRecord::Migrator.up('/db/migrate')
+      #ActiveRecord::Migrator.up('db/migrate')
+      load 'db/schema.rb'
 
 
       begin
@@ -68,30 +69,25 @@ module NixonPi
       @info_gatherer.add_target(NixonPi::DependencyInjection::Container.get_class(:ramp_up_down), :ramp_up_down)
       @info_gatherer.add_target(NixonPi::DependencyInjection::Container.get_class(:blink), :blink)
 
-      DRb.start_service('druby://localhost:9001', @info_gatherer)
+      #$SAFE = 1   # disable eval() and friends
+      #DRb.start_service('druby://localhost:9001', @info_gatherer)
     end
 
     ##
     # Run service run
     def run!
-      #todo raises `lock': can't be called from trap context (ThreadError)
-      [:INT, :TERM].each do |sig|
-        trap(sig) do
-          shutdown
-        end
-      end
       # use literal writing to correct speech pattern
-      NixonPi::Messaging::CommandSender.new.send_command(:sound, value: 'Hi, my name is Nixon Pie')
+      NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:sound, value: 'Hi, my name is Nixon Pie')
       # State ip address for better connectabilty
-      NixonPi::Messaging::CommandSender.new.send_command(:sound, value: 'My eye pee addresses are:' + NixonPi::NetworkInfo.info.join(', '))
+      NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:sound, value: 'My eye pee addresses are:' + NixonPi::NetworkInfo.info.join(', '))
 
-      NixonPi::Messaging::CommandSender.new.send_command(:lamp0, state: :free_value, value: 0)
-      NixonPi::Messaging::CommandSender.new.send_command(:lamp1, state: :free_value, value: 0)
-      NixonPi::Messaging::CommandSender.new.send_command(:lamp2, state: :free_value, value: 0)
-      NixonPi::Messaging::CommandSender.new.send_command(:lamp3, state: :free_value, value: 0)
-      NixonPi::Messaging::CommandSender.new.send_command(:lamp4, state: :free_value, value: 0)
+      NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:lamp0, state: :free_value, value: 0)
+      NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:lamp1, state: :free_value, value: 0)
+      NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:lamp2, state: :free_value, value: 0)
+      NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:lamp3, state: :free_value, value: 0)
+      NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:lamp4, state: :free_value, value: 0)
 
-      NixonPi::Messaging::CommandSender.new.send_command(:sound, value: 'Power on!')
+      NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:sound, value: 'Power on!')
       NixonPi::DependencyInjection::Container.get_injected(:power).power_on
 
       NixonPi::MachineManager.start_state_machines
@@ -102,17 +98,17 @@ module NixonPi
     # quit service power down nicely
     def shutdown
       log.info 'Nixon Pi is shutting down...'
-      DRb.stop_service
+      #DRb.stop_service
 
-      DRb.thread.join unless DRb.thread.nil?
+      #DRb.thread.join unless DRb.thread.nil?
 
       NixonPi::MachineManager.exit
       NixonPi::Scheduler.exit_scheduler
 
-      @message_distributor.on_exit
       log.info 'Blow the candles out...'
-      get_injected(:power).power_off
+      NixonPi::DependencyInjection::Container.get_injected(:power).power_off
       log.info 'Bye ;)'
+      @message_distributor.on_exit
     end
   end
 end

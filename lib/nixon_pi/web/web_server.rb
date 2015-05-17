@@ -385,6 +385,8 @@ module NixonPi
     # @param [Symbol] about regested information identifier
     def get_remote_info_from(target, about)
       data = {}
+      #todo reword to use rabbitmq queues
+=begin
       begin
         case target.to_sym
           when :power
@@ -401,6 +403,7 @@ module NixonPi
       rescue Exception
         set_message!(data, "Options for #{target} not found! #{$ERROR_INFO.message}", false)
       end
+=end
       data
     end
 

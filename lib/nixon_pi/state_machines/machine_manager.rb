@@ -3,7 +3,7 @@ module NixonPi
     extend Logging
 
     @@state_machines = {}
-    @@threads = []
+    @@thread = nil
 
     class << self
       attr_accessor :state_machines
@@ -11,9 +11,7 @@ module NixonPi
       ##
       # exit threads
       def exit
-        @@threads.each do |t|
-          Thread.kill(t)
-        end
+        Thread.kill(@@thread)
       end
 
       ##
@@ -34,11 +32,10 @@ module NixonPi
       ##
       # Start each state machine in a separate thread
       # @param [Float] sleep_for_sec sleep time after each loop
-      def start_state_machines(sleep_for_sec = 0.1)
-        @@state_machines.each do |_type, state_machine|
-          log.debug "Starting state machine: #{state_machine.class}"
-          @@threads << Thread.new do
-            loop do
+      def start_state_machines(sleep_for_sec = 0.03)
+        @@thread = Thread.new do
+          loop do
+            @@state_machines.each do |_type, state_machine|
               state_machine.handle
               sleep sleep_for_sec
             end
@@ -49,7 +46,7 @@ module NixonPi
       ##
       # Join the state machine threads
       def join_threads
-        @@threads.each { |thread| thread.join unless thread.nil? }
+        @@thread.join
       end
     end
   end

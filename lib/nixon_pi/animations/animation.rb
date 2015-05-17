@@ -33,7 +33,7 @@ module NixonPi
             fail "Options musn't be empty" if @options.nil?
             @send_command ||= begin
               log.debug "Animation ended, sending transition command, target: #{@options[:goto_target]} state: #{@options[:goto_state]}"
-              NixonPi::Messaging::CommandSender.new.send_command(@options[:goto_target], state: @options[:goto_state])
+              NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(@options[:goto_target], state: @options[:goto_state])
               log.debug 'already sent transistion command'
             end
           else

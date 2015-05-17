@@ -2,33 +2,42 @@ require 'bunny'
 
 module NixonPi
   module Messaging
-    module Client
+    module BunnyConnection
       include Logging
 
       ##
       # RabbitMQ Client
       # @raise [Bunny::TCPConnectionFailed] if server not reachable
       def client
-        unless $client
-
+        unless @client
           begin
             conn = Bunny.new
-            conn.start
-            $client = conn
+            @client = conn.start
           rescue Bunny::TCPConnectionFailed => e
             #todo properly handle the connection error
             log.error "Failed to connect to Rabbitmq: #{e.message}"
             raise e
           end
         end
-
-        $client
+        @client
       end
 
-      ##
-      # Exchange channel (use direct exchange with rounting keys)
-      def direct_exchange_channel
-        $direct_exchange ||= client.create_channel.direct('nixonpi.channel')
+      def channel
+        @channel ||= client.create_channel
+      end
+
+      def topic(type)
+        case type
+          when :command
+            channel.topic('topic_commands')
+          when :request
+            channel.topic('topic_request')
+          when :response
+            channel.topic('topic_response')
+          else
+            raise "unkown topic: #{type}"
+        end
+
       end
 
       def connected?
@@ -42,9 +51,7 @@ module NixonPi
       ##
       # Clean up
       def on_exit
-        # queues delete
-        #log.info 'closing connection to rabbitmq...'
-        client.close
+        @client.close
       end
     end
   end

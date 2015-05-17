@@ -24,10 +24,30 @@ module NixonPi
       option :m, type: :boolean, banner: 'Use telnet mock implementation', default: false, tags: :boolean
       option :p, type: :numeric, banner: 'Set webserver port', default: 8080
       desc 'start', 'starts the service'
+
       def start
-        ENV['NIXON_PI_FORCE_MOCK'] = 'true' if options[:mock]
+        ENV['RACK_ENV'] = options[:environment] if options[:environment]
+        ENV['NIXON_PI_FORCE_MOCK'] = 'true' if options[:m]
         NixonPi::Runner.new.run(options)
       end
+
+      long_desc <<-LONGDESC
+            Starts the web service
+
+            With -p option, you can supply a port for the webservice
+
+            With --environment option, the environment can be specified - development, production
+      LONGDESC
+      desc 'web', 'start web server instance using thin'
+      option :environment, default: 'development', banner: '<environment>'
+      option :p, type: :numeric, banner: 'Set webserver port', default: 8080
+
+      def web
+        NixonPi::WebServer.set :environment, options[:environment] if options[:environment]
+        NixonPi::WebServer.set :port, options[:p].to_s if options[:p]
+        NixonPi::WebServer.run!
+      end
+
 
       desc 'install', 'install runfiles'
       #todo dynamic paths!

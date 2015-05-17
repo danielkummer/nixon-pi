@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
   gem.description   = 'Drive nixie tubes over a raspberry pi abiocard shield'
   gem.summary       = 'This service allows the control of ogilumen nixie tubes, nixie bar graphs and leds over encapsulating the telnet service'
   gem.homepage      = ''
-  gem.required_ruby_version = '>=1.9'
+  gem.required_ruby_version = '>=2.1'
   gem.has_rdoc      = true
 
   gem.files         = `git ls-files`.split($INPUT_RECORD_SEPARATOR)
@@ -20,7 +20,7 @@ Gem::Specification.new do |gem|
   gem.executables   = ["nixon-pi"]
   gem.default_executable = 'nixon-pi'
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
-  gem.require_paths = %w(lib config)
+  gem.require_paths = %w(lib config db)
 
   gem.add_dependency 'activesupport', '~> 4.2.1'
   gem.add_dependency 'settingslogic', '~> 2.0.9'
@@ -28,7 +28,7 @@ Gem::Specification.new do |gem|
   # gem.add_dependency 'festivaltts4r'
   gem.add_dependency 'rufus-scheduler', '~> 3.1.1'
   gem.add_dependency 'foreman', '~> 0.78.0'
-  gem.add_dependency 'bunny', '~> 0.9.8'#
+  gem.add_dependency 'bunny'
   gem.add_dependency 'sinatra', '~> 1.4.6'
   gem.add_dependency 'sinatra-contrib', '~> 1.4.2'
   gem.add_dependency 'sinatra-activerecord', '~> 2.0.6'
@@ -38,16 +38,10 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'sinatra-jsonp', '~> 0.4.4'
   gem.add_dependency 'json', '~> 1.8.2'
   gem.add_dependency 'thor', '~> 0.19.1'
-
   gem.add_dependency 'haml', '~> 4.0.6'
   gem.add_dependency 'chronic_duration', '~> 0.10.6'
   gem.add_dependency 'thin', '~> 1.6.3'
   gem.add_dependency 'colorize', '~> 0.7.7'
-  #gem.add_dependency 'vegas'
-  gem.add_dependency 'eventmachine', '~> 1.0.7'
-  gem.add_dependency 'em_pessimistic', '~> 0.2.0'
-  gem.add_dependency 'amqp'
-
   gem.add_development_dependency 'less', '~> 2.6.0'
   gem.add_development_dependency 'rdoc', '~> 4.2.0'
   gem.add_development_dependency 'rvm-capistrano', '~> 1.5.0'

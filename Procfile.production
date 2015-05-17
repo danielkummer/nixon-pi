@@ -1,1 +1,2 @@
-service: ./bin/nixon-pi run --environment production -p 80
+service: ./bin/nixon-pi start --environment production
+web: ./bin/nixon-pi web --environment production -p 3000

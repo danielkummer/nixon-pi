@@ -18,7 +18,7 @@ module NixonPi
           value = command[:value].to_i
           log.debug "got power command: #{command}, applying..."
           if (0..1).member?(value)
-            NixonPi::Messaging::CommandSender.new.send_command(:sound, value: "power #{value == 1 ? 'on' : 'off'}!")
+            NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:sound, value: "power #{value == 1 ? 'on' : 'off'}!")
             @io_driver.write(value)
             @value = value
           end

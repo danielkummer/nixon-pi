@@ -10,12 +10,13 @@ end
 module NixonPi
   module DependencyInjection
     class Container
-      @class_registry = {}
+      @@class_registry = {}
 
 
       class << self
-
-        attr_accessor :class_registry
+        def class_registry
+          @@class_registry
+        end
 
         ##
         # Expects the args of a constructor.
@@ -30,14 +31,14 @@ module NixonPi
           # TODO: handle multi instances differently - save the instance separately and create it using the blueprint type
 
           if type.match(/([a-zA-Z]+)\d+$/)
-            if @class_registry.key?(type.to_sym)
-              reg_entry = @class_registry[type.to_sym]
+            if @@class_registry.key?(type.to_sym)
+              reg_entry = @@class_registry[type.to_sym]
               return reg_entry[:instance] if reg_entry.key?(:instance)
             end
-            if @class_registry.key?(Regexp.last_match(1).to_sym) # create new instance if based on a sequential value e.g bar1
-              original = @class_registry[Regexp.last_match(1).to_sym]
+            if @@class_registry.key?(Regexp.last_match(1).to_sym) # create new instance if based on a sequential value e.g bar1
+              original = @@class_registry[Regexp.last_match(1).to_sym]
               begin
-                @class_registry[type.to_sym] = Marshal.load(Marshal.dump(original))
+                @@class_registry[type.to_sym] = Marshal.load(Marshal.dump(original))
               rescue Exception => e
                 raise("error on #{original}: #{e.message}")
               end
@@ -46,8 +47,8 @@ module NixonPi
             end
           end
 
-          if @class_registry.key?(type.to_sym)
-            reg_entry = @class_registry[type.to_sym]
+          if @@class_registry.key?(type.to_sym)
+            reg_entry = @@class_registry[type.to_sym]
 
             return reg_entry[:instance] if reg_entry.key?(:instance) && new_instance == false
             options = reg_entry[:args].merge(args)
@@ -70,7 +71,7 @@ module NixonPi
         # @param type [Symbol] the class type
         # @return [Object] class
         def get_class(type)
-          reg_entry = @class_registry[type.to_sym]
+          reg_entry = @@class_registry[type.to_sym]
           reg_entry[:klass]
         end
       end
