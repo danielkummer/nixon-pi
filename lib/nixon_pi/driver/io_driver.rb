@@ -22,5 +22,4 @@ module NixonPi
       end
     end
   end
-
 end

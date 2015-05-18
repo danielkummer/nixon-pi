@@ -14,8 +14,7 @@ module NixonPi
       end
     end
 
-    def run(opts = {})
-
+    def run(_opts = {})
       trap('TERM') do
         shutdown!
       end

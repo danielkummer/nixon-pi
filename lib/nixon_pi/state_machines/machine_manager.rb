@@ -1,6 +1,8 @@
 module NixonPi
   class MachineManager
     extend Logging
+    include DependencyInjection
+
 
     @@state_machines = {}
     @@thread = nil
@@ -22,7 +24,7 @@ module NixonPi
         instances_count.times.with_index do |i|
           suffix = instances_count == 1 ? '' : i.to_s
           key = "#{name}#{suffix}".to_sym
-          instance = NixonPi::DependencyInjection::Container.get_injected(key)
+          instance = get_injected(key)
           @@state_machines[key] = instance
           yield instance, key if block_given?
           log.debug "Added state machine for #{name} under key #{key}"

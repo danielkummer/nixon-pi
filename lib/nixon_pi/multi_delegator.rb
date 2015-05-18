@@ -1,9 +1,6 @@
 module NixonPi
-
   # Class which can delegate method calls to multiple targets
   class MultiDelegator
-
-
     def initialize(*targets)
       @targets = targets
     end

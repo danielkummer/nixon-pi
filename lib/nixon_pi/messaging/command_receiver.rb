@@ -9,11 +9,11 @@ module NixonPi
     class CommandReceiver
       include BunnyConnection
       include NixonPi::InformationHolder
-            # @raise [Bunny::TCPConnectionFailed] if rabbitmq server not reachable
+      # @raise [Bunny::TCPConnectionFailed] if rabbitmq server not reachable
       def initialize
         @receivers = {}
         @locks = Set.new
-        @incomming_commands_queue = channel.queue("", exclusive: true).bind(topic(:command), routing_key: 'nixonpi.command')
+        @incomming_commands_queue = channel.queue('', exclusive: true).bind(topic(:command), routing_key: 'nixonpi.command')
         @incomming_commands_queue.subscribe do |_delivery_info, metadata, data|
           if metadata[:content_type] == 'application/json'
             # TODO: handle parse exception

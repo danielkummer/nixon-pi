@@ -1,8 +1,7 @@
 
-#todo refactor to parent class
+# TODO: refactor to parent class
 module NixonPi
   module Driver
-
     ##
     # Returns an AbioCardClient instance
     # @return [AbioCardClient] client instance

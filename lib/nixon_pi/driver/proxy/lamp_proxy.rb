@@ -4,7 +4,7 @@ module NixonPi
       class LampProxy
         include Logging
 
-        def initialize(options = {ports: nil})
+        def initialize(options = { ports: nil })
           log.info 'Initializing lamps driver'
           @pwm_driver = PwmDriver.new(options)
         end

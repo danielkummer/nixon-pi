@@ -13,8 +13,8 @@ module NixonPi
           # TODO: get information about cpu ram hdd etc..., (maybe distro)
           ret = {}
         when :network
-          #todo test!
-          ret = { network: NetworkInfo.info}
+          # TODO: test!
+          ret = { network: NetworkInfo.info }
         else
           log.error "No information about #{about}"
       end

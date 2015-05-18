@@ -1,5 +1,4 @@
 class Hash
-
   ##
   # Convert string keys to symbols
   def string_key_to_sym

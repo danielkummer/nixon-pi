@@ -2,11 +2,14 @@ require 'net/telnet'
 require 'singleton'
 require 'thread'
 
-
 module NixonPi
+
+  ##
+  # This class is the abio card client. It communicates via directio, telnet or mocktelnet with the arduino hardware.
+  #
   class AbioCardClient
     include Retryable
-    include HexBitConvert
+    include HexBitTranslator
     include Singleton
     include Logging
 
@@ -202,7 +205,7 @@ module NixonPi
     def connection
       @@mutex.synchronize do
         retryable do
-          @conn ||= connection_for(ENV['RACK_ENV'])
+          @conn ||= connection_for($environment)
         end
         @conn
       end
@@ -213,7 +216,7 @@ module NixonPi
     # and in test a mock object for verbose output
     # @param [String]
     def connection_for(environment)
-      if ENV['NIXON_PI_FORCE_MOCK'] == 'true'
+      if NixonPi::Settings.force_mock
         log.info 'Force usage of mock client'
         return MockTelnet.new
       end
@@ -247,7 +250,7 @@ module NixonPi
         when NixonPi::RetryError
           log.error e.message
           exit
-          exit! #force shutdown!
+          exit! # force shutdown!
         else
           log.error e.message
           exit_client

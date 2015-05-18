@@ -21,6 +21,7 @@ PATH
       state_machine (~> 1.2)
       thin (~> 1.6)
       thor (~> 0.19)
+      thread_safe (~> 0.3)
 
 GEM
   remote: https://rubygems.org/

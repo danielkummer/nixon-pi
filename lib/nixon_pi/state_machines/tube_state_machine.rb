@@ -3,16 +3,15 @@ require 'active_support/inflector'
 
 module NixonPi
   class TubeStateMachine < BaseStateMachine
-    include NixonPi::DependencyInjection
-
     include Logging
+    include DependencyInjection
 
     register :tubes, self
     accepted_commands :state, :value, :animation_name, :options, :initial_mode
 
     def initialize
       super()
-      register_driver NixonPi::DependencyInjection::Container.get_injected(:in12a_driver)
+      register_driver self.class.get_injected(:in12a_driver)
     end
 
     state_machine do
@@ -37,11 +36,11 @@ module NixonPi
           @format = nil unless @format.is_a?(String)
           @format = Settings.default_time_format if @format.nil? || @format.size > @tubes_count || @format.strip.empty?
 
-          NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:lamp0, state: :free_value, value: 0)
-          NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:lamp1, state: :free_value, value: 0)
-          NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:lamp2, state: :free_value, value: 0)
-          NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:lamp3, state: :free_value, value: 1)
-          NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:lamp4, state: :blink)
+          get_injected(:cmd_send).send_command(:lamp0, state: :free_value, value: 0)
+          get_injected(:cmd_send).send_command(:lamp1, state: :free_value, value: 0)
+          get_injected(:cmd_send).send_command(:lamp2, state: :free_value, value: 0)
+          get_injected(:cmd_send).send_command(:lamp3, state: :free_value, value: 1)
+          get_injected(:cmd_send).send_command(:lamp4, state: :blink)
         end
 
         def write
@@ -52,7 +51,7 @@ module NixonPi
           formatted_date = now.strftime(Settings.default_date_format)
 
           if now.hour == 12 && now.min == 0 && now.min != params[:last_time].min
-            NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:sound, value: 'strike_12.mp3') unless @gong_sent
+            get_injected(:cmd_send).send_command(:sound, value: 'strike_12.mp3') unless @gong_sent
             @gong_sent = true
           else
             @gong_sent = false
@@ -77,8 +76,8 @@ module NixonPi
         end
 
         def leave_state
-          NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:lamp3, state: :free_value, value: 0)
-          NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:lamp4, state: :free_value, value: 0)
+          get_injected(:cmd_send).send_command(:lamp3, state: :free_value, value: 0)
+          get_injected(:cmd_send).send_command(:lamp4, state: :free_value, value: 0)
         end
       end
 
@@ -110,7 +109,7 @@ module NixonPi
             if output != @last_output # only write once
               log.debug "countdown: #{output}"
               @last_output = output
-              NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:sound, value: "#{seconds_to_go}") if seconds_to_go <= 10
+              get_injected(:cmd_send).send_command(:sound, value: "#{seconds_to_go}") if seconds_to_go <= 10
               @driver.write(output.rjust(@tubes_count, ' '))
             end
           end
@@ -120,7 +119,7 @@ module NixonPi
           # TODO: refactor
           if current_time >= params[:target_time]
             log.debug 'end of countdown'
-            NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:sound, value: 'strike_12.mp3')
+            get_injected(:cmd_send).send_command(:sound, value: 'strike_12.mp3')
             options = params[:options]
             unless options.nil?
               if options.is_a? Hash
@@ -153,10 +152,10 @@ module NixonPi
             @meeting_start = Time.now
             @attendees = Regexp.last_match(1)
             @hourly_rate = Regexp.last_match(2)
-            NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:lamp5, state: :free_value, locking: :lock, value: 1)
+            get_injected(:cmd_send).send_command(:lamp5, state: :free_value, locking: :lock, value: 1)
           else
             error_msg = 'invalid input for attendees - going to last state'
-            NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:sound, value: error_msg)
+            get_injected(:cmd_send).send_command(:sound, value: error_msg)
             log.error error_msg
             handle_command(state: :time)
           end
@@ -164,7 +163,7 @@ module NixonPi
 
         def leave_state
           # unlock lamps
-          NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:lamp5, state: :free_value, locking: :unlock, value: 0)
+          get_injected(:cmd_send).send_command(:lamp5, state: :free_value, locking: :unlock, value: 0)
         end
 
         def write

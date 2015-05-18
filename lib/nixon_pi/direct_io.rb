@@ -1,8 +1,8 @@
 require 'open3'
 require 'thread'
 
-#one way to use io/wait:
-#http://illuminatedcomputing.com/posts/2011/10/piping-in-ruby-with-popen3/
+# one way to use io/wait:
+# http://illuminatedcomputing.com/posts/2011/10/piping-in-ruby-with-popen3/
 
 module NixonPi
   class DirectIO
@@ -32,7 +32,7 @@ module NixonPi
           raise e, @stderr.read
         end
         error = @stderr.read
-        raise error unless error.blank?
+        fail error unless error.blank?
       end
     end
 

@@ -1,6 +1,6 @@
 require 'nixon_pi'
 
-ENV['RACK_ENV'] = 'test'
+$environment = 'test'
 
 require 'rubygems'
 require 'bundler/setup'

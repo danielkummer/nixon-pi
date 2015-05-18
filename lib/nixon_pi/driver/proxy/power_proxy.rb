@@ -5,10 +5,11 @@ module NixonPi
         include Logging
         include Commands
         include InformationHolder
+        include NixonPi::DependencyInjection
 
         accepted_commands :value
 
-        def initialize(options = {port: nil})
+        def initialize(options = { port: nil })
           @io_driver = IoDriver.new([options[:port]])
           @value = 0
           log.info 'Initializing power driver...'
@@ -18,7 +19,7 @@ module NixonPi
           value = command[:value].to_i
           log.debug "got power command: #{command}, applying..."
           if (0..1).member?(value)
-            NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:sound, value: "power #{value == 1 ? 'on' : 'off'}!")
+            get_injected(:cmd_send).send_command(:sound, value: "power #{value == 1 ? 'on' : 'off'}!")
             @io_driver.write(value)
             @value = value
           end
@@ -28,9 +29,9 @@ module NixonPi
           ret = {}
           case about.to_sym
             when :params
-              ret = {value: @value}
+              ret = { value: @value }
             when :commands
-              ret = {commands: self.class.available_commands}
+              ret = { commands: self.class.available_commands }
             else
               log.error "No information about #{about}"
           end
@@ -52,10 +53,9 @@ module NixonPi
         end
 
         def get_params
-          {value: @value}
+          { value: @value }
         end
       end
     end
   end
-
 end

@@ -18,7 +18,7 @@ end
 
 module NixonPi
   class Settings < Settingslogic
-    namespace ENV['RACK_ENV']
+    namespace $environment
 
     class << self
       ##
@@ -29,5 +29,7 @@ module NixonPi
     end
 
     source config_path
+
+    #load!
   end
 end

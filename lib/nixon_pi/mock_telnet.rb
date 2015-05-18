@@ -29,5 +29,4 @@ module NixonPi
       yield ret if block_given?
     end
   end
-
 end
