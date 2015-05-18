@@ -25,7 +25,7 @@ module NixonPi
 
       begin
         @message_distributor = NixonPi::RabbitMQ::CommandInbox.new
-        @info_gatherer = NixonPi::InformationProxy.new
+        @info_gatherer = NixonPi::RabbitMQ::InformationInbox.new
       rescue Bunny::TCPConnectionFailed
         log.error 'RabbitMQ server not found! is it running?'
         exit!(false)

@@ -10,10 +10,9 @@ require 'json'
 require 'active_record'
 require 'sinatra/form_helpers'
 require 'sinatra/jsonp'
-require 'drb'
 
-REMOTE_INFO_PROXY = DRbObject.new_with_uri('druby://localhost:9001')
-DRb.start_service
+require 'nixon_pi/rabbit_mq/command_sender'
+require 'nixon_pi/rabbit_mq/information_sender'
 
 module NixonPi
   class WebServer < Sinatra::Base
@@ -41,29 +40,29 @@ module NixonPi
     not_found do
       if request.accept? 'text/html'
         haml 'errors/not_found'.to_sym, layout: false, locals: {
-          info: {
-            title: "404 - are you sure it's there?",
-            message: 'Nothing found!'
-          }
-        }
+                                          info: {
+                                              title: "404 - are you sure it's there?",
+                                              message: 'Nothing found!'
+                                          }
+                                      }
       else
         content_type :json
         status 404
-        halt({ success: 'false', message: "404 - are you sure it's there?" }.to_json)
+        halt({success: 'false', message: "404 - are you sure it's there?"}.to_json)
       end
     end
 
     error Bunny::TCPConnectionFailed do
       if request.accept? 'text/html'
         haml 'errors/rabbitmq_down'.to_sym, layout: false, locals: {
-          info: {
-            title: 'Oops - I found a dead bunny...',
-            message: 'Make sure your RabbitMQ server is up and running...'
-          }
-        }
+                                              info: {
+                                                  title: 'Oops - I found a dead bunny...',
+                                                  message: 'Make sure your RabbitMQ server is up and running...'
+                                              }
+                                          }
       else
         content_type :json
-        halt({ success: 'false', message: 'Make sure your RabbitMQ server is up and running...' }.to_json)
+        halt({success: 'false', message: 'Make sure your RabbitMQ server is up and running...'}.to_json)
       end
     end
 
@@ -71,17 +70,25 @@ module NixonPi
       if request.accept? 'application/json'
         content_type :json
 
-        halt({ success: 'false', message: $ERROR_INFO.message }.to_json)
+        halt({success: 'false', message: $ERROR_INFO.message}.to_json)
       end
       haml 'errors/rabbitmq_down'.to_sym, layout: false, locals: {
-        info: {
-          title: 'Something just went terribly wrong...',
-          message: "Here's a funny error:#{$ERROR_INFO.message}"
-        }
-      }
+                                            info: {
+                                                title: 'Something just went terribly wrong...',
+                                                message: "Here's a funny error:#{$ERROR_INFO.message}"
+                                            }
+                                        }
     end
 
     helpers do
+      def sender
+        @sender ||= NixonPi::RabbitMQ::CommandSender.new
+      end
+
+      def information_sender
+        @information_sender ||= NixonPi::RabbitMQ::InformationSender.new
+      end
+
       INDENT = '  ' # use 2 spaces for indentation
       def hash_to_haml(hash, level = 0)
         result = ["#{INDENT * level}%ul"]
@@ -111,10 +118,6 @@ module NixonPi
 
       def version
         NixonPi::VERSION.to_s
-      end
-
-      def sender
-        @sender ||= NixonPi::RabbitMQ::CommandSender.new
       end
     end
 
@@ -376,29 +379,12 @@ module NixonPi
     end
 
     ##
-    # RPC Connection to service, get data from InformationProxy
+    # RPC Connection to service, get data from InformationInbox
     # @param [Symbol] target information target
     # @param [Symbol] about regested information identifier
     def get_remote_info_from(_target, _about)
-      data = {}
-      # TODO: reword to use rabbitmq queues
-      #       begin
-      #         case target.to_sym
-      #           when :power
-      #             data = REMOTE_INFO_PROXY.get_info_from(:power, about)
-      #           when :bars
-      #             data[:bars] = []
-      #             %w(bar0 bar1 bar2 bar3).each { |bar| data[:bars] << REMOTE_INFO_PROXY.get_info_from(bar.to_sym, about) }
-      #           when :lamps
-      #             data[:lamps] = []
-      #             %w(lamp0 lamp1 lamp2 lamp3 lamp4).each { |lamp| data[:lamps] << REMOTE_INFO_PROXY.get_info_from(lamp.to_sym, about) }
-      #           else
-      #             data[target.to_sym] = REMOTE_INFO_PROXY.get_info_from(target.to_sym, about)
-      #         end
-      #       rescue Exception
-      #         set_message!(data, "Options for #{target} not found! #{$ERROR_INFO.message}", false)
-      #       end
-      data
+      hash = {_target: _about}
+      information_sender.get_info_from(_target, hash)
     end
 
     # run! if app_file == $PROGRAM_NAME

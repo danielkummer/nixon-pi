@@ -28,21 +28,8 @@ module NixonPi
                                 routing_key: 'nixonpi.request',
                                 content_type: 'application/json',
                                 type: target,
+                                reply_to: 'nixonpi.reply',
                                 immediate: true)
-      end
-
-      ##
-      # Send an async response to a registered command receiver
-      #
-      # @param [Symbol] target
-      # @param [Hash] payload
-      def send_response(target, payload)
-        log.info "publishing response #{payload} to #{target}"
-        topic(:response).publish(payload.to_json,
-                                 routing_key: 'nixonpi.response',
-                                 content_type: 'application/json',
-                                 type: target,
-                                 immediate: true)
       end
     end
   end
