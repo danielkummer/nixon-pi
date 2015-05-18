@@ -20,9 +20,8 @@ module NixonPi
       ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: Settings.database)
 
       log.debug 'Running migrations'
-      #ActiveRecord::Migrator.up('db/migrate')
+      # ActiveRecord::Migrator.up('db/migrate')
       load 'db/schema.rb'
-
 
       begin
         @message_distributor = NixonPi::Messaging::CommandReceiver.new
@@ -31,7 +30,6 @@ module NixonPi
         log.error 'RabbitMQ server not found! is it running?'
         exit!(false)
       end
-
 
       NixonPi::MachineManager.add_state_machines(:tubes) do |receiver, target|
         @message_distributor.add_receiver(receiver, target)
@@ -69,8 +67,8 @@ module NixonPi
       @info_gatherer.add_target(NixonPi::DependencyInjection::Container.get_class(:ramp_up_down), :ramp_up_down)
       @info_gatherer.add_target(NixonPi::DependencyInjection::Container.get_class(:blink), :blink)
 
-      #$SAFE = 1   # disable eval() and friends
-      #DRb.start_service('druby://localhost:9001', @info_gatherer)
+      # $SAFE = 1   # disable eval() and friends
+      # DRb.start_service('druby://localhost:9001', @info_gatherer)
     end
 
     ##
@@ -98,9 +96,9 @@ module NixonPi
     # quit service power down nicely
     def shutdown
       log.info 'Nixon Pi is shutting down...'
-      #DRb.stop_service
+      # DRb.stop_service
 
-      #DRb.thread.join unless DRb.thread.nil?
+      # DRb.thread.join unless DRb.thread.nil?
 
       NixonPi::MachineManager.exit
       NixonPi::Scheduler.exit_scheduler

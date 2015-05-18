@@ -5,7 +5,7 @@ module NixonPi
       include Driver
       include Logging
 
-      def initialize(options = {ports: nil})
+      def initialize(options = { ports: nil })
         client.pwm_reset
         dim_all(100)
         @values = {}

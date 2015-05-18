@@ -28,7 +28,7 @@ module NixonPi
           ret = {}
           case about.to_sym
             when :commands
-              ret = {commands: self.class.available_commands}
+              ret = { commands: self.class.available_commands }
             else
               log.error "No information about #{about}"
           end
@@ -67,5 +67,3 @@ module NixonPi
     end
   end
 end
-
-

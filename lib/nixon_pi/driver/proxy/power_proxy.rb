@@ -8,7 +8,7 @@ module NixonPi
 
         accepted_commands :value
 
-        def initialize(options = {port: nil})
+        def initialize(options = { port: nil })
           @io_driver = IoDriver.new([options[:port]])
           @value = 0
           log.info 'Initializing power driver...'
@@ -28,9 +28,9 @@ module NixonPi
           ret = {}
           case about.to_sym
             when :params
-              ret = {value: @value}
+              ret = { value: @value }
             when :commands
-              ret = {commands: self.class.available_commands}
+              ret = { commands: self.class.available_commands }
             else
               log.error "No information about #{about}"
           end
@@ -52,10 +52,9 @@ module NixonPi
         end
 
         def get_params
-          {value: @value}
+          { value: @value }
         end
       end
     end
   end
-
 end

@@ -14,11 +14,11 @@ class Command < ActiveRecord::Base
   validates_presence_of :target
   validates_with CommandValidator
 
-  #def assign_attributes(values, options = {})
+  # def assign_attributes(values, options = {})
   #  sanitize_for_mass_assignment(values, options[:as]).each do |k, v|
   #    send("#{k}=", v)
   #  end
-  #end
+  # end
 end
 
 class Schedule < ActiveRecord::Base

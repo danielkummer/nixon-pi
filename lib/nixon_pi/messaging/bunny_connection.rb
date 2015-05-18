@@ -14,7 +14,7 @@ module NixonPi
             conn = Bunny.new
             @client = conn.start
           rescue Bunny::TCPConnectionFailed => e
-            #todo properly handle the connection error
+            # TODO: properly handle the connection error
             log.error "Failed to connect to Rabbitmq: #{e.message}"
             raise e
           end
@@ -35,9 +35,8 @@ module NixonPi
           when :response
             channel.topic('topic_response')
           else
-            raise "unkown topic: #{type}"
+            fail "unkown topic: #{type}"
         end
-
       end
 
       def connected?

@@ -1,7 +1,6 @@
 module NixonPi
   module DependencyInjection
     module Injectable
-
       ##
       # Registers a new class to instantiate when requested using get_injected.
       # Note class constructors must support hash arguments if any...
@@ -11,7 +10,7 @@ module NixonPi
       # @param [Hash] constuctor_args
       def register(as_type, klass, constuctor_args = {})
         fail "Registry key #{as_type} already taken - please use a different one because all subclass keys are shared" if NixonPi::DependencyInjection::Container.class_registry.key?(as_type.to_sym)
-        NixonPi::DependencyInjection::Container.class_registry[as_type.to_sym] = {klass: klass, args: constuctor_args}
+        NixonPi::DependencyInjection::Container.class_registry[as_type.to_sym] = { klass: klass, args: constuctor_args }
       end
 
       ##
@@ -20,7 +19,7 @@ module NixonPi
       # @param [Symbol] as_type
       # @param [Object] instance
       def register_instance(as_type, instance)
-        NixonPi::DependencyInjection::Container.class_registry[as_type.to_sym] = {instance: instance}
+        NixonPi::DependencyInjection::Container.class_registry[as_type.to_sym] = { instance: instance }
       end
     end
   end

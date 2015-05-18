@@ -1,7 +1,7 @@
-#http://www.michaelrigart.be/en/blog/a-simple-ruby-command-line-tool.html
+# http://www.michaelrigart.be/en/blog/a-simple-ruby-command-line-tool.html
 
-#require 'nixon_pi'
-#http://recipes.sinatrarb.com/p/embed/event-machine
+# require 'nixon_pi'
+# http://recipes.sinatrarb.com/p/embed/event-machine
 
 require 'thin'
 
@@ -9,7 +9,7 @@ module NixonPi
   module Cli
     class Application < Thor
       package_name 'NixonPi'
-      #map '-L' => :list
+      # map '-L' => :list
 
       long_desc <<-LONGDESC
             Starts the nixon-pi service and webservice
@@ -48,9 +48,8 @@ module NixonPi
         NixonPi::WebServer.run!
       end
 
-
       desc 'install', 'install runfiles'
-      #todo dynamic paths!
+      # TODO: dynamic paths!
       def install
         runfile = system('rvmsudo bundle exec foreman export bluepill ./config -f ./Procfile.production -a nixon-pi -u root -l /home/pi/nixonpi/shared/log')
         log.error 'Unable to install runfile!' unless runfile

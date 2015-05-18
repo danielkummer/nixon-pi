@@ -3,13 +3,11 @@ module NixonPi
     class CommandSender
       include BunnyConnection
 
-
       ##
       # Send an async command to a registered commandreceiver
       # @param [Symbol] target
       # @param [Hash] payload
       def send_command(target, payload)
-
         log.info "publishing #{payload} to #{target}"
         topic(:command).publish(payload.to_json,
                                 routing_key: 'nixonpi.command',
@@ -24,8 +22,8 @@ module NixonPi
                                 routing_key: 'nixonpi.request',
                                 content_type: 'application/json',
                                 type: target,
-                                immediate: true,
-        )
+                                immediate: true
+                               )
       end
 
       def send_response(target, payload)
@@ -35,9 +33,7 @@ module NixonPi
                                  content_type: 'application/json',
                                  type: target,
                                  immediate: true)
-
       end
-
     end
   end
 end

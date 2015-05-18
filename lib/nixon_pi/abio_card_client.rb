@@ -2,7 +2,6 @@ require 'net/telnet'
 require 'singleton'
 require 'thread'
 
-
 module NixonPi
   class AbioCardClient
     include Retryable
@@ -247,7 +246,7 @@ module NixonPi
         when NixonPi::RetryError
           log.error e.message
           exit
-          exit! #force shutdown!
+          exit! # force shutdown!
         else
           log.error e.message
           exit_client

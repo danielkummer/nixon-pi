@@ -1,5 +1,4 @@
 module NixonPi
-
   # Retry error raised when retryable fails
   class RetryError < StandardError
   end

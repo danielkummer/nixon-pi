@@ -58,5 +58,5 @@ require 'nixon_pi/web/web_server'
 Thread.abort_on_exception = true
 
 module NixonPi
-    # nothing to do here, just defining the namespace
+  # nothing to do here, just defining the namespace
 end

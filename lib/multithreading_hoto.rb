@@ -1,5 +1,4 @@
 class Arduino
-
   def initialize
     @threads    = []
     @work_queue = Queue.new
@@ -12,14 +11,14 @@ class Arduino
   end
 
   def start_queues
-    #read from serial
+    # read from serial
     @threads << Thread.new do
       loop do
         process(@serial.pop)
       end
     end
 
-    #pop from queue to send to Arduino
+    # pop from queue to send to Arduino
     @threads << Thread.new do
       loop do
         @mutex.synchronize do
@@ -35,25 +34,21 @@ class Arduino
     puts data
 
     # Check cmd
-    if data == "example1"
-      @cmd_lock.signal
-    end
+    @cmd_lock.signal if data == 'example1'
   end
-
 
   def send(data)
     @serial << data
   end
 
   def go
-    puts "GO"
-    @work_queue << "example1"
-    @work_queue << "example2"
-    @work_queue << "example3"
+    puts 'GO'
+    @work_queue << 'example1'
+    @work_queue << 'example2'
+    @work_queue << 'example3'
 
     @threads.each(&:join)
   end
-
 end
 
 Arduino.new.go

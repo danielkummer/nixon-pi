@@ -6,12 +6,10 @@ module NixonPi
   end
 end
 
-
 module NixonPi
   module DependencyInjection
     class Container
       @@class_registry = {}
-
 
       class << self
         def class_registry
@@ -75,8 +73,6 @@ module NixonPi
           reg_entry[:klass]
         end
       end
-
-
     end
   end
 end
