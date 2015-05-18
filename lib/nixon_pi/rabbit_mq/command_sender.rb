@@ -1,10 +1,11 @@
 module NixonPi
-  module Messaging
+  module RabbitMQ
     class CommandSender
       include BunnyConnection
 
       ##
       # Send an async command to a registered commandreceiver
+      #
       # @param [Symbol] target
       # @param [Hash] payload
       def send_command(target, payload)
@@ -16,16 +17,25 @@ module NixonPi
                                 immediate: true)
       end
 
+      ##
+      # Send an async request to a registered command receiver
+      #
+      # @param [Symbol] target
+      # @param [Hash] payload
       def send_request(target, payload)
         log.info "publishing request #{payload} to #{target}"
         topic(:request).publish(payload.to_json,
                                 routing_key: 'nixonpi.request',
                                 content_type: 'application/json',
                                 type: target,
-                                immediate: true
-                               )
+                                immediate: true)
       end
 
+      ##
+      # Send an async response to a registered command receiver
+      #
+      # @param [Symbol] target
+      # @param [Hash] payload
       def send_response(target, payload)
         log.info "publishing response #{payload} to #{target}"
         topic(:response).publish(payload.to_json,

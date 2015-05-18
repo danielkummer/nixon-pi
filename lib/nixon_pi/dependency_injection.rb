@@ -31,42 +31,46 @@ module NixonPi
       def get_injected(type, is_new_instance = false, args = {})
         # TODO: handle multi instances differently - save the instance separately and create it using the blueprint type
 
+        # If type contains a sequential value, eg. bar1, lamp1
         if type.match(/([a-zA-Z]+)\d+$/)
           if @@class_registry.key?(type.to_sym)
             reg_entry = @@class_registry[type.to_sym]
+            # found instance, return!
             return reg_entry[:instance] if reg_entry.key?(:instance)
           end
           if @@class_registry.key?(Regexp.last_match(1).to_sym) # create new instance if based on a sequential value e.g bar1
             original = @@class_registry[Regexp.last_match(1).to_sym]
             begin
+              #clone existing original instance
               @@class_registry[type.to_sym] = Marshal.load(Marshal.dump(original))
             rescue Exception => e
-              raise("error on #{original}: #{e.message}")
+              raise "Error cloning existing instance #{original}: #{e.message}"
             end
           else
-            fail "no base configuration found for instance type #{type}"
+            fail "No base configuration found for instance of type: #{type}"
           end
         end
 
         if @@class_registry.key?(type.to_sym)
           reg_entry = @@class_registry[type.to_sym]
 
+          # we found a valid instance and are done!
           return reg_entry[:instance] if reg_entry.key?(:instance) && is_new_instance == false
+
+          # else merge the args and try to create a new instance
           options = reg_entry[:args].merge(args)
 
-          klass = if reg_entry[:klass].instance_method(:initialize).parameters.empty?
-                    reg_entry[:klass].new
-                  else
-                    reg_entry[:klass].new(options)
-                  end
+          klass = reg_entry[:klass].instance_method(:initialize).parameters.empty? ?
+              reg_entry[:klass].new :
+              reg_entry[:klass].new(options)
 
+          # register new instance - this must be done by the instance itself
           klass.send(:registered_as_type=, type) if klass.respond_to?(:registered_as_type=)
 
           is_new_instance ? klass : reg_entry[:instance] = klass
         else
-          fail "could not instantiate #{type}"
+          fail "Could not instantiate #{type}"
         end
-
       end
 
       ##

@@ -1,2 +1,2 @@
-service: ./bin/nixon-pi start --environment production
-web: ./bin/nixon-pi web --environment production -p 3000
+service: ./bin/nixon-pi start --env production
+web: ./bin/nixon-pi web --env production -p 3000

@@ -1,7 +1,7 @@
 
 module NixonPi
   class HardwareInfo
-    include InformationHolder
+    include InfoResponder
     include Logging
 
     def handle_info_request(about)
@@ -14,7 +14,7 @@ module NixonPi
           ret = {}
         when :network
           # TODO: test!
-          ret = { network: NetworkInfo.info }
+          ret = { network: OSInfo.network }
         else
           log.error "No information about #{about}"
       end

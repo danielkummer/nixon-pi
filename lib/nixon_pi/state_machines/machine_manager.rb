@@ -36,10 +36,14 @@ module NixonPi
       # @param [Float] sleep_for_sec sleep time after each loop
       def start_state_machines(sleep_for_sec = 0.03)
         @@thread = Thread.new do
-          loop do
-            @@state_machines.each do |_type, state_machine|
-              state_machine.handle
-              sleep sleep_for_sec
+          #reacts to
+          #throw :exit
+          catch(:exit) do
+            loop do
+              @@state_machines.each do |_type, state_machine|
+                state_machine.handle
+                sleep sleep_for_sec
+              end
             end
           end
         end

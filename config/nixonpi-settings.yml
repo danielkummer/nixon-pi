@@ -1,5 +1,6 @@
 defaults: &defaults
   log_level: DEBUG
+  abiocardserver_command: 'sudo /opt/abiocard/abiocardserver -stdio'
   database: nixon_pi.sqlite3
   telnet_server:
     host: 10.0.0.101

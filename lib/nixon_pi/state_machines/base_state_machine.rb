@@ -5,8 +5,9 @@ require 'active_record'
 module NixonPi
   class BaseStateMachine
     include Logging
+    extend Logging
     include Commands
-    include InformationHolder
+    include InfoResponder
 
     attr_accessor :registered_as_type
 
@@ -142,18 +143,21 @@ module NixonPi
     # @param [Transition] transition
     # @param [block] block
     def self.handle_around_transition(object, _transition, block)
+      log.debug("around transition: #{object}, #{_transition}")
       object.params[:goto_state] = object.state if object.params[:goto_state].nil? && !object.state.nil?
       object.params[:last_state] = object.state
       begin
         object.leave_state
       rescue NoMethodError => e
+        # ignored
       end
       block.call
-      # NixonPi::Messaging::CommandSender.new.send_command(:sound, {value: "Entering  #{object.state} state for #{object.registered_as_type}"}) unless object.params[:last_state] == "startup"
+      # NixonPi::RabbitMQ::CommandSender.new.send_command(:sound, {value: "Entering  #{object.state} state for #{object.registered_as_type}"}) unless object.params[:last_state] == "startup"
       object.params[:state] = object.state
       begin
         object.try(:enter_state)
       rescue NoMethodError => e
+        # ignored
       end
     end
   end

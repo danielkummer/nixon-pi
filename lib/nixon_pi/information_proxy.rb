@@ -1,5 +1,6 @@
 require 'drb'
 
+#TODO : refactor this so it works with bunny 2 way communication
 module NixonPi
   ##
   # Proxy for information requests
@@ -11,8 +12,8 @@ module NixonPi
     end
 
     ##
-    # Add object which uses the InformationHolder module
-    # @param [InformationHolder] receiver_instance
+    # Add object which uses the InfoResponder module
+    # @param [InfoResponder] receiver_instance
     # @param [Symbol] target name under which the receiver listens for information requests
     def add_target(receiver_instance, target)
       target = target.to_sym

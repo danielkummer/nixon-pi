@@ -17,4 +17,9 @@ module OSInfo
   def self.linux?
     OSInfo.unix? && !OSInfo.mac?
   end
+
+  def self.network
+    res = Socket.ip_address_list.select { |intf| intf.ipv4? && !intf.ipv4_loopback? && !intf.ipv4_multicast? }.collect(&:ip_address)
+    res
+  end
 end

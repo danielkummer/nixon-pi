@@ -114,7 +114,7 @@ module NixonPi
       end
 
       def sender
-        @sender ||= NixonPi::Messaging::CommandSender.new
+        @sender ||= NixonPi::RabbitMQ::CommandSender.new
       end
     end
 

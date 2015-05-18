@@ -1,11 +1,11 @@
 require_relative 'spec_helper'
 
-require_relative '../lib/nixonpi/messaging/command_receiver'
+require_relative '../lib/nixonpi/rabbit_mq/command_receiver'
 
-# describe NixonPi::Messaging::CommandReceiver do
+# describe NixonPi::RabbitMQ::CommandInbox do
 #
 #   before :each do
-#     @cr = NixonPi::Messaging::CommandReceiver.new
+#     @cr = NixonPi::RabbitMQ::CommandInbox.new
 #   end
 #
 #   it "should allow the registration of receivers who implement commandlistener" do

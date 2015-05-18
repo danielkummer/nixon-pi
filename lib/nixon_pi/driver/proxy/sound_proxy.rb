@@ -4,9 +4,9 @@ module NixonPi
       class SoundProxy
         include Logging
         extend Logging
-        include ::OSInfo
+        include OSInfo
         include Commands
-        include InformationHolder
+        include InfoResponder
 
         accepted_commands :value
 
@@ -16,7 +16,7 @@ module NixonPi
 
           case true
             when OSInfo.mac?
-              IO.popen("say #{value}")
+              system("say -v Veena #{value}")
             when OSInfo.windows?
               log.warn 'No windows speech support at the moment...'
             else

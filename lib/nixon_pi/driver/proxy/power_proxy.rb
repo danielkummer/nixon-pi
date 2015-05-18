@@ -4,7 +4,7 @@ module NixonPi
       class PowerProxy
         include Logging
         include Commands
-        include InformationHolder
+        include InfoResponder
         include NixonPi::DependencyInjection
 
         accepted_commands :value

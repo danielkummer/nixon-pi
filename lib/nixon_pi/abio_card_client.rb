@@ -32,8 +32,7 @@ module NixonPi
     # Read analog values from pin
     # @param [Integer] pin
     def read_adc(_pin)
-      # TODO
-      fail NotImplementedError
+      fail NotImplementedError, 'Feel free to implement ;)'
     end
 
     ##
@@ -137,10 +136,10 @@ module NixonPi
     #           SS Start index, 00..10 hexadecimal.
     #           CC Count, 01..11 hexadecimal.
     #           [XX] Array of register values, 00..FF hexadecimal. The count field indicates the number of array elements
-    def pwm_read_registers(options = { start_index: 0, count: NUMBER_OF_PWM_PORTS })
+    def pwm_read_registers(options = {start_index: 0, count: NUMBER_OF_PWM_PORTS})
       start_at_register = options[:start_index]
       count = options[:count]
-      start_at_register = 0 unless (0..NUMBER_OF_PWM_PORTS).include?(start_at_register) # set to 0 if out of bounds
+      start_at_register = 0 unless start_at_register.between?(0,NUMBER_OF_PWM_PORTS) # set to 0 if out of bounds
       start_at_register = start_at_register.to_s(16).rjust(2, '0') # convert startindex to hex string
       register_count = count.to_s(16).rjust(2, '0')
       @pwm_register_array ||= Array.new(NUMBER_OF_PWM_PORTS, 0)
@@ -174,7 +173,7 @@ module NixonPi
       start_at_register = options[:start_index]
       values = options[:values]
 
-      start_at_register = 0 unless (0..NUMBER_OF_PWM_PORTS).include?(start_at_register) # set to 0 if out of bounds
+      start_at_register = 0 unless start_at_register.between?(0, NUMBER_OF_PWM_PORTS) # set to 0 if out of bounds
       start_at_register = start_at_register.to_s(16).rjust(2, '0') # convert startindex to hex string
       register_count = values.size.to_s(16).rjust(2, '0')
 
@@ -182,7 +181,7 @@ module NixonPi
 
       # convert values to hex string
       values.each do |value|
-        value = 0 unless (0..255).include?(value.to_i) # set to 0 if out of bounds
+        value = 0 unless value.to_i.between?(0, 255) # set to 0 if out of bounds
         output_array_string << value.to_i.round.to_s(16).rjust(2, '0')
       end
 
@@ -240,8 +239,8 @@ module NixonPi
     # Handle telnet exceptions
     def handle
       yield
-    # rescue Exception => exception
-    # TODO: this can end in a loop if the driver is perminately unavailable
+        # rescue Exception => exception
+        # TODO: this can end in a loop if the driver is perminately unavailable
     rescue Exception => e
       case e
         when Errno::ECONNRESET, Errno::ECONNABORTED, Errno::ETIMEDOUT, Errno::EPIPE

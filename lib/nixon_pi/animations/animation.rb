@@ -7,7 +7,7 @@ module NixonPi
       include Logging
       extend Logging
       include Commands
-      include InformationHolder
+      include InfoResponder
       include NixonPi::DependencyInjection
 
       attr_accessor :thread
@@ -35,7 +35,6 @@ module NixonPi
             @send_command ||= begin
               log.debug "Animation ended, sending transition command, target: #{@options[:goto_target]} state: #{@options[:goto_state]}"
               get_injected(:cmd_send).send_command(@options[:goto_target], state: @options[:goto_state])
-              log.debug 'already sent transistion command'
             end
           else
             log.debug "animation value: #{value}"

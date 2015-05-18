@@ -1,5 +1,5 @@
 module NixonPi
-  module InformationHolder
+  module InfoResponder
     # Return an information hash based on the passed parameter
     # @param [Symbol] about
     # @return [Hash] hash containing requested information

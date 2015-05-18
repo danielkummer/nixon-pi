@@ -4,7 +4,7 @@ module NixonPi
       class BackgroundProxy
         include NixonPi::Logging
         include NixonPi::Commands
-        include NixonPi::InformationHolder
+        include NixonPi::InfoResponder
 
         accepted_commands :value
 

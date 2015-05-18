@@ -4,7 +4,7 @@ module NixonPi
   class Scheduler
     include Logging
     include NixonPi::Commands
-    include InformationHolder
+    include InfoResponder
 
     accepted_commands :method, :timing, :target, :command, :time, :id, :delete
 

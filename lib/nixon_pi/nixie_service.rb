@@ -12,7 +12,7 @@ module NixonPi
     register :power, NixonPi::Driver::Proxy::PowerProxy, port: Settings.power_pin
     register :rgb_proxy, NixonPi::Driver::Proxy::RgbProxy, ports: Settings.rgb_pins
     register :background, NixonPi::Driver::Proxy::BackgroundProxy, port: Settings.background_led_pin
-    register :cmd_send, NixonPi::Messaging::CommandSender
+    register :cmd_send, NixonPi::RabbitMQ::CommandSender
 
     def initialize
       log.info 'Initializing Nixon-Pi service..'
@@ -24,7 +24,7 @@ module NixonPi
       load 'db/schema.rb'
 
       begin
-        @message_distributor = NixonPi::Messaging::CommandReceiver.new
+        @message_distributor = NixonPi::RabbitMQ::CommandInbox.new
         @info_gatherer = NixonPi::InformationProxy.new
       rescue Bunny::TCPConnectionFailed
         log.error 'RabbitMQ server not found! is it running?'
@@ -77,7 +77,7 @@ module NixonPi
       # use literal writing to correct speech pattern
       get_injected(:cmd_send).send_command(:sound, value: 'Hi, my name is Nixon Pie')
       # State ip address for better connectabilty
-      get_injected(:cmd_send).send_command(:sound, value: 'My eye pee addresses are:' + NixonPi::NetworkInfo.info.join(', '))
+      get_injected(:cmd_send).send_command(:sound, value: 'My eye pee addresses are:' + OSInfo.network.join(', '))
 
       get_injected(:cmd_send).send_command(:lamp0, state: :free_value, value: 0)
       get_injected(:cmd_send).send_command(:lamp1, state: :free_value, value: 0)
