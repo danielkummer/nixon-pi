@@ -16,7 +16,7 @@ module NixonPi
 
     def initialize
       log.info 'Initializing Nixon-Pi service..'
-      log.info "Environment: #{ENV['RACK_ENV']}"
+      log.info "Environment: #{$environment}"
       ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: Settings.database)
 
       log.debug 'Running migrations'
@@ -50,22 +50,22 @@ module NixonPi
       end
 
       @message_distributor.add_receiver(NixonPi::Driver::Proxy::SoundProxy.new, :sound)
-      @message_distributor.add_receiver(NixonPi::DependencyInjection::Container.get_injected(:power), :power)
+      @message_distributor.add_receiver(get_injected(:power), :power)
       @message_distributor.add_receiver(NixonPi::Scheduler.new, :schedule)
-      @message_distributor.add_receiver(NixonPi::DependencyInjection::Container.get_injected(:background), :background)
+      @message_distributor.add_receiver(get_injected(:background), :background)
 
       @info_gatherer.add_target(NixonPi::HardwareInfo.new, :hardware)
       @info_gatherer.add_target(NixonPi::Driver::Proxy::SoundProxy.new, :sound)
       @info_gatherer.add_target(NixonPi::Scheduler.new, :schedule)
-      @info_gatherer.add_target(NixonPi::DependencyInjection::Container.get_injected(:power), :power)
-      @info_gatherer.add_target(NixonPi::DependencyInjection::Container.get_injected(:background), :background)
+      @info_gatherer.add_target(get_injected(:power), :power)
+      @info_gatherer.add_target(get_injected(:background), :background)
       @info_gatherer.add_target(@message_distributor, :commands)
 
-      @info_gatherer.add_target(NixonPi::DependencyInjection::Container.get_class(:single_fly_in), :single_fly_in)
-      @info_gatherer.add_target(NixonPi::DependencyInjection::Container.get_class(:switch_numbers), :switch_numbers)
-      @info_gatherer.add_target(NixonPi::DependencyInjection::Container.get_class(:rgb_animation), :rgb_animation)
-      @info_gatherer.add_target(NixonPi::DependencyInjection::Container.get_class(:ramp_up_down), :ramp_up_down)
-      @info_gatherer.add_target(NixonPi::DependencyInjection::Container.get_class(:blink), :blink)
+      @info_gatherer.add_target(get_class(:single_fly_in), :single_fly_in)
+      @info_gatherer.add_target(get_class(:switch_numbers), :switch_numbers)
+      @info_gatherer.add_target(get_class(:rgb_animation), :rgb_animation)
+      @info_gatherer.add_target(get_class(:ramp_up_down), :ramp_up_down)
+      @info_gatherer.add_target(get_class(:blink), :blink)
 
       # $SAFE = 1   # disable eval() and friends
       # DRb.start_service('druby://localhost:9001', @info_gatherer)
@@ -75,18 +75,18 @@ module NixonPi
     # Run service run
     def run!
       # use literal writing to correct speech pattern
-      NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:sound, value: 'Hi, my name is Nixon Pie')
+      get_injected(:cmd_send).send_command(:sound, value: 'Hi, my name is Nixon Pie')
       # State ip address for better connectabilty
-      NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:sound, value: 'My eye pee addresses are:' + NixonPi::NetworkInfo.info.join(', '))
+      get_injected(:cmd_send).send_command(:sound, value: 'My eye pee addresses are:' + NixonPi::NetworkInfo.info.join(', '))
 
-      NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:lamp0, state: :free_value, value: 0)
-      NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:lamp1, state: :free_value, value: 0)
-      NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:lamp2, state: :free_value, value: 0)
-      NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:lamp3, state: :free_value, value: 0)
-      NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:lamp4, state: :free_value, value: 0)
+      get_injected(:cmd_send).send_command(:lamp0, state: :free_value, value: 0)
+      get_injected(:cmd_send).send_command(:lamp1, state: :free_value, value: 0)
+      get_injected(:cmd_send).send_command(:lamp2, state: :free_value, value: 0)
+      get_injected(:cmd_send).send_command(:lamp3, state: :free_value, value: 0)
+      get_injected(:cmd_send).send_command(:lamp4, state: :free_value, value: 0)
 
-      NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:sound, value: 'Power on!')
-      NixonPi::DependencyInjection::Container.get_injected(:power).power_on
+      get_injected(:cmd_send).send_command(:sound, value: 'Power on!')
+      get_injected(:power).power_on
 
       NixonPi::MachineManager.start_state_machines
       NixonPi::MachineManager.join_threads # this must be inside the main run script - else the subthreads exit
@@ -104,7 +104,7 @@ module NixonPi
       NixonPi::Scheduler.exit_scheduler
 
       log.info 'Blow the candles out...'
-      NixonPi::DependencyInjection::Container.get_injected(:power).power_off
+      get_injected(:power).power_off
       log.info 'Bye ;)'
       @message_distributor.on_exit
     end

@@ -3,7 +3,7 @@
 require 'active_record'
 require 'shoulda/matchers'
 
-ENV['RACK_ENV'] = 'test'
+$environment = 'test'
 
 ActiveRecord::Base.establish_connection adapter: 'sqlite3',  database: ':memory:'
 

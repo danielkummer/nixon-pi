@@ -5,7 +5,6 @@ require 'active_record'
 module NixonPi
   class BaseStateMachine
     include Logging
-
     include Commands
     include InformationHolder
 
@@ -37,7 +36,7 @@ module NixonPi
             options['start_value'] = params[:value]
           end
           handle_command(state: params[:last_state]) if options.empty? # leave state if options are empty!!
-          @animation = NixonPi::DependencyInjection::Container.get_injected(name.to_sym, true, options)
+          @animation = get_injected(name.to_sym, true, options)
           @animation.use_driver(@driver)
         end
 
@@ -124,7 +123,7 @@ module NixonPi
     ##
     # Lazy initialize state hash if not already existing
     def initialize_state
-      @state_parameters = NixonPi::StateHash.new
+      @state_parameters = ThreadSafe::Hash.new
       self.class.available_commands.each do |cmd|
         @state_parameters[cmd] = nil
       end

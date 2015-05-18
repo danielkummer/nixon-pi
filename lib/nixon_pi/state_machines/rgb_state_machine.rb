@@ -9,7 +9,7 @@ module NixonPi
 
     def initialize
       super()
-      register_driver NixonPi::DependencyInjection::Container.get_injected(:rgb_proxy)
+      register_driver self.class.get_injected(:rgb_proxy)
     end
 
     state_machine do

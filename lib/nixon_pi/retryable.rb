@@ -19,7 +19,7 @@ module NixonPi
     #    rescue RetryError
     #      # handle error
     #    end
-    #
+    # @raise [RetryError] if the retry threshold is reached
     def retryable(options = {})
       opts = { retry_times: 10, on: Exception }.merge(options)
       retry_times = opts[:retry_times]
@@ -28,10 +28,10 @@ module NixonPi
         yield
       rescue try_exception => e
         if (retry_times -= 1) > 0
-          log.info "retrying another #{retry_times} times"
+          log.debug "retrying another #{retry_times} times"
           retry
         end
-        log.info "failed retrying... #{e.message}"
+        log.error "failed retrying... #{e.message}"
         raise RetryError, "Reached retry threshold of #{opts[:retry_times]}"
       end
     end

@@ -5,6 +5,7 @@ module NixonPi
         include Logging
         include Commands
         include InformationHolder
+        include NixonPi::DependencyInjection
 
         accepted_commands :value
 
@@ -18,7 +19,7 @@ module NixonPi
           value = command[:value].to_i
           log.debug "got power command: #{command}, applying..."
           if (0..1).member?(value)
-            NixonPi::DependencyInjection::Container.get_injected(:cmd_send).send_command(:sound, value: "power #{value == 1 ? 'on' : 'off'}!")
+            get_injected(:cmd_send).send_command(:sound, value: "power #{value == 1 ? 'on' : 'off'}!")
             @io_driver.write(value)
             @value = value
           end

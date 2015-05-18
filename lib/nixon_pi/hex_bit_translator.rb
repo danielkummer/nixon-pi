@@ -1,8 +1,9 @@
-#
-# Help with string format conversions
-#
+
 module NixonPi
-  module HexBitConvert
+  #
+  # This module helps converting hex strings to bits and vice versa
+  #
+  module HexBitTranslator
     # Convert a hex to a binary string
     # @return [String]
     # @param [String] input
@@ -12,10 +13,10 @@ module NixonPi
     end
 
     # Convert a binary string to a right adjusted hex string
+    # string -> binary -> hex -> justify right
     # @param [String] input
     # @return [String]
     def bit_to_hex(input)
-      # string > binary -> hex -> justify right
       input.to_i(2).to_s(16).rjust(2, '0').upcase
     end
   end

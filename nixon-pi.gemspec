@@ -42,6 +42,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'chronic_duration', '~> 0.10'
   gem.add_dependency 'thin', '~> 1.6'
   gem.add_dependency 'colorize', '~> 0.7'
+  gem.add_dependency 'thread_safe', '~> 0.3'
   gem.add_development_dependency 'less', '~> 2.6'
   gem.add_development_dependency 'rdoc', '~> 4.2'
   gem.add_development_dependency 'rvm-capistrano', '~> 1.5'
