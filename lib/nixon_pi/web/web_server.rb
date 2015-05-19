@@ -29,11 +29,13 @@ module NixonPi
     set :public_folder, File.join(File.dirname(__FILE__), 'public')
     set :haml, format: :html5
 
+    #Only process one request at a time
+    #We need this, else rabbitmq doesn't work correctly, more specific the rpc call with InformationSender
+    set :lock, true
+
     disable :raise_errors
     disable :show_exceptions
 
-    # set :lock, false #enable on threading errors
-    # set :port, Settings['web_server'].nil? ? '8080' : Settings['web_server']['port']
     # set :static, $environment == 'development' ? false : true
     # set :show_exceptions, false
 
@@ -86,7 +88,7 @@ module NixonPi
       end
 
       def information_sender
-        @information_sender ||= NixonPi::RabbitMQ::InformationSender.new
+        @information_sender ||= NixonPi::RabbitMQ::InformationSender.instance
       end
 
       INDENT = '  ' # use 2 spaces for indentation
@@ -360,7 +362,14 @@ module NixonPi
     # @param [Hash] data
     # @param [String] respond_message
     def formatted_response(format, data, respond_message = '')
+
+      if data.is_a? Array
+        data = {data: data}
+      end
+
       data ||= {}
+      #data can be an array!!
+
       data[:message] ||= []
       data[:success] = true unless data.key?(:success)
       data[:message] << respond_message unless respond_message.empty?
@@ -383,11 +392,9 @@ module NixonPi
     # @param [Symbol] target information target
     # @param [Symbol] about regested information identifier
     def get_remote_info_from(_target, _about)
-      hash = {_target: _about}
-      information_sender.get_info_from(_target, hash)
+      information_sender.get_info_from(_target, {about: _about})
     end
 
-    # run! if app_file == $PROGRAM_NAME
   end
 end
 

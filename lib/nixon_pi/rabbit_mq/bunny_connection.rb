@@ -34,24 +34,6 @@ module NixonPi
       end
 
       ##
-      # Create a new topic exchange
-      #
-      # @param [Symbol] type the topic type, (:command, :request, :response)
-      # @return [Exchange] exchange
-      def topic(type)
-        case type
-          when :command
-            channel.topic('topic_commands')
-          when :request
-            channel.topic('topic_request')
-          when :response
-            channel.topic('topic_response')
-          else
-            fail "Unknown topic: #{type}"
-        end
-      end
-
-      ##
       # Check if the client is connected
       #
       # @return [Boolean] true if connected

@@ -13,9 +13,12 @@ module NixonPi
       # @raise [Bunny::TCPConnectionFailed] if rabbitmq server not reachable
       def initialize
         @receivers = ThreadSafe::Cache.new
+
+        exchange = channel.topic('nixonpi.rpc.command')
+
         @inbox = channel
-                     .queue('', exclusive: true)
-                     .bind(topic(:command), routing_key: 'nixonpi.command')
+                     .queue('nixonpi.rpc.command', exclusive: true)
+                     .bind(exchange, routing_key: 'nixonpi.command.#')
                      .subscribe do |_delivery_info, metadata, data|
           if metadata[:content_type] == 'application/json'
             begin
