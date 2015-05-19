@@ -126,7 +126,7 @@ module NixonPi
                 options.keys.each do |k, o|
                   case k.to_sym
                     when :say
-                      NixonPi::RabbitMQ::CommandSender.send_command(:sound, value: o)
+                      NixonPi::RPC::CommandSender.send_command(:sound, value: o)
                     when :state
                       handle_command(state: o)
                       return

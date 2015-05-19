@@ -3,8 +3,7 @@ require 'rufus/scheduler'
 module NixonPi
   class Scheduler
     include Logging
-    include NixonPi::Commands
-    include InfoResponder
+    include Commands
 
     accepted_commands :method, :timing, :target, :command, :time, :id, :delete
 
@@ -29,7 +28,7 @@ module NixonPi
       end
     end
 
-    def handle_info_request(about)
+    def handle_information_request(about)
       ret = {}
       case about.to_sym
         when :commands

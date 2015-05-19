@@ -4,7 +4,6 @@ module NixonPi
       class BackgroundProxy
         include NixonPi::Logging
         include NixonPi::Commands
-        include NixonPi::InfoResponder
 
         accepted_commands :value
 
@@ -21,7 +20,7 @@ module NixonPi
           @value = value
         end
 
-        def handle_info_request(about)
+        def handle_information_request(about)
           ret = {}
           case about.to_sym
             when :params

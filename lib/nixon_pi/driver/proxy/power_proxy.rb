@@ -4,7 +4,6 @@ module NixonPi
       class PowerProxy
         include Logging
         include Commands
-        include InfoResponder
         include NixonPi::DependencyInjection
 
         accepted_commands :value
@@ -25,7 +24,7 @@ module NixonPi
           end
         end
 
-        def handle_info_request(about)
+        def handle_information_request(about)
           ret = {}
           case about.to_sym
             when :params

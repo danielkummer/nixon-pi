@@ -11,8 +11,8 @@ require 'active_record'
 require 'sinatra/form_helpers'
 require 'sinatra/jsonp'
 
-require 'nixon_pi/rabbit_mq/command_sender'
-require 'nixon_pi/rabbit_mq/information_sender'
+require 'nixon_pi/rpc/command_sender'
+require 'nixon_pi/rpc/information_sender'
 
 module NixonPi
   class WebServer < Sinatra::Base
@@ -84,11 +84,11 @@ module NixonPi
 
     helpers do
       def sender
-        @sender ||= NixonPi::RabbitMQ::CommandSender.new
+        @sender ||= NixonPi::RPC::CommandSender.new
       end
 
       def information_sender
-        @information_sender ||= NixonPi::RabbitMQ::InformationSender.instance
+        @information_sender ||= NixonPi::RPC::InformationSender.instance
       end
 
       INDENT = '  ' # use 2 spaces for indentation
@@ -388,11 +388,11 @@ module NixonPi
     end
 
     ##
-    # RPC Connection to service, get data from InformationInbox
+    # RPC Connection to service, get data from InformationRequestReceiver
     # @param [Symbol] target information target
     # @param [Symbol] about regested information identifier
     def get_remote_info_from(_target, _about)
-      information_sender.get_info_from(_target, {about: _about})
+      information_sender.send_information_request(_target, {about: _about})
     end
 
   end

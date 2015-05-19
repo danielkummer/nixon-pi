@@ -7,7 +7,6 @@ module NixonPi
       include Logging
       extend Logging
       include Commands
-      include InfoResponder
       include NixonPi::DependencyInjection
 
       attr_accessor :thread
@@ -48,7 +47,7 @@ module NixonPi
         (finish - start) * 1000.0
       end
 
-      def self.handle_info_request(about)
+      def self.handle_information_request(about)
         ret = {}
         case about.to_sym
           when :params # animation options, but called 'params' for consistency

@@ -4,7 +4,7 @@ module NixonPi
   # module Scheduler
   class CommandJob
     include NixonPi::Logging
-    include NixonPi::RabbitMQ
+    include NixonPi::RPC
 
     def initialize(id, target, command, lock)
       @id = id

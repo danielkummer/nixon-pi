@@ -17,7 +17,6 @@ module NixonPi
       #
       # @param [Array] List of names (symbols) for accepted commands
       def accepted_commands(*names)
-        # raise "Command  #{n} already exists - no duplicates allowed!" if @@accepted_commands.include?(n)
         @@accepted_commands[name] = names
       end
 

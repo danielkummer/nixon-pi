@@ -7,7 +7,6 @@ module NixonPi
     include Logging
     extend Logging
     include Commands
-    include InfoResponder
 
     attr_accessor :registered_as_type
 
@@ -85,7 +84,7 @@ module NixonPi
       end
     end
 
-    def handle_info_request(about)
+    def handle_information_request(about)
       result = {}
       case about.to_sym
         when :params
@@ -152,7 +151,7 @@ module NixonPi
         # ignored
       end
       block.call
-      # NixonPi::RabbitMQ::CommandSender.new.send_command(:sound, {value: "Entering  #{object.state} state for #{object.registered_as_type}"}) unless object.params[:last_state] == "startup"
+      # NixonPi::RPC::CommandSender.new.send_command(:sound, {value: "Entering  #{object.state} state for #{object.registered_as_type}"}) unless object.params[:last_state] == "startup"
       object.params[:state] = object.state
       begin
         object.try(:enter_state)

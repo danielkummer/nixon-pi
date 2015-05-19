@@ -1,5 +1,8 @@
+require 'thread'
 
 module NixonPi
+  ##
+  # Main class for the service, it runs the service inside a thread and handles graceful service shutdown on interrupts
   class Runner
     include Logging
 
@@ -10,7 +13,7 @@ module NixonPi
     def shutdown!
       Thread.new do
         @service.shutdown
-        log.info 'Shutting down...'
+        log.info 'Shutdown complete - cya next time :)'
       end
     end
 

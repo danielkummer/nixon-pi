@@ -1,10 +1,10 @@
 # Remote procedure calls via Drb
 
 The web service uses Drb to remotely communicate with objects holding information.
-The objects with respond to the requests must implement handle_info_request via the InformationHolder module.
+The objects with respond to the requests must implement handle_information_request via the InformationHolder module.
 
 On the opposite site is the InformationProxy class which responds to the get_info_from request issued from the web service.
-The proxy calls the handle_info_request method on the appropriate target and passes the about hash.
+The proxy calls the handle_information_request method on the appropriate target and passes the about hash.
 
 # RabbitMQ Processing
 

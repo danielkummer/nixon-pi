@@ -5,7 +5,7 @@ require 'thread'
 module NixonPi
 
   ##
-  # This class is the abio card client. It communicates via directio, telnet or mocktelnet with the arduino hardware.
+  # Client for the aboicard hardware, it communicates using one of the specified drivers, Open3, Telnet or Mock.
   #
   class AbioCardClient
     include Retryable

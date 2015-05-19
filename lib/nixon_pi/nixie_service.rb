@@ -12,7 +12,7 @@ module NixonPi
     register :power, NixonPi::Driver::Proxy::PowerProxy, port: Settings.power_pin
     register :rgb_proxy, NixonPi::Driver::Proxy::RgbProxy, ports: Settings.rgb_pins
     register :background, NixonPi::Driver::Proxy::BackgroundProxy, port: Settings.background_led_pin
-    register :cmd_send, NixonPi::RabbitMQ::CommandSender
+    register :cmd_send, NixonPi::RPC::CommandSender
 
     def initialize
       log.info 'Initializing Nixon-Pi service..'
@@ -24,8 +24,8 @@ module NixonPi
       load 'db/schema.rb'
 
       begin
-        @message_distributor = NixonPi::RabbitMQ::CommandInbox.new
-        @info_gatherer = NixonPi::RabbitMQ::InformationInbox.new
+        @message_distributor = NixonPi::RPC::CommandReceiver.new
+        @info_gatherer = NixonPi::RPC::InformationRequestReceiver.new
       rescue Bunny::TCPConnectionFailed
         log.error 'RabbitMQ server not found! is it running?'
         exit!(false)

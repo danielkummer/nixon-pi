@@ -6,7 +6,6 @@ module NixonPi
         extend Logging
         include OSInfo
         include Commands
-        include InfoResponder
 
         accepted_commands :value
 
@@ -24,7 +23,7 @@ module NixonPi
           end
         end
 
-        def handle_info_request(about)
+        def handle_information_request(about)
           ret = {}
           case about.to_sym
             when :commands

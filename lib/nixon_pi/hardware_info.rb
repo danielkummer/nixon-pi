@@ -1,10 +1,10 @@
 
 module NixonPi
   class HardwareInfo
-    include InfoResponder
     include Logging
 
-    def handle_info_request(about)
+
+    def handle_information_request(about)
       ret = {}
       case about.to_sym
         when :io_card

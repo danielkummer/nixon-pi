@@ -3,6 +3,9 @@ module NixonPi
   class RetryError < StandardError
   end
 
+  ##
+  # Provides a method for retrying operations on failure for a given amount of time
+  #
   module Retryable
     ##
     # If retry times more than retry times in option parameter, will raise a RetryError.
