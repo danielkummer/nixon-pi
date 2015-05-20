@@ -5,49 +5,49 @@
       %i.icon-lightbulb
       Tubes
   .span6
-    %form{ action: "/tubes", method: "POST", class: "form-horizontal form-hidden", "data-remote" => true}
+    %form{ action: '/tubes', method: 'POST', class: 'form-horizontal form-hidden', 'data-remote' => true}
       .row
         .span6
           .control-group
             .input-append
-              %input#tubes{type: "text", name: "value", maxlength: "12", class: "input-tubes search-query input-block-level right"}
-              %button{type: "submit", value: "Send", class: "btn"}
+              %input#tubes{type: 'text', name: 'value', maxlength: '12', class: 'input-tubes search-query input-block-level right'}
+              %button{type: 'submit', value: 'Send', class: 'btn'}
                 GO
           .accordion-group
             .accordion-heading
-              %a{class: "btn-more", 'data-toggle'=>"collapse",  href:"#more"}
+              %a{class: 'btn-more', 'data-toggle'=>'collapse',  href:'#more'}
                 %i.icon-sitemap
                 advanced
             #more.collapse.accordion-body
               .control-group
                 %label.control-label Mode
                 .controls
-                  %select#tube_state{name: "state", class: "input-xlarge"}
-                    %option{selected: "", value: "free_value"} Free value
-                    %option{value: "time"} Time
-                    %option{value: "animation"} Animation
-                    %option{value: "countdown"} Countdown
-                    %option{value: "meeting_ticker"} Meeting Ticker
+                  %select#tube_state{name: 'state', class: 'input-xlarge'}
+                    %option{selected: '', value: 'free_value'} Free value
+                    %option{value: 'time'} Time
+                    %option{value: 'animation'} Animation
+                    %option{value: 'countdown'} Countdown
+                    %option{value: 'meeting_ticker'} Meeting Ticker
               .control-group.tube_animation_group
                 %label.control-label Animation Name
                 .controls
-                  %select#tube_animation{name: "animation_name", "data-placeholder" =>"Select animation",  class: "input-xlarge"}
+                  %select#tube_animation{name: 'animation_name', 'data-placeholder' =>'Select animation',  class: 'input-xlarge'}
                     %option
-                    %option{value: "switch_numbers"} switch numbers
-                    %option{value: "single_fly_in"} fly in
+                    %option{value: 'switch_numbers'} switch numbers
+                    %option{value: 'single_fly_in'} fly in
               .control-group.tube_animation_group
-                %label.control-label{for: "options"} Options JSON
+                %label.control-label{for: 'options'} Options JSON
                 .controls
-                  %textarea#tube_animation_options{name: "options", rows: "10", class:"input-xlarge"}
+                  %textarea#tube_animation_options{name: 'options', rows: '10', class:'input-xlarge'}
               .control-group.tube_time_group
-                %label.control-label{for: "time_format"} Time format
+                %label.control-label{for: 'time_format'} Time format
                 .controls
-                  %input{type: "text", name: "time_format", class: "input-xlarge", value:"%H%M%S"}
-              .control-group{style:"height:80px;"}
+                  %input{type: 'text', name: 'time_format', class: 'input-xlarge', value:'%H%M%S'}
+              .control-group{style:'height:80px;'}
                 %label.control-label Load on startup
                 .controls
-                  %input{type: "checkbox", name: "initial", class: "input-medium"}
-        .span6{style:"padding-top:10px;"}
+                  %input{type: 'checkbox', name: 'initial', class: 'input-medium'}
+        .span6{style:'padding-top:10px;'}
   .span4
     .well#countdown_examples
       %h3 Countdown examples
@@ -68,9 +68,9 @@
     %h3
       Background
   .span9
-    %form{ action: "/background", method: "POST", class: "form-inline", style:"margin-bottom:0px;","data-remote" => true}
+    %form{ action: '/background', method: 'POST', class: 'form-inline', style:'margin-bottom:0px;','data-remote' => true}
       .bar-control
-        %input{:type => "range", :name => "value", :class => "range", min: "0", max: "255", value: "0"}
+        %input{:type => 'range', :name => 'value', :class => 'range', min: '0', max: '255', value: '0'}
 
 
     /= format_command_values(@tubes)
@@ -85,12 +85,12 @@
     .row
       .span12#lamps
         -@no_of_lamps.times.with_index do |index|
-          %form{ action: "/lamp", method: "POST", class: "form-inline", "data-remote" => true, style:"display:inline;"}
-            %button{type: "button", class: "btn btn-lamp", "data-toggle" => "button", title:"icon-circle-blank", id:"lamp_#{index}" }
+          %form{ action: '/lamp', method: 'POST', class: 'form-inline', 'data-remote' => true, style:'display:inline;'}
+            %button{type: 'button', class: 'btn btn-lamp', 'data-toggle' => 'button', title:'icon-circle-blank', id:"lamp_#{index}" }
               %i.icon-circle-blank
-              %input{type: "checkbox", name: "value", value: "1", style:"display: none;"}
-            %input{type: "hidden", name: "state", value: "free_value"}
-            %input{type: "hidden", name: "id", value: "#{index}"}
+              %input{type: 'checkbox', name: 'value', value: '1', style:'display: none;'}
+            %input{type: 'hidden', name: 'state', value: 'free_value'}
+            %input{type: 'hidden', name: 'id', value: "#{index}"}
   .span4
 
 
@@ -102,9 +102,9 @@
   .span9
     %ul.nav.nav-tabs
       %li
-        %a{"data-toggle" => "tab", href: "#free_value", class: "active"} Free value
+        %a{'data-toggle' => 'tab', href: '#free_value', class: 'active'} Free value
       %li
-        %a{"data-toggle" => "tab", href: "#animation"} Animation
+        %a{'data-toggle' => 'tab', href: '#animation'} Animation
 
     .tab-content
       #free_value.tab-pane.active
@@ -112,43 +112,43 @@
           .span9
             .bars
               -@no_of_bars.times.with_index do |i|
-                %form{ action: "/bar", method: "POST", class: "form-inline", style:"margin-bottom:0px;","data-remote" => true}
+                %form{ action: '/bar', method: 'POST', class: 'form-inline', style:'margin-bottom:0px;','data-remote' => true}
                   .bar-control
-                    %input{:type => "range", :name => "value", :class => "range", min: "0", max: "255", value: "0"}
+                    %input{type: 'range', name: 'value', class: 'range-bars', min: '0', max: '255', value: '0'}
                   %label.checkbox
-                    %input{type: "checkbox", name: "initial", class: "input-medium"}
+                    %input{type: 'checkbox', name: 'initial', class: 'input-medium'}
                       %i.icon-refresh
                       Load on startup
-                  %input{type: "hidden", name: "state", value: "free_value"}
-                  %input{type: "hidden", name: "id", value: "#{i}"}
+                  %input{type: 'hidden', name: 'state', value: 'free_value'}
+                  %input{type: 'hidden', name: 'id', value: "#{i}"}
 
       #animation.tab-pane
         .row
           .span6
-            %form{ action: "/bars", method: "POST", class: "form", "data-remote" => true}
+            %form{ action: '/bars', method: 'POST', class: 'form', 'data-remote' => true}
               .control-group
-                %label.control-label{for: "animation_name"} Bar
+                %label.control-label{for: 'animation_name'} Bar
                 .controls
-                  %select{name: "id", class: "input-xlarge chzn-select"}
+                  %select{name: 'id', class: 'input-xlarge chzn-select'}
                     -@no_of_bars.times.with_index do |i|
-                      %option{selected: "", value: "#{i}"}= "Bar #{i}"
+                      %option{selected: '', value: "#{i}"}= "Bar #{i}"
               .control-group
-                %label.control-label{for: "animation_name"} Animation
+                %label.control-label{for: 'animation_name'} Animation
                 .controls
-                  %select{name: "animation_name", class: "input-xlarge chzn-select"}
+                  %select{name: 'animation_name', class: 'input-xlarge chzn-select'}
                     %option
-                    %option{selected: "", value: "ramp_up_down"} ramp up down
+                    %option{selected: '', value: 'ramp_up_down'} ramp up down
               .control-group
-                %label.control-label{for: "value"} Options (Hash)
+                %label.control-label{for: 'value'} Options (Hash)
                 .controls
-                  %textarea#bar_animation_options{name: "options", rows: "10", class:"input-xlarge"}
-              %input{type: "hidden", name: "state", value: "animation"}
+                  %textarea#bar_animation_options{name: 'options', rows: '10', class:'input-xlarge'}
+              %input{type: 'hidden', name: 'state', value: 'animation'}
               .control-group
                 %label.checkbox
-                  %input{type: "checkbox", name: "initial", class: "input-medium"}
+                  %input{type: 'checkbox', name: 'initial', class: 'input-medium'}
                   Load on startup
 
-              %input{type: "submit", value: "GO", class: "btn"}
+              %input{type: 'submit', value: 'GO', class: 'btn'}
       #something_else.tab-pane
   .span4
     = format_command_values(@bars)
@@ -159,18 +159,18 @@
       %i.icon-comment
       Say
   .span6
-    %form{ action: "/say", method: "POST", class:"", "data-remote" => true}
+    %form{ action: '/say', method: 'POST', class:'', 'data-remote' => true}
       .row
         .span12
-          %input{type: "text", name: "value", class: "input-xxlarge"}
+          %input{type: 'text', name: 'value', class: 'input-xxlarge'}
 .row.row-divider
   .span2
     %h2
       RGB
   .span6
-    %form{ action: "/rgb", method: "POST", class:"form", "data-remote" => true}
-      %input{type: "text", id:"color", name:"value", value:"#ffffff"}
-      %input{type: "submit", value: "GO", class: "btn"}
+    %form{ action: '/rgb', method: 'POST', class:'form', 'data-remote' => true}
+      %input{type: 'text', id:'color', name:'value', value:'#ffffff'}
+      %input{type: 'submit', value: 'GO', class: 'btn'}
     #colorpicker
 
 

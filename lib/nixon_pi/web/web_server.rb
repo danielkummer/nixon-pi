@@ -2,23 +2,76 @@ require 'sinatra'
 require 'sinatra/base'
 require 'sinatra/contrib'
 require 'sinatra/activerecord'
+require 'sinatra/assetpack'
 
 require 'chronic_duration'
 require 'haml'
+require 'less'
 
 require 'json'
 require 'active_record'
 require 'sinatra/form_helpers'
 require 'sinatra/jsonp'
 
-require 'nixon_pi/rpc/command_sender'
-require 'nixon_pi/rpc/information_sender'
-
 module NixonPi
   class WebServer < Sinatra::Base
     set :root, File.dirname(__FILE__)
 
     register Sinatra::ActiveRecordExtension
+    register Sinatra::AssetPack
+
+    assets {
+      serve '/js', from: 'app/js' # Default
+      serve '/css', from: 'app/css' # Default
+      serve '/images', from: 'app/images' # Default
+      serve '/font', from: 'app/font' # Default
+
+      # Add all the paths that Less should look in for @import'ed files
+      Less.paths << File.join(WebServer.root, 'app/css')
+      Less.paths << File.join(WebServer.root, 'app/css/bootstrap')
+
+
+      # The second parameter defines where the compressed version will be served.
+      # (Note: that parameter is optional, AssetPack will figure it out.)
+      # The final parameter is an array of glob patterns defining the contents
+      # of the package (as matched on the public URIs, not the filesystem)
+      # noinspection RubyLiteralArrayInspection
+      js :app, '/js/app.js', [
+                 '/js/vendor/jquery-1.8.3.min.js',
+                 '/js/vendor/jquery.tools.min.js',
+                 '/js/vendor/jquery.toggle.buttons.js',
+                 '/js/vendor/chosen.jquery.min.js',
+                 '/js/vendor/jquery-cron-min.js',
+                 '/js/vendor/jquery-gentleSelect-min.js',
+                 '/js/vendor/farbtastic.js',
+                 '/js/vendor/jquery.pnotify.min.js',
+                 '/js/bootstrap.min.js',
+                 '/js/bootstrap/*.js',
+                 '/js/application.js'
+             #'/js/vendor/**/*.js',
+             #'/js/farbtastic/*.js',
+             #'/js/bootstrap/*.js',
+             #'/js/*.js',
+             ]
+
+      # noinspection RubyLiteralArrayInspection
+      css :application, '/css/application.css', [
+                          '/css/bootstrap/bootstrap.css',
+                          '/css/bootstrap-toggle-buttons.css',
+                          '/css/chosen.css',
+                          '/css/jquery.pnotify.default.css',
+                          '/css/jquery-cron.css',
+                          '/css/jquery-gentleSelect.css',
+                          '/css/farbtastic.css',
+                          '/css/app.css'
+                      ]
+
+      js_compression :jsmin # :jsmin | :yui | :closure | :uglify
+      css_compression :less # :simple | :sass | :yui | :sqwish
+
+      #prebuild true
+    }
+
 
     helpers Sinatra::FormHelpers
     helpers Sinatra::Jsonp
@@ -35,9 +88,6 @@ module NixonPi
 
     disable :raise_errors
     disable :show_exceptions
-
-    # set :static, $environment == 'development' ? false : true
-    # set :show_exceptions, false
 
     not_found do
       if request.accept? 'text/html'
@@ -68,18 +118,18 @@ module NixonPi
       end
     end
 
+    # general error...
     error do
       if request.accept? 'application/json'
         content_type :json
-
         halt({success: 'false', message: $ERROR_INFO.message}.to_json)
       end
-      haml 'errors/rabbitmq_down'.to_sym, layout: false, locals: {
-                                            info: {
-                                                title: 'Something just went terribly wrong...',
-                                                message: "Here's a funny error:#{$ERROR_INFO.message}"
-                                            }
-                                        }
+      haml 'errors/error'.to_sym, layout: false, locals: {
+                                    info: {
+                                        title: 'Something just went terribly wrong...',
+                                        message: "Here's a funny error:#{$ERROR_INFO.message}"
+                                    }
+                                }
     end
 
     helpers do
@@ -362,7 +412,6 @@ module NixonPi
     # @param [Hash] data
     # @param [String] respond_message
     def formatted_response(format, data, respond_message = '')
-
       if data.is_a? Array
         data = {data: data}
       end
@@ -392,7 +441,7 @@ module NixonPi
     # @param [Symbol] target information target
     # @param [Symbol] about regested information identifier
     def get_remote_info_from(_target, _about)
-      information_sender.send_information_request(_target, {about: _about})
+      Timeout.timeout(3.seconds) { information_sender.send_information_request(_target, {about: _about}) }
     end
 
   end

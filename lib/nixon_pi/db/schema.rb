@@ -11,21 +11,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20_130_426_092_338) do
-  create_table 'commands', force: :cascade do |t|
-    t.string 'target'
-    t.string 'state'
-    t.string 'value'
-    t.string 'animation_name'
-    t.string 'options'
+ActiveRecord::Schema.define(version: 20130426092338) do
+
+  create_table "commands", force: :cascade do |t|
+    t.string "target"
+    t.string "state"
+    t.string "value"
+    t.string "animation_name"
+    t.string "options"
   end
 
-  create_table 'schedules', force: :cascade do |t|
-    t.string 'method'
-    t.string 'time'
-    t.string 'target'
-    t.string 'command'
-    t.boolean 'lock',    default: false
-    t.string 'timing'
+  create_table "schedules", force: :cascade do |t|
+    t.string  "method"
+    t.string  "time"
+    t.string  "target"
+    t.string  "command"
+    t.boolean "lock",    default: false
+    t.string  "timing"
   end
+
 end

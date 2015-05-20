@@ -1,6 +1,6 @@
 !!!
 %head
-  %meta{:charset => "utf-8"}
+  %meta{:charset => 'utf-8'}
     %title Nixon-&#960;
 
     :css
@@ -24,9 +24,9 @@
         margin-left: auto;
         margin-right: auto;
       }
-    %link{:href => "http://fonts.googleapis.com/css?family=Carrois+Gothic+SC|Share+Tech+Mono|Montserrat+Subrayada:400,700|Allerta+Stencil", :rel => "stylesheet", :type => "text/css"}
+    %link{:href => 'http://fonts.googleapis.com/css?family=Carrois+Gothic+SC|Share+Tech+Mono|Montserrat+Subrayada:400,700|Allerta+Stencil', :rel => 'stylesheet', :type => 'text/css'}
 
 %body
   %h1= info[:title]
-  %img{src:"img/dead-bunny.png", alt: "dead bunny"}
+  = img '/images/dead-bunny.png'
   %p= info[:message]
