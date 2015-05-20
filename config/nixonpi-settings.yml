@@ -1,4 +1,5 @@
 defaults: &defaults
+  force_mock: true
   log_level: DEBUG
   abiocardserver_command: 'sudo /opt/abiocard/abiocardserver -stdio'
   database: nixon_pi.sqlite3
@@ -39,6 +40,7 @@ test:
   <<: *defaults
 
 production:
+  force_mock: false
   database: nixon_pi.sqlite3
   log_level: INFO
   telnet_server:
