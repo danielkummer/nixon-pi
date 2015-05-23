@@ -118,6 +118,20 @@ module NixonPi
       end
     end
 
+    error ActiveRecord::StatementInvalid do
+      if request.accept? 'application/json'
+        content_type :json
+        halt({success: 'false', message: $ERROR_INFO.message}.to_json)
+      else
+        haml 'errors/error'.to_sym, layout: false, locals: {
+                                      info: {
+                                          title: 'There seens to be a sqlite problem...',
+                                          message: "#{$ERROR_INFO.message}"
+                                      }
+                                  }
+      end
+    end
+
     # general error...
     error do
       if request.accept? 'application/json'
