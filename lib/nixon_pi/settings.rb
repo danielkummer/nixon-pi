@@ -26,7 +26,13 @@ module NixonPi
       def config_path
         File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'config', 'nixonpi-settings.yml'))
       end
+
+      def database
+        self['database_path'] ||= File.expand_path $0
+        self['database_path'] + self['database']
+      end
     end
+
 
     source config_path
 
