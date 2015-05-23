@@ -12,6 +12,7 @@ module NixonPi
     def initialize
       super()
       register_driver self.class.get_injected(:in12a_driver)
+      @tubes_count = Settings.in12a_tubes.count
     end
 
     state_machine do
@@ -32,7 +33,6 @@ module NixonPi
       state :time do
         def enter_state
           @format = params[:value]
-          @tubes_count = Settings.in12a_tubes.count
           @format = nil unless @format.is_a?(String)
           @format = Settings.default_time_format if @format.nil? || @format.size > @tubes_count || @format.strip.empty?
 
@@ -152,6 +152,7 @@ module NixonPi
             @meeting_start = Time.now
             @attendees = Regexp.last_match(1)
             @hourly_rate = Regexp.last_match(2)
+            log.debug("Starting Meeting Ticker with attendees: #{@attendees} and rate: #{@rate}")
             get_injected(:cmd_send).send_command(:lamp5, state: :free_value, locking: :lock, value: 1)
           else
             error_msg = 'invalid input for attendees - going to last state'
@@ -167,9 +168,10 @@ module NixonPi
         end
 
         def write
-          per_second_burn = @hourly_rate.to_i * @attendees.to_i / 3600
+          per_second_burn = @hourly_rate.to_f * @attendees.to_f / 3600
           elapsed_seconds = Time.now - @meeting_start
           cost = per_second_burn * elapsed_seconds
+          log.debug("Meeting ticker cost: #{cost.round(2)}")
           @driver.write(sprintf('%.2f', cost).gsub(/\./, ' ').rjust(@tubes_count, ' '))
         end
       end

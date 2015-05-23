@@ -17,7 +17,7 @@ module NixonPi
     def initialize
       log.info 'Initializing Nixon-Pi service..'
       log.info "Environment: #{$environment}"
-      ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: Settings.database)
+      ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: Settings.full_database_path)
 
       log.debug 'Running migrations'
       # ActiveRecord::Migrator.up('db/migrate')

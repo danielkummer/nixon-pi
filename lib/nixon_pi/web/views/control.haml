@@ -5,7 +5,7 @@
       %i.icon-lightbulb
       Tubes
   .span6
-    %form{ action: '/tubes', method: 'POST', class: 'form-horizontal form-hidden', data: { remote: true}}
+    %form#tubes-form{ action: '/tubes', method: 'POST', class: 'form-horizontal form-hidden', data: { remote: true}}
       .row
         .span6
           .control-group
@@ -28,7 +28,7 @@
                     %option{value: 'animation'} Animation
                     %option{value: 'countdown'} Countdown
                     %option{value: 'meeting_ticker'} Meeting Ticker
-              .control-group.tube_animation_group
+              .control-group.tube_animation_group{style:'height:200px;'}
                 %label.control-label Animation Name
                 .controls
                   %select#tube_animation{name: 'animation_name', data: {placeholder: 'Select animation'} ,  class: 'input-xlarge'}
@@ -43,10 +43,10 @@
                 %label.control-label{for: 'time_format'} Time format
                 .controls
                   %input{type: 'text', name: 'time_format', class: 'input-xlarge', value:'%H%M%S'}
-              .control-group{style:'height:80px;'}
-                %label.control-label Load on startup
-                .controls
-                  %input{type: 'checkbox', name: 'initial', class: 'input-medium'}
+              -#.control-group{style:'height:80px;'}
+              -#  %label.control-label Load on startup
+              -#  .controls
+              -#    %input{type: 'checkbox', name: 'initial', class: 'input-medium'}
         .span6{style:'padding-top:10px;'}
   .span4
     .well#countdown_examples
@@ -117,10 +117,10 @@
                 %form{ action: '/bar', method: 'POST', class: 'form-inline', style:'margin-bottom:0px;', data: { remote: true}}
                   .bar-control
                     %input{type: 'range', name: 'value', class: 'range-bars', min: '0', max: '255', value: '0'}
-                  %label.checkbox
-                    %input{type: 'checkbox', name: 'initial', class: 'input-medium'}
-                      %i.icon-refresh
-                      Load on startup
+                  -#%label.checkbox
+                  -#  %input{type: 'checkbox', name: 'initial', class: 'input-medium'}
+                  -#    %i.icon-refresh
+                  -#    Load on startup
                   %input{type: 'hidden', name: 'state', value: 'free_value'}
                   %input{type: 'hidden', name: 'id', value: "#{i}"}
 

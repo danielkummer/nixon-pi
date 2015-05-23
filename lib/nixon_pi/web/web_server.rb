@@ -77,7 +77,7 @@ module NixonPi
 
     use Rack::MethodOverride
 
-    set :database, adapter: 'sqlite3', database: Settings.database
+    set :database, adapter: 'sqlite3', database: Settings.full_database_path
     set :public_folder, File.join(File.dirname(__FILE__), 'public')
     set :haml, format: :html5
 
@@ -122,7 +122,7 @@ module NixonPi
       status 500
       if request.accept? 'application/json'
         content_type :json
-        halt({success: 'false', message: 'Service timeout error - it seems there is a leak somewhere...'}.to_json)
+        halt({success: 'false', message: 'Service timeout error - it seems the service isn\t running...'}.to_json)
       end
     end
 
@@ -409,7 +409,9 @@ module NixonPi
     ##
     # Get a command object or create one, also do some minor value adjustments
     # @param [Hash] data
-    def get_or_create_command(data)
+    def get_or_create_command(original_data)
+      data = original_data
+      data[:options] = {} if data[:options].nil? || data[:options].empty?
       case data[:target].to_sym
         when :tubes
           data[:value] = data[:value].to_s.rjust(12, ' ') unless data[:value].nil?
@@ -420,9 +422,12 @@ module NixonPi
 
       end
       command = nil
-      if params[:initial]
-        initial = Command.find(:first, conditions: ['target = ?', data[:target].to_s])
+      #TODO : the initial code is broken!
+      if data[:initial]
+        initial = Command.where(target: data[:target]).first
+        data.delete(initial)
         command = initial if !initial.nil? && initial.update_attributes(data)
+
       end
       command ||= Command.new(data)
       command

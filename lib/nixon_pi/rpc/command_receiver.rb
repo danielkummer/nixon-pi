@@ -88,7 +88,7 @@ module NixonPi
             log.error "Invalid command received: #{data}, errors: #{validator_model.errors.full_messages.join("\n")}"
           end
 
-        end
+        end if @receivers[target]
       end
     end
   end
