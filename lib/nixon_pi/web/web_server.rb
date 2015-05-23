@@ -13,6 +13,8 @@ require 'active_record'
 require 'sinatra/form_helpers'
 require 'sinatra/jsonp'
 
+require 'bunny'
+
 module NixonPi
   class WebServer < Sinatra::Base
     set :root, File.dirname(__FILE__)
@@ -141,6 +143,7 @@ module NixonPi
     end
 
     # general error...
+=begin
     error do
       if request.accept? 'application/json'
         content_type :json
@@ -153,6 +156,7 @@ module NixonPi
                                     }
                                 }
     end
+=end
 
     helpers do
       def sender

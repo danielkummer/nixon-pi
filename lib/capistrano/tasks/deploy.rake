@@ -24,7 +24,7 @@
 
 namespace :deploy do
   task :compile_assets do
-    sh 'RAILS_ENV=development bundle exec rake "assetpack:precompile"'
+    sh 'RAILS_ENV=development bundle exec rake "assetpack:build"'
   end
 end
-before :deploy, 'deploy:compile_assets'
+#before :deploy, 'deploy:compile_assets'
