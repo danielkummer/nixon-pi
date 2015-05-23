@@ -187,10 +187,7 @@ or add an appropriate vhost entry.
 
 Deploy via
 
-	cap deploy:setup 	#first time	
-	cap deploy
-
-
+	bundle exec cap production deploy		
 
 which executes the following tasks
 

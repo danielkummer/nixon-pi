@@ -18,5 +18,5 @@ tmp
 *.log
 .idea
 .DS_Store
-db/settings.db
+nixon_pi.sqlite3
 .sass/*
