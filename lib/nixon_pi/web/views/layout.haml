@@ -1,15 +1,15 @@
 !!!
 %head
-  %meta{:charset => "utf-8"}
+  %meta{:charset => 'utf-8'}
     %title Nixon-&#960;
-    %meta{:content => "", :name => "description"}
-    %meta{:content => "", :name => "author"}
-    %meta{:content => "width=device-width, initial-scale=1, maximum-scale=1", :name => "viewport"}
+    %meta{:content => '', :name => 'description'}
+    %meta{:content => '', :name => 'author'}
+    %meta{:content => 'width=device-width, initial-scale=1, maximum-scale=1', :name => 'viewport'}
 
     /fonts
-    %link{:href => "http://fonts.googleapis.com/css?family=Josefin+Sans:400,700", :rel => "stylesheet", :type => "text/css"}
-    %link{:href => "http://fonts.googleapis.com/css?family=Lobster+Two:400,700", :rel => "stylesheet", :type => "text/css"}
-    %link{:href => "http://fonts.googleapis.com/css?family=Carrois+Gothic+SC|Share+Tech+Mono|Montserrat+Subrayada:400,700|Allerta+Stencil", :rel => "stylesheet", :type => "text/css"}
+    %link{:href => 'http://fonts.googleapis.com/css?family=Josefin+Sans:400,700', :rel => 'stylesheet', :type => 'text/css'}
+    %link{:href => 'http://fonts.googleapis.com/css?family=Lobster+Two:400,700', :rel => 'stylesheet', :type => 'text/css'}
+    %link{:href => 'http://fonts.googleapis.com/css?family=Carrois+Gothic+SC|Share+Tech+Mono|Montserrat+Subrayada:400,700|Allerta+Stencil', :rel => 'stylesheet', :type => 'text/css'}
 
     != css :application
 
@@ -19,51 +19,51 @@
       .container
         %ul.nav
           %li
-            %a{href: "/"}
+            %a{href: '/'}
               %i.icon-cogs.pull-left
               Control
-          %li{style:"height:30px;"}
-            %a{href: "/scheduler.html"}
+          %li{style:'height:30px;'}
+            %a{href: '/scheduler.html'}
               %i.icon-tasks.pull-left
               Scheduler
-          %li{style:"height:30px;"}
-            %a{href: "/logs.html"}
+          %li{style:'height:30px;'}
+            %a{href: '/logs.html'}
               %i.icon-list-alt.pull-left
               Log
-          %li{style:"height:30px;"}
-            %a{href: "http://danielkummer.github.com/nixon-pi/#api"}
+          %li{style:'height:30px;'}
+            %a{href: 'http://danielkummer.github.com/nixon-pi/#api'}
               %i.icon-exchange.pull-left
               API
-          %li{style:"height:30px;"}
-            %a{href: "https://github.com/danielkummer/nixon-pi"}
+          %li{style:'height:30px;'}
+            %a{href: 'https://github.com/danielkummer/nixon-pi'}
               %i.icon-github-alt.pull-left
               Github
 
   .container
     .content
       .row
-        .span3
+        .span4
           .hero-unit
             %h1
               Nixon
               = img '/images/nixie-tube.png'
-        .span2
+        .span4
           .hero-unit
-            %form{action: "/power", method: "post", style:"margin-bottom:0px;","data-remote" => "true"}
+            %form{action: '/power', method: 'post', style:'margin-bottom:0px;','data-remote' => 'true'}
               %h2
                 %i.icon-bolt.pull-left
               #power-toggle-button.toggle-button
                 /TODO!!!!!!!!
                 /-if NixonPi::PowerDriver.instance.on?
                 -if false
-                  %input.checkbox{:checked => "checked", id: "power-value", :name => "value", :type => "checkbox", :value => "1"}
+                  %input.checkbox{:checked => 'checked', id: 'power-value', :name => 'value', :type => 'checkbox', :value => '1'}
                 -else
-                  %input.checkbox{id: "power-value", :name => "value", :type => "checkbox", :value => "1"}
+                  %input.checkbox{id: 'power-value', :name => 'value', :type => 'checkbox', :value => '1'}
             %p
               V:
               = version
-        .span3
-          #alert-container{"data-spy"=>"affix", "data-offset-top"=>"-20"}
+        .span4
+          #alert-container{'data-spy'=>'affix', 'data-offset-top'=>'-20'}
 
 
 

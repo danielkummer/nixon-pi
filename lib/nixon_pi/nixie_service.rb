@@ -21,7 +21,7 @@ module NixonPi
 
       log.debug 'Running migrations'
       # ActiveRecord::Migrator.up('db/migrate')
-      load 'db/schema.rb'
+      load 'lib/nixon_pi/db/schema.rb'
 
       begin
         @message_distributor = NixonPi::RPC::CommandReceiver.new

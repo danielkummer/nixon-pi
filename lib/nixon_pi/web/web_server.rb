@@ -44,14 +44,12 @@ module NixonPi
                  '/js/vendor/jquery-cron-min.js',
                  '/js/vendor/jquery-gentleSelect-min.js',
                  '/js/vendor/farbtastic.js',
+                 #TODO update to 2.0
                  '/js/vendor/jquery.pnotify.min.js',
+                 '/js/vendor/pace.min.js',
                  '/js/bootstrap.min.js',
                  '/js/bootstrap/*.js',
                  '/js/application.js'
-             #'/js/vendor/**/*.js',
-             #'/js/farbtastic/*.js',
-             #'/js/bootstrap/*.js',
-             #'/js/*.js',
              ]
 
       # noinspection RubyLiteralArrayInspection
@@ -63,6 +61,7 @@ module NixonPi
                           '/css/jquery-cron.css',
                           '/css/jquery-gentleSelect.css',
                           '/css/farbtastic.css',
+                          '/css/pace.atom.css',
                           '/css/app.css'
                       ]
 
@@ -114,7 +113,16 @@ module NixonPi
                                           }
       else
         content_type :json
+        status 500
         halt({success: 'false', message: 'Make sure your RabbitMQ server is up and running...'}.to_json)
+      end
+    end
+
+    error Timeout::Error do
+      status 500
+      if request.accept? 'application/json'
+        content_type :json
+        halt({success: 'false', message: 'Service timeout error - it seems there is a leak somewhere...'}.to_json)
       end
     end
 
