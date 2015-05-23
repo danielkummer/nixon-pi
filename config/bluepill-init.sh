@@ -24,7 +24,6 @@ fi
  
 # here comes default config
 USER=root
-RACK_ENV=production
 APP_ROOT=/home/pi/$name/current
 BLUEPILL_CONFIG=config/${name}.pill
 test -f /etc/default/$name && . /etc/default/$name
