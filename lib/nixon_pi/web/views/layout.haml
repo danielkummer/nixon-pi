@@ -14,59 +14,48 @@
     != css :application
 
 %body
-  .navbar.navbar-fixed-bottom
-    .navbar-inner
-      .container
-        %ul.nav
+  %nav.navbar.navbar-default.navbar-fixed-bottom
+    .container-fluid
+      / Brand and toggle get grouped for better mobile display
+      .navbar-header
+        %button.navbar-toggle.collapsed{'data-target' => '#main-navigation', 'data-toggle' => 'collapse', type: 'button'}
+          %span.sr-only Toggle navigation
+          %span.glyphicon.glyphicon-bar
+          %span.glyphicon.glyphicon-bar
+          %span.glyphicon.glyphicon-bar
+        %a.navbar-brand{:href => '#'} Nixon-&#960;
+      #main-navigation.collapse.navbar-collapse
+        %ul.nav.navbar-nav
           %li
             %a{href: '/'}
-              %i.icon-cogs.pull-left
+              %i.glyphicon.glyphicon-cogs.pull-left
               Control
           %li{style:'height:30px;'}
             %a{href: '/scheduler.html'}
-              %i.icon-tasks.pull-left
+              %i.glyphicon.glyphicon-tasks.pull-left
               Scheduler
           %li{style:'height:30px;'}
             %a{href: '/logs.html'}
-              %i.icon-list-alt.pull-left
+              %i.glyphicon.glyphicon-list-alt.pull-left
               Log
           %li{style:'height:30px;'}
             %a{href: 'http://danielkummer.github.com/nixon-pi/#api'}
-              %i.icon-exchange.pull-left
+              %i.glyphicon.glyphicon-exchange.pull-left
               API
           %li{style:'height:30px;'}
             %a{href: 'https://github.com/danielkummer/nixon-pi'}
-              %i.icon-github-alt.pull-left
+              %i.glyphicon.glyphicon-github-alt.pull-left
               Github
 
+
   .container
+    .page-header
+      %h1
+        Nixon
+        = img '/images/nixie-tube.png'
+        %span= version
+        %span
     .content
-      .row
-        .span4
-          .hero-unit
-            %h1
-              Nixon
-              = img '/images/nixie-tube.png'
-        .span4
-          .hero-unit
-            %form{action: '/power', method: 'post', style:'margin-bottom:0px;','data-remote' => 'true'}
-              %h2
-                %i.icon-bolt.pull-left
-              #power-toggle-button.toggle-button
-                /TODO!!!!!!!!
-                /-if NixonPi::PowerDriver.instance.on?
-                -if false
-                  %input.checkbox{:checked => 'checked', id: 'power-value', :name => 'value', :type => 'checkbox', :value => '1'}
-                -else
-                  %input.checkbox{id: 'power-value', :name => 'value', :type => 'checkbox', :value => '1'}
-            %p
-              V:
-              = version
-        .span4
-          #alert-container{'data-spy'=>'affix', 'data-offset-top'=>'-20'}
-
-
-
       = yield
 
   %footer.footer

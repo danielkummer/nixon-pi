@@ -24,9 +24,10 @@ module NixonPi
       desc 'service', 'starts the service'
       def service
         $environment = options[:env]
+        $force_mock = true if options[:m]
+
         NixonPi::Settings.reload! # make sure we have the correct settings for the correct environment!
         NixonPi::Settings['database_path'] = options[:db] if options[:db]
-        NixonPi::Settings['force_mock'] = true if options[:m]
         NixonPi::Runner.new.run(options)
       end
 

@@ -1,0 +1,284 @@
+// Set the correct sprite paths
+$iconSpritePath: '/images/bootstrap/glyphicons-halflings.png';
+$iconWhiteSpritePath: '/images/bootstrap/glyphicons-halflings-white.png';
+
+$first_color: #f03737;
+$second_color: #3584b8;
+$background_color: #eeefe6;
+
+body {
+  font-family: 'Share Tech Mono', sans-serif;
+  background-color: $background_color;
+  color: #656565;
+  font-size: 20px;
+}
+
+//font-family: 'Carrois Gothic SC', sans-serif;
+//font-family: 'Share Tech Mono', sans-serif;
+//font-family: 'Montserrat Subrayada', sans-serif;
+//font-family: 'Allerta Stencil', sans-serif;
+
+/*
+body {
+  font-family: 'Share Tech Mono', sans-serif;
+  background-color: $background_color;
+  color: #656565;
+  font-size: 20px;
+}
+
+.right {
+  text-align: right;
+}
+
+h1, h2, h3, p, label, a {
+  color: $first_color;
+}
+
+h3 {
+  line-height: 20px;
+}
+
+label.checkbox {
+  font-size: 18px;
+}
+
+.footer {
+  background-color: #F5F5F5;
+  border-top: 1px solid #E5E5E5;
+  margin-top: 35px;
+  //padding: 30px 0;
+  text-align: center;
+  font-size: 0.7em;
+}
+
+.jumbotron {
+  background-color: transparent;
+  padding: 5px;
+  h1 {
+    color: $first_color;
+    font-size: 45px;
+    letter-spacing: 5px;
+    line-height: 0.6em;
+  }
+}
+
+input.input-tubes {
+  letter-spacing: 0.3em;
+  height: 1.3em;
+  color: $second_color;
+  padding-left: 0px;
+  border-radius: 1em 0em 0em 1em;
+  background-color: #eaebdf; //border: 3px solid #474747;
+}
+
+.input-group .input-group-addon:last-child, .input-group .btn:last-child {
+  height: 1.5em;
+  line-height: 1.1em;
+  border-radius: 0em 1em 1em 0em !important;
+
+}
+
+input[type="text"] {
+  font-family: 'Allerta Stencil', sans-serif;
+  font-size: 20px;
+  height: 1.3em;
+  color: $second_color;
+  background-color: #eaebdf;
+}
+
+select {
+  font-family: 'Allerta Stencil', sans-serif;
+  font-size: 20px;
+  height: 1.3em;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  color: $second_color;
+  background-color: #eaebdf;
+}
+
+.control-label {
+  font-size: 20px;
+}
+
+.btn {
+  font-family: 'Share Tech Mono', sans-serif;
+  font-size: 20px;
+  height: 1.3em;
+}
+
+div.btn-group[data-toggle=buttons-radio] input[type=radio] {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: hidden;
+}
+
+.btn-lamp {
+  border-radius: 25px !important;
+  margin-right: 10px;
+  font-size: 20px;
+  height: 2em;
+}
+
+.btn-lamp.active { //background-color: #7f9b47;
+  background-color: $second_color;
+}
+
+.row-divider {
+  border-top: 1px dashed $first_color;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.bar-control {
+  height: 36px;
+}
+
+*/
+
+/**
+Slider
+**/
+
+/*
+.slider {
+  background: $first_color;
+  height: 9px;
+  position: relative;
+  cursor: pointer;
+  width: 400px;
+  float: left;
+  clear: right;
+  margin-top: 12px;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -moz-box-shadow: inset 0 0 8px #000;
+}
+
+.progress {
+  height: 9px;
+  background-color: $second_color;
+  background-image: none;
+}
+
+.handle {
+  background-color: #666666;
+  border: 1px solid #272727;
+  background-image: linear-gradient(to bottom, $second_color, darken($second_color, 20%));
+
+  height: 28px;
+  width: 28px;
+  top: -12px;
+  position: absolute;
+  display: block;
+  margin-top: 1px;
+
+  cursor: move;
+  -moz-box-shadow: 0 0 6px #000;
+  -webkit-box-shadow: 0 0 6px #000;
+  -moz-border-radius: 14px;
+  -webkit-border-radius: 14px;
+  border-radius: 14px;
+
+}
+
+.range {
+  border: 1px inset #ddd;
+  float: left;
+  font-size: 20px;
+  margin: 0 0 0 15px;
+  padding: 3px 0;
+  text-align: center;
+  width: 50px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+.chzn-container {
+  font-family: 'Allerta Stencil', sans-serif;
+  font-size: 20px;
+  height: 1.3em;
+  color: $second_color !important;
+}
+.chzn-single {
+  height: 30px !important;
+  line-height: 30px !important;
+}
+.chzn-single span {
+  color: $second_color !important;
+}
+.chzn-search {
+  display: none;
+}
+
+.chzn-drop {
+  top: 30px !important;
+}
+
+.log {
+  height: 500px;
+  font-size: 10px;
+  color: black;
+  overflow: auto;
+  background-color: white;
+  line-height: 12px !important;
+}
+
+dt, dd {
+  line-height: 30px;
+}
+
+.well {
+  font-family: 'Allerta Stencil', sans-serif;
+  color: $second_color;
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
+#cron {
+  line-height: 30px;
+  padding-bottom: 5px;
+}
+
+.dropdown-toggle {
+  font-size: 35px !important;
+}
+
+#command {
+  font-family: 'Allerta Stencil', sans-serif;
+  color: $second_color;
+}
+
+.nav-list > li > a {
+  line-height: 1em;
+}
+
+.navbar-fixed-top, .navbar-fixed-bottom {
+  position: fixed;
+}
+
+.form-horizontal .control-label {
+  width: 40px;
+}
+
+.form-horizontal .controls {
+  margin-left: 45px;
+}
+
+.form-hidden .control-label {
+  width: 100px !important;
+}
+
+.form-hidden .controls {
+  margin-left: 105px !important;
+}
+
+.accordion-body.collapse.in {
+  overflow: visible !important;
+}
+
+*/

@@ -20,7 +20,7 @@ module NixonPi
     # @param [String] value
     # Pass a block if you like to handle the return value
     def cmd(value)
-      log.debug("CMD: #{value}")
+      #log.debug("CMD: #{value}")
       @@io_mutex.synchronize do
         begin
           @stdin.puts("#{value}#{CRLF}")
@@ -28,8 +28,6 @@ module NixonPi
         rescue => e
           raise e, @stderr.read
         end
-        error = @stderr.read
-        fail error unless error.blank?
       end
     end
 

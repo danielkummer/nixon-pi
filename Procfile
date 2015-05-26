@@ -1,4 +1,2 @@
-service: ./bin/nixon-pi start --env development -m
-web: ./bin/nixon-pi web --env production -p 3000
-
-
+service: bundle exec bin/nixon-pi service --env development -m
+web: bundle exec  bin/nixon-pi web --env development -p 80

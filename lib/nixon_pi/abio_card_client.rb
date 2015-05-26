@@ -215,7 +215,7 @@ module NixonPi
     # and in test a mock object for verbose output
     # @param [String]
     def connection_for(environment)
-      if NixonPi::Settings.force_mock
+      if $force_mock
         log.info 'Force usage of mock client'
         return MockTelnet.new
       end
