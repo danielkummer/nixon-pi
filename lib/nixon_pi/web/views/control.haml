@@ -1,189 +1,189 @@
-
 .row
   .col-md-3
-    %h3
-      %i.glyphicon.glyphicon-bolt
+    %h2
+      %i.glyphicon.glyphicon-flash
       Power
+    %p Control the main power for all electronics except the raspberry pi.
   .col-md-9
-    %form.form-horizontal{action: '/power', method: 'post', data: {remote: true}}
-      %input#power-toggle-input{name: 'value', type: 'hidden'}
-      .toggle-container{style: 'width:60px'}
-        #power-toggle.toggle.toggle-light
-      /TODO!!!!!!!!
-      /-if NixonPi::PowerDriver.instance.on?
-.row
-  .col-md-3
-    %h3
-      %i.glyphicon.glyphicon-lightbulb
-      %i.glyphicon.glyphicon-lightbulb
-      Tubes
-  .col-md-9
-    %form#tubes-form{ action: '/tubes', method: 'POST', class: 'form-horizontal form-hidden', data: { remote: true}}
-      .row
-        .col-md-6
-          .form-group
-            .input-group
-              %input#tubes{type: 'text', name: 'value', maxlength: '12', class: 'input-tubes search-query input-block-level right'}
-              %button{type: 'submit', value: 'Send', class: 'btn'}
-                GO
-          .accordion-group
-            .accordion-heading
-              %a{class: 'btn-more', data: {toggle: 'collapse'}, href:'#more'}
-                %i.glyphicon.glyphicon-sitemap
-                advanced
-            #more.collapse.accordion-body
-              .form-group
-                %label.control-label Mode
-                .controls
-                  %select#tube_state_select{name: 'state', class: 'input-xlarge'}
-                    %option{selected: '', value: 'free_value'} Free value
-                    %option{value: 'time'} Time
-                    %option{value: 'animation'} Animation
-                    %option{value: 'countdown'} Countdown
-                    %option{value: 'meeting_ticker'} Meeting Ticker
-              .form-group.tube_animation_group{style:'height:200px;'}
-                %label.control-label Animation Name
-                .controls
-                  %select#tube_animation{name: 'animation_name', data: {placeholder: 'Select animation'} ,  class: 'input-xlarge'}
-                    %option
-                    %option{value: 'switch_numbers'} switch numbers
-                    %option{value: 'single_fly_in'} fly in
-              .form-group.tube_animation_group
-                %label.control-label{for: 'options'} Options JSON
-                .controls
-                  %textarea#tube_animation_options{name: 'options', rows: '10', class:'input-xlarge'}
-              .form-group.tube_time_group
-                %label.control-label{for: 'time_format'} Time format
-                .controls
-                  %input{type: 'text', name: 'time_format', class: 'input-xlarge', value:'%H%M%S'}
-              -#.form-group{style:'height:80px;'}
-              -#  %label.control-label Load on startup
-              -#  .controls
-              -#    %input{type: 'checkbox', name: 'initial', class: 'input-medium'}
-        .col-md-6{style:'padding-top:10px;'}
-  .col-md-4
-    .well#countdown_examples
-      %h3 Countdown examples
-      %list-unstyled
-        %li 12.4 secs
-        %li 1:20
-        %li 1:20.51
-        %li 4:01:01
-        %li 3 mins 4 sec
-        %li 2 hrs 20 min
-        %li 2h30min
-        %li 6 mos 1 day
-        %li 47 yrs 6 mos and 4d
-        %li two hours and twenty minutes
-        %li 3 weeks and 2 days
-
-
-.row
-  .col-md-3
-    %h3
-      Background
-  .col-md-9
-    %form{ action: '/background', method: 'POST', class: 'form-inline', style:'margin-bottom:0px;', data: { remote: true}}
-      .bar-control
-        %input{:type => 'range', :name => 'value', :class => 'range', min: '0', max: '255', value: '0'}
-
-
-.row
-  .col-md-3
-    %h3
-      %i.glyphicon.glyphicon-lightbulb
-      Lamps
-  .col-md-9
-    #lamps_container
-      - @no_of_lamps.times.with_index do |index|
-        %form{ action: '/lamp', method: 'POST', class: 'form-inline', style:'display:inline;', data: { remote: true}}
-          %button.btn.btn-lamp{type: 'button', data: {toggle: 'button'}, title:'icon-circle-blank', id:"lamp_#{index}" }
-            %i.glyphicon.glyphicon-circle-blank
-            %input{type: 'checkbox', name: 'value', value: '1', style:'display: none;'}
-          %input{type: 'hidden', name: 'state', value: 'free_value'}
-          %input{type: 'hidden', name: 'id', value: "#{index}"}
-
-
-.row
-  .col-md-3
-    %h3
-      %i.glyphicon.glyphicon-tasks
-      Bars
-  .col-md-9
-    %ul.nav.nav-tabs
-      %li
-        %a{'data-toggle' => 'tab', href: '#free_value', class: 'active'} Free value
-      %li
-        %a{'data-toggle' => 'tab', href: '#animation'} Animation
-
-    .tab-content
-      #free_value.tab-pane.active
-        .row
-          .col-md-9
-            .bars
-              -@no_of_bars.times.with_index do |i|
-                %form{ action: '/bar', method: 'POST', class: 'form-inline', style:'margin-bottom:0px;', data: { remote: true}}
-                  .bar-control
-                    %input{type: 'range', name: 'value', class: 'range-bars', min: '0', max: '255', value: '0'}
-                  -#%label.checkbox
-                  -#  %input{type: 'checkbox', name: 'initial', class: 'input-medium'}
-                  -#    %i.glyphicon.glyphicon-refresh
-                  -#    Load on startup
-                  %input{type: 'hidden', name: 'state', value: 'free_value'}
-                  %input{type: 'hidden', name: 'id', value: "#{i}"}
-
-      #animation.tab-pane
-        .row
-          .col-md-6
-            %form{ action: '/bars', method: 'POST', class: 'form',  data: { remote: true}}
-              .form-group
-                %label.control-label{for: 'animation_name'} Bar
-                .controls
-                  %select{name: 'id', class: 'input-xlarge chzn-select'}
-                    -@no_of_bars.times.with_index do |i|
-                      %option{selected: '', value: "#{i}"}= "Bar #{i}"
-              .form-group
-                %label.control-label{for: 'animation_name'} Animation
-                .controls
-                  %select{name: 'animation_name', class: 'input-xlarge chzn-select'}
-                    %option
-                    %option{selected: '', value: 'ramp_up_down'} ramp up down
-              .form-group
-                %label.control-label{for: 'value'} Options (Hash)
-                .controls
-                  %textarea#bar_animation_options{name: 'options', rows: '10', class:'input-xlarge'}
-              %input{type: 'hidden', name: 'state', value: 'animation'}
-              .form-group
-                %label.checkbox
-                  %input{type: 'checkbox', name: 'initial', class: 'input-medium'}
-                  Load on startup
-
-              %input{type: 'submit', value: 'GO', class: 'btn'}
-      #something_else.tab-pane
-  .col-md-4
-    = format_command_values(@bars)
-
-.row
-  .col-md-3
-    %h3
-      %i.glyphicon.glyphicon-comment
-      Say
-  .col-md-9
-    %form{ action: '/say', method: 'POST', class:'',  data: { remote: true}}
-      .row
-        .col-md-12
-          %input{type: 'text', name: 'value', class: 'input-xxlarge'}
+    %input#switch-power{name: 'value', type: 'checkbox'}
 
 .row
   .col-md-3
     %h2
-      RGB
+      Tubes
+    %p TODO Info text here
   .col-md-9
-    %form{ action: '/rgb', method: 'POST', class:'form',  data: { remote: true}}
-      %input{type: 'text', id:'color_field', name:'value', value:'#ffffff'}
-      %input{type: 'submit', value: 'GO', class: 'btn'}
-    #colorpicker
+    %ul.nav.nav-tabs
+      %li.active
+        %a{href: '#tube-value', data: {toggle: 'tab'}} Free Value
+      %li
+        %a{href: '#tube-time', data: {toggle: 'tab'}} Time
+      %li
+        %a{href: '#tube-animation', data: {toggle: 'tab'}} Animation
+      %li
+        %a{href: '#tube-countdown', data: {toggle: 'tab'}} Countdown
+      %li
+        %a{href: '#tube-meeting', data: {toggle: 'tab'}} Meeting Counter
 
+    .tab-content
+      #tube-value.tab-pane.active
+        %form.form-horizontal
+          .form-group
+            %label.control-label.col-sm-2{for: 'value'} Value
+            .col-sm-10
+              %input#tube-input.form-control{type: 'text', name: 'value', maxlength: '12'}
+          .form-group
+            .col-sm-offset-2.col-sm-10
+              %button.btn.btn-primary{type: 'submit', value: 'Send'} GO!
 
+      #tube-time.tab-pane
+        %form.form-horizontal
+          .form-group
+            %label.control-label.col-sm-2{for: 'time_format'} Time format
+            .col-sm-10
+              %input.form-control{type: 'text', name: 'time_format', class: 'input-xlarge', value:'%H%M%S'}
+          .form-group
+            .col-sm-offset-2.col-sm-10
+              %button.btn.btn-primary{type: 'submit', value: 'Send'} GO!
 
+      #tube-countdown.tab-pane
+        .col-sm-6
+          %form.form-horizontal
+            .form-group
+              %label.control-label.col-sm-2{for: 'value'} Value
+              .col-sm-6
+                %input#tube-countdown.form-control{type: 'text', name: 'value', maxlength: '12'}
+            .form-group
+              .col-sm-offset-2.col-sm-10
+                %button.btn.btn-primary{type: 'submit', value: 'Send'} GO!
+        .col-sm-6
+          %h3 Countdown examples
+          %list-unstyled
+            %li 12.4 secs
+            %li 1:20
+            %li 1:20.51
+            %li 4:01:01
+            %li 3 mins 4 sec
+            %li 2 hrs 20 min
+            %li 2h30min
+            %li 6 mos 1 day
+            %li 47 yrs 6 mos and 4d
+            %li two hours and twenty minutes
+            %li 3 weeks and 2 days
 
+      #tube-animation.tab-pane
+        %form.form-horizontal
+          .form-group
+            %label.control-label.col-sm-2{for: 'animation'} Animation Name
+            .col-sm-10
+              %select#tube-animation.form-control{name: 'animation_name', data: {placeholder: 'Select animation'}}
+                %option{value: 'switch_numbers'} switch numbers
+                %option{value: 'single_fly_in'} fly in
+          .form-group
+            %label.control-label.col-sm-2{for: 'options'} Options JSON
+            .col-sm-10
+              %textarea#tube-animation-options{name: 'options', rows: '10', class:'input-xlarge'}
+          .form-group
+            .col-sm-offset-2.col-sm-10
+              %button.btn.btn-primary{type: 'submit', value: 'Send'} GO!
+
+      #tube-meeting.tab-pane
+        %form.form-horizontal
+          .form-group
+            %label.control-label.col-sm-2{for: 'participants'} Participants
+            .col-sm-10
+              %input.form-control{type: 'text', name: 'participants'}
+          .form-group
+            %label.control-label.col-sm-2{for: 'rate'} Hourly rate
+            .col-sm-10
+              %input.form-control{type: 'text', name: 'rate'}
+          .form-group
+            .col-sm-offset-2.col-sm-10
+              %button.btn.btn-primary{type: 'submit', value: 'Send'} GO!
+
+.row
+  .col-md-3
+    %h2
+      Lamps
+    %p TODO Info text here
+  .col-md-9
+    %form.form-horizontal
+      .form-group
+        %label.control-label.col-sm-2{for: 'lamps'} Lamps
+        .col-sm-10
+          - @no_of_lamps.times.with_index do |index|
+            %input.lamp{name: 'value', type: 'checkbox', data: {id: index}}
+
+.row
+  .col-md-3
+    %h2
+      Bars
+    %p TODO Info text here
+  .col-md-9
+    %ul.nav.nav-tabs
+      %li.active
+        %a{href: '#bars-value', data: {toggle: 'tab'}} Free Value
+      %li
+        %a{href: '#bars-animation', data: {toggle: 'tab'}} Animation
+
+    .tab-content
+      #bars-value.tab-pane.active
+        %form.form-horizontal
+          .form-group
+            %label.control-label.col-sm-2{for: 'lamps'} Bars
+            .col-sm-10
+              -@no_of_bars.times.with_index do |i|
+                %input.bar{type: 'range', name: 'value', data: {id: i, slider_min: 0, slider_max: 255, slider_step: 1, slider_value: 0}}
+                %br/
+
+      #bars-animation.tab-pane
+        %form.form-horizontal
+          .form-group
+            %label.control-label.col-sm-2{for: 'id'} Bar
+            .col-sm-10
+              %select.form-control{name: 'id'}
+                -@no_of_bars.times.with_index do |i|
+                  %option{selected: '', value: "#{i}"}= "Bar #{i}"
+          .form-group
+            %label.control-label.col-sm-2{for: 'lamps'} Animation
+            .col-sm-10
+              %select.form-control{name: 'animation_name'}
+                %option{selected: 'selected', value: 'ramp_up_down'} ramp up down
+          .form-group
+            %label.control-label.col-sm-2{for: 'lamps'} Options (Hash)
+            .col-sm-10
+              %textarea.form-control{name: 'options', rows: '10'}
+              %input{type: 'hidden', name: 'state', value: 'animation'}
+          .form-group
+            .col-sm-offset-2.col-sm-10
+              %button.btn.btn-primary{type: 'submit', value: 'Send'} GO!
+
+.row
+  .col-md-3
+    %h2
+      Background
+    %p TODO Info text here
+  .col-md-9
+    %form.form-horizontal
+      .form-group
+        %label.control-label.col-sm-2{for: 'lamps'} Tube Background
+        .col-sm-10
+          %input#background-slider{type: 'text', name: 'value', data: {slider_min: 0, slider_max: 255, slider_step: 1, slider_value: 0}}
+
+.row
+  .col-md-3
+    %h2
+      Ambient Light
+    %p TODO Info text here
+  .col-md-9
+    %form.form-horizontal
+      .form-group
+        %label.control-label.col-sm-2{for: 'participants'} Color
+        .col-sm-10
+          %input.form-control{type: 'text', id:'color_field', name:'value', value:'#ffffff'}
+      .form-group
+        .col-sm-offset-2.col-sm-10
+          #colorpicker
+      .form-group
+        .col-sm-offset-2.col-sm-10
+          %button.btn.btn-primary{type: 'submit', value: 'Send'} GO!

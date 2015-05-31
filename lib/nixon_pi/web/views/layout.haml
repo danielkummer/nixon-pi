@@ -3,7 +3,7 @@
   %meta{:charset => 'utf-8'}
     %title Nixon-&#960;
     %meta{:content => '', :name => 'description'}
-    %meta{:content => '', :name => 'author'}
+    %meta{:content => 'daniel.kummer@gmail.com', :name => 'author'}
     %meta{:content => 'width=device-width, initial-scale=1, maximum-scale=1', :name => 'viewport'}
 
     /fonts
@@ -14,37 +14,36 @@
     != css :application
 
 %body
-  %nav.navbar.navbar-default.navbar-fixed-bottom
-    .container-fluid
-      / Brand and toggle get grouped for better mobile display
+  %nav.navbar.navbar-inverse.navbar-fixed-top
+    .container
       .navbar-header
         %button.navbar-toggle.collapsed{'data-target' => '#main-navigation', 'data-toggle' => 'collapse', type: 'button'}
           %span.sr-only Toggle navigation
-          %span.glyphicon.glyphicon-bar
-          %span.glyphicon.glyphicon-bar
-          %span.glyphicon.glyphicon-bar
-        %a.navbar-brand{:href => '#'} Nixon-&#960;
+          %span.icon-bar
+          %span.icon-bar
+          %span.icon-bar
+        %a.navbar-brand{:href => '/'} Nixon-&#960;
       #main-navigation.collapse.navbar-collapse
         %ul.nav.navbar-nav
           %li
-            %a{href: '/'}
-              %i.glyphicon.glyphicon-cogs.pull-left
+            %a.active{href: '/'}
+              %span.glyphicon.glyphicon-dashboard
               Control
-          %li{style:'height:30px;'}
+          %li
             %a{href: '/scheduler.html'}
-              %i.glyphicon.glyphicon-tasks.pull-left
+              %i.glyphicon.glyphicon-tasks
               Scheduler
-          %li{style:'height:30px;'}
+          %li
             %a{href: '/logs.html'}
-              %i.glyphicon.glyphicon-list-alt.pull-left
+              %i.glyphicon.glyphicon-console
               Log
-          %li{style:'height:30px;'}
-            %a{href: 'http://danielkummer.github.com/nixon-pi/#api'}
-              %i.glyphicon.glyphicon-exchange.pull-left
+          %li
+            %a{href: 'https://danielkummer.github.com/nixon-pi/#api'}
+              %i.glyphicon.glyphicon-transfer
               API
-          %li{style:'height:30px;'}
+          %li
             %a{href: 'https://github.com/danielkummer/nixon-pi'}
-              %i.glyphicon.glyphicon-github-alt.pull-left
+              %i.glyphicon.glyphicon-cloud
               Github
 
 
@@ -54,11 +53,12 @@
         Nixon
         = img '/images/nixie-tube.png'
         %span= version
-        %span
-    .content
-      = yield
+      .lead Nixie-tubes and raspberry-pi in a loving combination
+
+    = yield
 
   %footer.footer
+
   != js :app
 
 

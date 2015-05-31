@@ -30,7 +30,7 @@ module NixonPi
       #serve '/font', from: 'app/font' # Default
 
       serve 'bs/js', from: Bootstrap.javascripts_path
-      serve '/fonts', from: 'app/fonts'
+      serve 'fonts', from: 'app/fonts'
       #serve 'bs/css', from: Bootstrap.stylesheets_path
 
       # The second parameter defines where the compressed version will be served.
@@ -40,7 +40,6 @@ module NixonPi
       # noinspection RubyLiteralArrayInspection
       js :app, '/js/app.js', [
                  '/js/vendor/jquery-2.1.4.min.js',
-                 '/js/vendor/jquery.tools.min.js',
                  '/js/vendor/jquery-cron-min.js',
                  '/js/vendor/farbtastic.js',
                  #TODO update to 2.0
@@ -49,6 +48,7 @@ module NixonPi
                  '/js/vendor/chosen.jquery.min.js',
                  '/bs/js/bootstrap.min.js',
                  '/js/vendor/bootstrap-switch.min.js',
+                 '/js/vendor/bootstrap-slider.min.js',
                  '/js/application.js'
              ]
 
@@ -60,8 +60,9 @@ module NixonPi
                           '/css/chosen.min.css',
                           '/css/pnotify.custom.min.css',
                           '/css/jquery-cron.css',
+                          '/css/bootstrap-slider.min.css',
                           '/css/farbtastic.css',
-                          '/css/app.css'
+                          '/css/style.css'
                       ]
 
       js_compression :jsmin # :jsmin | :yui | :closure | :uglify
@@ -122,7 +123,7 @@ module NixonPi
       status 500
       if request.accept? 'application/json'
         content_type :json
-        halt({success: 'false', message: 'Service timeout error - it seems the service isn\t running...'}.to_json)
+        halt({success: 'false', message: 'Service timeout error - it seems the service isn\'t running...'}.to_json)
       end
     end
 
@@ -133,7 +134,7 @@ module NixonPi
       else
         haml 'errors/error'.to_sym, layout: false, locals: {
                                       info: {
-                                          title: 'There seens to be a sqlite problem...',
+                                          title: 'There seems to be a sqlite problem...',
                                           message: "#{$ERROR_INFO.message}"
                                       }
                                   }
