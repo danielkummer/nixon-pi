@@ -11,7 +11,7 @@
   .col-md-3
     %h2
       Tubes
-    %p TODO Info text here
+    %p Control the nixie tubes. Each tube can display a digit from 0-9.
   .col-md-9
     %ul.nav.nav-tabs
       %li.active
@@ -105,7 +105,7 @@
   .col-md-3
     %h2
       Lamps
-    %p TODO Info text here
+    %p Control the nixie lamps below the tubes
   .col-md-9
     %form.form-horizontal
       .form-group
@@ -118,7 +118,7 @@
   .col-md-3
     %h2
       Bars
-    %p TODO Info text here
+    %p Control the four horizontal nixie bars.
   .col-md-9
     %ul.nav.nav-tabs
       %li.active
@@ -133,8 +133,8 @@
             %label.control-label.col-sm-2{for: 'lamps'} Bars
             .col-sm-10
               -@no_of_bars.times.with_index do |i|
+                .bar-spacer
                 %input.bar{type: 'range', name: 'value', data: {id: i, slider_min: 0, slider_max: 255, slider_step: 1, slider_value: 0}}
-                %br/
 
       #bars-animation.tab-pane
         %form.form-horizontal
@@ -162,7 +162,7 @@
   .col-md-3
     %h2
       Background
-    %p TODO Info text here
+    %p Control the blue background light which enlightens the tubes.
   .col-md-9
     %form.form-horizontal
       .form-group
@@ -174,16 +174,10 @@
   .col-md-3
     %h2
       Ambient Light
-    %p TODO Info text here
+    %p Control the ambient light in the side tubes by selecting an rgb value. To turn them off simply choose black.
   .col-md-9
     %form.form-horizontal
       .form-group
         %label.control-label.col-sm-2{for: 'participants'} Color
         .col-sm-10
-          %input.form-control{type: 'text', id:'color_field', name:'value', value:'#ffffff'}
-      .form-group
-        .col-sm-offset-2.col-sm-10
           #colorpicker
-      .form-group
-        .col-sm-offset-2.col-sm-10
-          %button.btn.btn-primary{type: 'submit', value: 'Send'} GO!

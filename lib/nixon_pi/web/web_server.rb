@@ -27,11 +27,8 @@ module NixonPi
       serve '/js', from: 'app/js' # Default
       serve '/css', from: 'app/css' # Default
       serve '/images', from: 'app/images' # Default
-      #serve '/font', from: 'app/font' # Default
-
       serve 'bs/js', from: Bootstrap.javascripts_path
       serve 'fonts', from: 'app/fonts'
-      #serve 'bs/css', from: Bootstrap.stylesheets_path
 
       # The second parameter defines where the compressed version will be served.
       # (Note: that parameter is optional, AssetPack will figure it out.)
@@ -42,7 +39,6 @@ module NixonPi
                  '/js/vendor/jquery-2.1.4.min.js',
                  '/js/vendor/jquery-cron-min.js',
                  '/js/vendor/farbtastic.js',
-                 #TODO update to 2.0
                  '/js/vendor/pnotify.custom.js',
                  '/js/vendor/pace.min.js',
                  '/js/vendor/chosen.jquery.min.js',
@@ -70,6 +66,8 @@ module NixonPi
 
       #prebuild true
     }
+
+    #set :assets_precompile, %w(app.js app.css *.png *.jpg *.svg *.eot *.ttf *.woff *.woff2)
 
 
     helpers Sinatra::FormHelpers
