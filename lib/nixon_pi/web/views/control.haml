@@ -27,7 +27,7 @@
 
     .tab-content
       #tube-value.tab-pane.active
-        %form.form-horizontal
+        %form#tube-value-form.form-horizontal
           .form-group
             %label.control-label.col-sm-2{for: 'value'} Value
             .col-sm-10
@@ -112,7 +112,7 @@
         %label.control-label.col-sm-2{for: 'lamps'} Lamps
         .col-sm-10
           - @no_of_lamps.times.with_index do |index|
-            %input.lamp{name: 'value', type: 'checkbox', data: {id: index}}
+            %input.lamp{id: "switch-lamp#{index}", name: 'value', type: 'checkbox', data: {id: index}}
 
 .row
   .col-md-3
@@ -132,9 +132,9 @@
           .form-group
             %label.control-label.col-sm-2{for: 'lamps'} Bars
             .col-sm-10
-              -@no_of_bars.times.with_index do |i|
+              -@no_of_bars.times.with_index do |index|
                 .bar-spacer
-                %input.bar{type: 'range', name: 'value', data: {id: i, slider_min: 0, slider_max: 255, slider_step: 1, slider_value: 0}}
+                %input.bar{id: "slider-bar#{index}", type: 'range', name: 'value', data: {id: index, slider_min: 0, slider_max: 255, slider_step: 1, slider_value: 0}}
 
       #bars-animation.tab-pane
         %form.form-horizontal

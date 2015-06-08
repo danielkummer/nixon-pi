@@ -43,7 +43,7 @@ module NixonPi
                  '/js/vendor/pace.min.js',
                  '/js/vendor/chosen.jquery.min.js',
                  '/bs/js/bootstrap.min.js',
-                 '/js/vendor/bootstrap-switch.min.js',
+                 '/js/vendor/bootstrap-switch.js',
                  '/js/vendor/bootstrap-slider.min.js',
                  '/js/application.js'
              ]
