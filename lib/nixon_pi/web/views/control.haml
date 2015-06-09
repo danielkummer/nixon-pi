@@ -125,11 +125,11 @@
             .form-group
               %label.control-label.col-sm-2{for: 'participants'} Participants
               .col-sm-10
-                %input.form-control{type: 'text', name: 'participants'}
+                %input.form-control{type: 'text', name: 'participants', value: '5'}
             .form-group
               %label.control-label.col-sm-2{for: 'rate'} Hourly rate
               .col-sm-10
-                %input.form-control{type: 'text', name: 'rate'}
+                %input.form-control{type: 'text', name: 'rate', value: '150'}
             .form-group
               .col-sm-offset-2.col-sm-10
                 %button.btn.btn-primary{type: 'submit', value: 'Send'} GO!
@@ -181,9 +181,9 @@
                 -@no_of_bars.times.with_index do |i|
                   %option{selected: '', value: "#{i}"}= "Bar #{i}"
           .form-group
-            %label.control-label.col-sm-2{for: 'lamps'} Animation
+            %label.control-label.col-sm-2{for: 'lamps'} Type
             .col-sm-10
-              %select.form-control{name: 'animation_name'} Type
+              %select.form-control{name: 'animation_name'}
                 %option{selected: 'selected', value: 'ramp_up_down'} ramp up down
           .form-group
             %label.control-label.col-sm-2{for: 'lamps'} Options (Hash)
