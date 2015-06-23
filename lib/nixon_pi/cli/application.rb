@@ -20,11 +20,13 @@ module NixonPi
       option :env, default: 'development', banner: '<environment>'
       option :m, type: :boolean, banner: 'Use telnet mock implementation', default: false, tags: :boolean
       option :p, type: :numeric, banner: 'Set webserver port', default: 8080
+      option :u, type: :numeric, banner: 'Set upd server port', default: 1234
       option :db, type: :string, banner: '<path>'
       desc 'service', 'starts the service'
       def service
         $environment = options[:env]
         $force_mock = true if options[:m]
+        $upd_port = options[:u]
 
         NixonPi::Settings.reload! # make sure we have the correct settings for the correct environment!
         NixonPi::Settings['database_path'] = options[:db] if options[:db]

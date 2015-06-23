@@ -8,9 +8,11 @@ module NixonPi
 
     def initialize
       @service = NixonPi::NixieService.new
+
     end
 
     def shutdown!
+      @udp_server.exit
       Thread.new do
         @service.shutdown
         log.info 'Shutdown complete - cya next time :)'
@@ -28,7 +30,13 @@ module NixonPi
         shutdown!
       end
 
+      log.info 'Starting udp server'
+      @udp_server = NixonPi::UDPPing.start_service_announcer($upd_port) do |client_msg, client_ip|
+        {client_ip: client_ip, ip_addresses: OSInfo.network }
+      end
+
       @service.run!
+      @udp_server.join
     end
   end
 end
