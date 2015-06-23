@@ -27,7 +27,8 @@
 
     .tab-content
       #tube-value.tab-pane.active
-        %form.form-horizontal
+        %form.tube-form.form-horizontal
+          %input{type: 'hidden', name: 'state', value: 'free_value'}
           .form-group
             %label.control-label.col-sm-2{for: 'value'} Value
             .col-sm-10
@@ -37,18 +38,39 @@
               %button.btn.btn-primary{type: 'submit', value: 'Send'} GO!
 
       #tube-time.tab-pane
-        %form.form-horizontal
-          .form-group
-            %label.control-label.col-sm-2{for: 'time_format'} Time format
-            .col-sm-10
-              %input.form-control{type: 'text', name: 'time_format', class: 'input-xlarge', value:'%H%M%S'}
-          .form-group
-            .col-sm-offset-2.col-sm-10
-              %button.btn.btn-primary{type: 'submit', value: 'Send'} GO!
-
+        .col-sm-6
+          %form.tube-form.form-horizontal
+            %input{type: 'hidden', name: 'state', value: 'time'}
+            .form-group
+              %label.control-label.col-sm-2{for: 'time_format'} Time format
+              .col-sm-10
+                %input.form-control{type: 'text', name: 'time_format', class: 'input-xlarge', value:'%H%M%S'}
+            .form-group
+              .col-sm-offset-2.col-sm-10
+                %button.btn.btn-primary{type: 'submit', value: 'Send'} GO!
+        .col-sm-6
+          %h3 Time format examples
+          %list-unstyled
+            %li &#37;Y - Year with century if provided, will pad result at least 4 digits.
+            %li &#37;C - year / 100 (rounded down such as 20 in 2009)
+            %li &#37;y - year &#37; 100 (00..99)
+            %li &#37;m - Month of the year, zero-padded (01..12)
+            %li &#37;_m  blank-padded ( 1..12)
+            %li &#37;-m  no-padded (1..12)
+            %li &#37;d - Day of the month, zero-padded (01..31)
+            %li &#37;-d  no-padded (1..31)
+            %li &#37;e - Day of the month, blank-padded ( 1..31)
+            %li &#37;j - Day of the year (001..366)
+            %li &#37;H - Hour of the day, 24-hour clock, zero-padded (00..23)
+            %li &#37;k - Hour of the day, 24-hour clock, blank-padded ( 0..23)
+            %li &#37;I - Hour of the day, 12-hour clock, zero-padded (01..12)
+            %li &#37;l - Hour of the day, 12-hour clock, blank-padded ( 1..12)
+            %li &#37;M - Minute of the hour (00..59)
+            %li &#37;S - Second of the minute (00..60)
       #tube-countdown.tab-pane
         .col-sm-6
-          %form.form-horizontal
+          %form.tube-form.form-horizontal
+            %input{type: 'hidden', name: 'state', value: 'countdown'}
             .form-group
               %label.control-label.col-sm-2{for: 'value'} Value
               .col-sm-6
@@ -72,34 +94,48 @@
             %li 3 weeks and 2 days
 
       #tube-animation.tab-pane
-        %form.form-horizontal
-          .form-group
-            %label.control-label.col-sm-2{for: 'animation'} Animation Name
-            .col-sm-10
-              %select#tube-animation.form-control{name: 'animation_name', data: {placeholder: 'Select animation'}}
-                %option{value: 'switch_numbers'} switch numbers
-                %option{value: 'single_fly_in'} fly in
-          .form-group
-            %label.control-label.col-sm-2{for: 'options'} Options JSON
-            .col-sm-10
-              %textarea#tube-animation-options{name: 'options', rows: '10', class:'input-xlarge'}
-          .form-group
-            .col-sm-offset-2.col-sm-10
-              %button.btn.btn-primary{type: 'submit', value: 'Send'} GO!
+        .col-sm-6
+          %form.tube-form.form-horizontal
+            %input{type: 'hidden', name: 'state', value: 'animation'}
+            .form-group
+              %label.control-label.col-sm-2{for: 'animation'} Type
+              .col-sm-10
+                %select#tube-animation-select.form-control{name: 'animation_name', data: {placeholder: 'Select animation'}}
+                  %option
+                  %option{value: 'switch_numbers'} switch numbers
+                  %option{value: 'single_fly_in'} fly in
+            .form-group
+              %label.control-label.col-sm-2{for: 'options'} Options JSON
+              .col-sm-10
+                %textarea#tube-animation-options.form-control{name: 'options', rows: '10', columns: '250'}
+            .form-group
+              .col-sm-offset-2.col-sm-10
+                %button.btn.btn-primary{type: 'submit', value: 'Send'} GO!
+        .col-sm-6
+          %h3 Animation Hash
+          %p Every animation hash needs to include at least the following entries
+          %list-unstyled
+            %li start_value - The initial value of the animation
+            %li goto_target - The target of the goto command - this is usually the current target, in this case "tubes"
+            %li goto_state - The state to go to when the animation is finished
 
       #tube-meeting.tab-pane
-        %form.form-horizontal
-          .form-group
-            %label.control-label.col-sm-2{for: 'participants'} Participants
-            .col-sm-10
-              %input.form-control{type: 'text', name: 'participants'}
-          .form-group
-            %label.control-label.col-sm-2{for: 'rate'} Hourly rate
-            .col-sm-10
-              %input.form-control{type: 'text', name: 'rate'}
-          .form-group
-            .col-sm-offset-2.col-sm-10
-              %button.btn.btn-primary{type: 'submit', value: 'Send'} GO!
+        .col-sm-6
+          %form.tube-form.form-horizontal
+            .form-group
+              %label.control-label.col-sm-2{for: 'participants'} Participants
+              .col-sm-10
+                %input.form-control{type: 'text', name: 'participants', value: '5'}
+            .form-group
+              %label.control-label.col-sm-2{for: 'rate'} Hourly rate
+              .col-sm-10
+                %input.form-control{type: 'text', name: 'rate', value: '150'}
+            .form-group
+              .col-sm-offset-2.col-sm-10
+                %button.btn.btn-primary{type: 'submit', value: 'Send'} GO!
+        .col-sm-6
+          %h3 Howto use
+          %p Enter the number of participants and the average hourly rate, the clock will display the money burnt.
 
 .row
   .col-md-3
@@ -112,7 +148,7 @@
         %label.control-label.col-sm-2{for: 'lamps'} Lamps
         .col-sm-10
           - @no_of_lamps.times.with_index do |index|
-            %input.lamp{name: 'value', type: 'checkbox', data: {id: index}}
+            %input.lamp{id: "switch-lamp#{index}", name: 'value', type: 'checkbox', data: {id: index}}
 
 .row
   .col-md-3
@@ -132,9 +168,9 @@
           .form-group
             %label.control-label.col-sm-2{for: 'lamps'} Bars
             .col-sm-10
-              -@no_of_bars.times.with_index do |i|
+              -@no_of_bars.times.with_index do |index|
                 .bar-spacer
-                %input.bar{type: 'range', name: 'value', data: {id: i, slider_min: 0, slider_max: 255, slider_step: 1, slider_value: 0}}
+                %input.bar{id: "slider-bar#{index}", type: 'range', name: 'value', data: {id: index, slider_min: 0, slider_max: 255, slider_step: 1, slider_value: 0}}
 
       #bars-animation.tab-pane
         %form.form-horizontal
@@ -145,7 +181,7 @@
                 -@no_of_bars.times.with_index do |i|
                   %option{selected: '', value: "#{i}"}= "Bar #{i}"
           .form-group
-            %label.control-label.col-sm-2{for: 'lamps'} Animation
+            %label.control-label.col-sm-2{for: 'lamps'} Type
             .col-sm-10
               %select.form-control{name: 'animation_name'}
                 %option{selected: 'selected', value: 'ramp_up_down'} ramp up down

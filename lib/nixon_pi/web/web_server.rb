@@ -38,12 +38,13 @@ module NixonPi
       js :app, '/js/app.js', [
                  '/js/vendor/jquery-2.1.4.min.js',
                  '/js/vendor/jquery-cron-min.js',
+                 '/js/vendor/jquery.serializejson.min.js',
                  '/js/vendor/farbtastic.js',
                  '/js/vendor/pnotify.custom.js',
                  '/js/vendor/pace.min.js',
                  '/js/vendor/chosen.jquery.min.js',
                  '/bs/js/bootstrap.min.js',
-                 '/js/vendor/bootstrap-switch.min.js',
+                 '/js/vendor/bootstrap-switch.js',
                  '/js/vendor/bootstrap-slider.min.js',
                  '/js/application.js'
              ]
