@@ -12,7 +12,7 @@ module NixonPi
       def client
         @client ||= begin
           begin
-            conn = Bunny.new(read_timeout: 2, heartbeat: 2)
+            conn = Bunny.new(read_timeout: 5, heartbeat: 10)
             @client = conn.start
           rescue Bunny::TCPConnectionFailed => e
             log.error "Failed to connect to RabbitMQ: #{e.message}"

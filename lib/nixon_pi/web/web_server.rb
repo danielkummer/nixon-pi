@@ -76,10 +76,13 @@ module NixonPi
 
     use Rack::MethodOverride
 
+    #TODO use JSON body in services: payload = JSON.parse(request.body.read)
+
+
     set :database, adapter: 'sqlite3', database: Settings.full_database_path
     set :public_folder, File.join(File.dirname(__FILE__), 'public')
     set :haml, format: :html5
-    set :bind, 'localhost'
+    set :bind, '0.0.0.0'
 
     #Only process one request at a time
     #We need this, else rabbitmq doesn't work correctly, more specific the rpc call with InformationSender
@@ -417,11 +420,10 @@ module NixonPi
       case data[:target].to_sym
         when :tubes
           data[:value] = data[:value].to_s.rjust(12, ' ') unless data[:value].nil?
-          data[:value] = data[:time_format] if data[:state].to_sym == :time
+          data[:value] = data[:time_format] if !data[:state].nil? && data[:state].to_sym == :time
           data.delete(:time_format)
         else
           data.delete(:id) # not intended for ar - use
-
       end
       command = nil
       #TODO : the initial code is broken!

@@ -31,8 +31,11 @@ module NixonPi
       end
 
       log.info 'Starting udp server'
-      @udp_server = NixonPi::UDPPing.start_service_announcer($upd_port) do |client_msg, client_ip|
-        {client_ip: client_ip, ip_addresses: OSInfo.network }
+      @udp_server = NixonPi::UDPPing.start_service_announcer($upd_port) do |cmd, client_ip|
+        if cmd == 'discover'
+          #TODO i need to get the port dynamically, but it's only available from the web service...
+          {client_ip: client_ip, port: 8080, ip_addresses: OSInfo.network }
+        end
       end
 
       @service.run!

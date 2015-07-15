@@ -13,27 +13,34 @@ module NixonPi
     end
 
     def self.start_service_announcer(server_udp_port, &code)
-
       Thread.fork do
         s = UDPSocket.new
         s.bind('0.0.0.0', server_udp_port)
 
         loop do
           body, sender = s.recvfrom(1024)
-          data = JSON.parse(body)
+
+          begin
+
+            data = JSON.parse(body) # example data{ cmd:"discover", application:"nixonpi" }
 
 
-          client_ip = sender[3]
-          client_port = data['reply_port']
-          response = code.call(data['content'], client_ip)
+            client_ip = sender[3]
+            client_port = data['reply_port']
+            response = code.call(data['cmd'], client_ip)
 
-          if response
-            begin
-              answer_client(client_ip, client_port, response)
-            rescue
-              # Make sure thread does not crash
+            if response
+              begin
+                answer_client(client_ip, client_port, response)
+              rescue
+                # Make sure thread does not crash
+              end
             end
+          rescue JSON::ParserError => e
+            #TODO log error
           end
+
+
         end
       end
     end
